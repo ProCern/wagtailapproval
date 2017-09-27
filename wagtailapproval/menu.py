@@ -2,6 +2,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
 from wagtail.wagtailadmin.menu import MenuItem
 
+
 class ApprovalMenuItem(MenuItem):
     def __init__(self,
         label=_('Approval'), url=reverse_lazy('wagtailapproval:list'),

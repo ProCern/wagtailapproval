@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 
+from os import path
+
 from setuptools import find_packages, setup
 
-from os import path
+from wagtailapproval import (__author__, __description__, __email__,
+                             __license__, __modulename__, __version__,
+                             __website__)
 
 with open(path.join(path.dirname(__file__), 'README.rst'), 'r') as file:
     readme = file.read()
 
-from wagtailapproval import __author__, __description__, __email__, __license__, __modulename__, __version__, __website__
 classifiers = (
     ('Development Status', '1 - Planning'),
     ('Environment', 'Web Environment'),
@@ -35,6 +38,7 @@ setup(
     packages=find_packages(exclude=['tests*']),
     install_requires=[
         'wagtail>=1.5',
+        'enum34;python_version<"3.4"',
         ],
     classifiers=[' :: '.join(classifier) for classifier in classifiers],
 )

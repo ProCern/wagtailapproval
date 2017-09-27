@@ -4,6 +4,7 @@ from wagtail.wagtailcore import hooks
 from . import urls
 from .menu import ApprovalMenuItem
 
+
 @hooks.register('register_admin_urls')
 def register_admin_urls():
     return [
@@ -13,4 +14,3 @@ def register_admin_urls():
 @hooks.register('construct_main_menu')
 def construct_main_menu(request, menu_items):
     menu_items.append(ApprovalMenuItem())
-
