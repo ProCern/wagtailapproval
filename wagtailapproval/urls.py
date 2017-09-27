@@ -1,8 +1,8 @@
 from django.conf.urls import url
 
-from .views import list_approvals
+from .views import index
 
 app_name = 'wagtailapproval'
 urlpatterns = [
-    url(r'^$', list_approvals, name='list'),
+    url(r'^$', index, name='index'),
     ]

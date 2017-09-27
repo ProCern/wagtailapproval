@@ -5,7 +5,7 @@ from wagtail.wagtailadmin.menu import MenuItem
 
 class ApprovalMenuItem(MenuItem):
     def __init__(self,
-        label=_('Approval'), url=reverse_lazy('wagtailapproval:list'),
+        label=_('Approval'), url=reverse_lazy('wagtailapproval:index'),
         classnames='icon icon-tick-inverse', order=250, **kwargs):
         super().__init__(label, url, classnames=classnames, order=order, **kwargs)
 

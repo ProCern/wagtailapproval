@@ -47,8 +47,8 @@ class Step(Page):
     :vartype private_to_group: bool
     '''
 
-    approve_step = models.ForeignKey('self',
-        help_text=_("The step that ownership is given to on approval")
+    approval_step = models.ForeignKey('self',
+        help_text=_("The step that ownership is given to on approval"),
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -56,24 +56,24 @@ class Step(Page):
         related_name='+')
 
     rejection_step = models.ForeignKey('self',
-        help_text=_("The step that ownership is given to on rejection")
+        help_text=_("The step that ownership is given to on rejection"),
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         default=None,
         related_name='+')
 
-    group = ForeignKey(Group,
+    group = models.ForeignKey(Group,
         help_text=_("The group that permissions are modified for on entering "
             "or leaving this step. This should apply for pages as well as "
             "collections.  For all intents and purposes, users in this group "
             "are owned by this step, and everything they do is subject to the "
-            "approval pipeline.")
+            "approval pipeline."),
         null=True,
         blank=True,
         default=None,
-        help_text=_('Groups that child pages will be owned by; '
-            'these are removed upon moving pages to a new step'))
+        related_name='+',
+        )
 
     content_panels = Page.content_panels + [
         FieldPanel('approval_step'),
