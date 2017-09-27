@@ -4,9 +4,10 @@ from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+
 from modelcluster.fields import ParentalKey
-from wagtail.wagtailadmin.edit_handlers import FieldPanel
-from wagtail.wagtailcore.models import Page
+from wagtail.wagtailadmin.edit_handlers import MultiFieldPanel, FieldPanel
+from wagtail.wagtailcore.models import Page, Collection
 
 from .forms import StepForm
 
@@ -31,25 +32,13 @@ class ApprovalPipeline(Page):
         verbose_name = _('approval pipeline')
         verbose_name_plural = _('approval pipelines')
 
-class Step(Page):
+class ApprovalStep(Page):
     '''Holds posts and facilitates the automatic moving to other steps in the
-    same pipeline on approval and rejection.  This type is an "abstract" type
-    that may not be created directly in wagtail.  All functionality for this
-    class comes from subclassing it.
-    
-    :var can_edit: Whether or not owned objects can be edited.  This may be
-        False for most non-edit steps, such as Approval, Published, or
-        automatic Approval steps
-    :vartype can_edit: bool
-    :var can_delete: Whether or not owned objects can be deleted.
-    :vartype can_delete: bool
-    :var private_to_group: Whether the object is made private to its group.
-        This is done for most steps, and should typically only be disabled for
-        a published step.
-    :vartype private_to_group: bool
+    same pipeline on approval and rejection.
     '''
 
     approval_step = models.ForeignKey('self',
+        verbose_name=_('approval step'),
         help_text=_("The step that ownership is given to on approval"),
         on_delete=models.SET_NULL,
         null=True,
@@ -58,6 +47,7 @@ class Step(Page):
         related_name='+')
 
     rejection_step = models.ForeignKey('self',
+        verbose_name=_('rejection step'),
         help_text=_("The step that ownership is given to on rejection"),
         on_delete=models.SET_NULL,
         null=True,
@@ -65,7 +55,8 @@ class Step(Page):
         default=None,
         related_name='+')
 
-    group = models.ForeignKey(Group,
+    owned_group = models.ForeignKey(Group,
+        verbose_name=_('owned group'),
         help_text=_("The group that permissions are modified for on entering "
             "or leaving this step. This should apply for pages as well as "
             "collections.  For all intents and purposes, users in this group "
@@ -78,24 +69,52 @@ class Step(Page):
         related_name='+',
         )
 
+    owned_collection = models.ForeignKey(Collection,
+        verbose_name=_('owned collection'),
+        help_text=_("The collection that collection member objects are assigned to."),
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        default=None,
+        related_name='+',
+        )
+
+    can_delete = models.BooleanField(
+        verbose_name=_('can delete owned objects'),
+        help_text=_("Whether or not owned objects can be deleted"),
+        default=False)
+    can_edit = models.BooleanField(
+        verbose_name=_('can edit owned objects'),
+        help_text=_("Whether or not owned objects can be edited.  This may be "
+            "False for most non-edit steps, such as Approval, Published, or "
+            "automatic Approval steps"),
+        default=False)
+    private_to_group = models.BooleanField(
+        verbose_name=_('make owned objects private to group'),
+        help_text=_("Whether the object is made private to its group.  This "
+            "is done for most steps, and should typically only be disabled for "
+            "a published step."),
+        default=True)
+
     content_panels = Page.content_panels + [
-        FieldPanel('approval_step'),
-        FieldPanel('rejection_step'),
-        FieldPanel('group'),
+        MultiFieldPanel([
+                FieldPanel('approval_step'),
+                FieldPanel('rejection_step'),
+            ],
+            heading=_("Connected Steps"),
+            ),
+        MultiFieldPanel([
+                FieldPanel('can_delete'),
+                FieldPanel('can_edit'),
+                FieldPanel('private_to_group'),
+            ],
+            heading=_("Owned Restrictions"),
+            ),
     ]
 
     parent_page_types = [ApprovalPipeline]
 
-    # Step is an abstract base class; what it does should change based on who
-    # inherits it. It can not be an abstract base model, because ForeignKey
-    # will break otherwise.
-    is_creatable = False
-
     base_form_class = StepForm
-
-    can_delete = False
-    can_edit = False
-    private_to_group = True
 
     def clean(self):
         approval = self.approval_step

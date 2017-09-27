@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+default_app_config = 'wagtailapproval.apps.WagtailApprovalConfig'
+
 __author__ = 'Taylor C. Richberger <tcr@absolute-performance.com>'
 __description__ = 'Wagtail Approval pipeline'
 __email__ = 'tcr@absolute-performance.com'
