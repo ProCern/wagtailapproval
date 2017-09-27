@@ -69,6 +69,7 @@ class Step(Page):
             "collections.  For all intents and purposes, users in this group "
             "are owned by this step, and everything they do is subject to the "
             "approval pipeline."),
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
         default=None,

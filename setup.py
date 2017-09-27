@@ -36,6 +36,9 @@ setup(
     url=__website__,
     license=__license__,
     packages=find_packages(exclude=['tests*']),
+    package_data={
+        'wagtailapproval': ['templates/**/*'],
+        },
     install_requires=[
         'wagtail>=1.5',
         'enum34;python_version<"3.4"',
