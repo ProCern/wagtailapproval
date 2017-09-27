@@ -8,20 +8,20 @@
 <header class="nice-padding merged">
   <div class="row row-flush">
     <div class="left">
-      <h1 class="col icon icon-grip">{% blocktrans %}Approval{% endblocktrans %}</h1>
+      <h1 class="col icon icon-tick-inverse">{% trans "Approval" %}</h1>
       <form class="col search-form" action="" method="GET">
         <ul class="fields">
           <li class="required">
             <div class="field char_field text_input field-small iconfield">
               <label for="id_q">
-                Search
+                {% trans "Search approvals" %}
               </label>
               <div class="field-content">
                 <div class="input icon-search">
                   <input id="id_q"
                          name="q"
                          value="{{ request.GET.q }}"
-                         placeholder="Search"
+                         placeholder="{% trans "Search approvals" %}"
                          type="text" />
                   <span></span>
                 </div>
@@ -33,4 +33,10 @@
     </div>
   </div>
 </header>
+
+{% if approval_list %}
+{% include "wagtailapproval/list.html" %}
+{% else %}
+<div class="nice-padding">{% trans "There is nothing for you to approve!" %}</div>
+{% endif %}
 {% endblock %}

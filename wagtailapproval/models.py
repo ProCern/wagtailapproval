@@ -41,6 +41,8 @@ class Step(Page):
         False for most non-edit steps, such as Approval, Published, or
         automatic Approval steps
     :vartype can_edit: bool
+    :var can_delete: Whether or not owned objects can be deleted.
+    :vartype can_delete: bool
     :var private_to_group: Whether the object is made private to its group.
         This is done for most steps, and should typically only be disabled for
         a published step.
@@ -91,6 +93,7 @@ class Step(Page):
 
     base_form_class = StepForm
 
+    can_delete = False
     can_edit = False
     private_to_group = True
 

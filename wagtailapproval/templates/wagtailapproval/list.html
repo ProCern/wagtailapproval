@@ -1,0 +1,37 @@
+{% load i18n %}
+{% load wagtailnews_admin_tags %}
+
+<table class="listing full-width">
+  <colgroup>
+    <thead>
+      <tr class="table-headers">
+        <th class="title">Title</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in approval_list %}
+      <tr>
+        <td class="title">
+          <h2>
+            {% if item.approval_step.can_edit %}
+            <a href="/editthisitem">
+              {{ item.title }}
+            </a>
+            {% else %}
+            {{ item.title }}
+            {% endif %}
+          </h2>
+          <ul class="actions">
+            {% if item.approval_step.can_edit %}
+            <li><a href="#" class="button button-small">{% trans 'Edit' %}</a></li>
+            {% endif %}
+            <li><a href="#" class="button button-small button-secondary">{% trans 'View' %}</a></li>
+            {% if item.approval_step.can_delete %}
+            <li><a href="#" class="button button-small button-secondary no">{% trans 'Delete' %}</a></li>
+            {% endif %}
+          </ul>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+</table>
