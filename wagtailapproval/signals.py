@@ -3,7 +3,7 @@ from django.contrib.auth.models import Group, Permission
 from django.dispatch import Signal
 
 from wagtail.wagtailcore.signals import page_published, page_unpublished
-from wagtail.wagtailcore.models import Collection
+from wagtail.wagtailcore.models import Collection, GroupCollectionPermission
 
 from .models import ApprovalStep
 
@@ -53,3 +53,14 @@ def setup_group_and_collection(sender, **kwargs):
 
     if step_changed:
         step.save()
+
+    # Setup document and image collection permissions
+    imgperm = Permission.objects.get(codename='change_image')
+    docperm = Permission.objects.get(codename='change_document')
+
+    if step.can_edit:
+        GroupCollectionPermission.objects.get_or_create(group=group, collection=collection, permission=imgperm)
+        GroupCollectionPermission.objects.get_or_create(group=group, collection=collection, permission=docperm)
+    else:
+        GroupCollectionPermission.objects.filter(group=group, collection=collection, permission=imgperm).delete()
+        GroupCollectionPermission.objects.filter(group=group, collection=collection, permission=docperm).delete()
