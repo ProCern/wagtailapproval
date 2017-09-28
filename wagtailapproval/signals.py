@@ -18,7 +18,7 @@ def publish_step_child(sender, **kwargs):
 
 @receiver(step_published)
 def setup_group_and_collection(sender, **kwargs):
-    '''Create or rename step group'''
+    '''Create or rename the step's owned groups and collections'''
     step = kwargs['step']
     pipeline = kwargs['pipeline']
     max_length = Group._meta.get_field('name').max_length
@@ -42,7 +42,8 @@ def setup_group_and_collection(sender, **kwargs):
     collection = step.owned_collection
 
     if not collection:
-        collection = Collection.objects.create(name=name) 
+        root_collection = Collection.get_first_root_node()
+        collection = root_collection.add_child(name=name) 
         step.owned_collection = collection
         step_changed = True
 

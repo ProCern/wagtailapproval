@@ -11,20 +11,43 @@ from wagtailapproval import (__author__, __description__, __email__,
 with open(path.join(path.dirname(__file__), 'README.rst'), 'r') as file:
     readme = file.read()
 
-classifiers = (
-    ('Development Status', '1 - Planning'),
-    ('Environment', 'Web Environment'),
-    ('Framework', 'Django'),
-    ('Intended Audience', 'Developers'),
-    ('License', 'OSI Approved', 'BSD License'),
-    ('Operating System', 'OS Independent'),
-    ('Programming Language', 'Python'),
-    ('Programming Language', 'Python', '3'),
-    ('Programming Language', 'Python', '3.5'),
-    ('Programming Language', 'Python', 'Implementation', 'CPython'),
-    ('Topic', 'Software Development', 'Libraries'),
-    ('Topic', 'Software Development', 'Libraries', 'Python Modules'),
-    )
+def build_classifiers(classifiers):
+    '''Build classifiers from a classifier set'''
+    def join(key, value):
+        if value:
+            return ' :: '.join((key, value))
+        else:
+            return key
+
+    if isinstance(classifiers, str):
+        yield classifiers
+
+    elif isinstance(classifiers, dict):
+        for key, value in classifiers.items():
+            yield from (join(key, tail) for tail in build_classifiers(value))
+
+    elif isinstance(classifiers, list):
+        for item in classifiers:
+            yield from build_classifiers(item)
+
+
+classifiers = [classifier for classifier in build_classifiers(
+    {
+        'Development Status': '2 - Pre-Alpha',
+        'Environment': 'Web Environment',
+        'Framework': 'Django',
+        'Intended Audience': 'Developers',
+        'License': {'OSI Approved': 'BSD License'},
+        'Operating System': 'OS Independent',
+        'Programming Language': {
+            'Python': ['', '3', '3.5', {'Implementation': 'CPython'}]
+            },
+        'Topic': {
+            'Software Development': {'Libraries': ['', 'Python Modules']}
+            }
+        }
+    )]
+print(classifiers)
 
 setup(
     name=__modulename__,
@@ -41,7 +64,6 @@ setup(
         },
     install_requires=[
         'wagtail>=1.5',
-        'enum34;python_version<"3.4"',
         ],
-    classifiers=[' :: '.join(classifier) for classifier in classifiers],
+    classifiers=classifiers,
 )

@@ -1,5 +1,3 @@
-from enum import Enum
-
 from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -10,14 +8,6 @@ from wagtail.wagtailadmin.edit_handlers import MultiFieldPanel, FieldPanel
 from wagtail.wagtailcore.models import Page, Collection
 
 from .forms import StepForm
-
-class Approval(Enum):
-    APPROVE = object()
-    REJECT = object()
-    DO_NOTHING = object()
-
-    def __repr__(self):
-        return '<{}.{}>'.format(self.__class__.__name__, self.name)
 
 class ApprovalPipeline(Page):
     '''This page type is a very simple page that is only used to hold steps'''
@@ -61,7 +51,7 @@ class ApprovalStep(Page):
             "or leaving this step. This should apply for pages as well as "
             "collections.  For all intents and purposes, users in this group "
             "are owned by this step, and everything they do is subject to the "
-            "approval pipeline."),
+            "approval pipeline.  This step is the strict owner of this group."),
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -71,7 +61,8 @@ class ApprovalStep(Page):
 
     owned_collection = models.ForeignKey(Collection,
         verbose_name=_('owned collection'),
-        help_text=_("The collection that collection member objects are assigned to."),
+        help_text=_("The collection that collection member objects are "
+            "assigned to.  This step is the strict owner of this collection"),
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -133,9 +124,5 @@ class ApprovalStep(Page):
         '''Release ownership of an object.'''
 
     def automatic_approval(self, obj):
-        '''Possibly runs processing on an object for automatic approval or rejection
-
-        :rtype: Approval
-        :returns: What to do with the referenced object
-        '''
-        return Approval.DO_NOTHING
+        '''Possibly runs processing on an object for automatic approval or
+        rejection'''
