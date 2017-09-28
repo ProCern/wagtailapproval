@@ -11,6 +11,6 @@ def register_admin_urls():
         url(r'^approval/', include(urls)),
         ]
 
-@hooks.register('construct_main_menu')
-def construct_main_menu(request, menu_items):
-    menu_items.append(ApprovalMenuItem())
+@hooks.register('register_admin_menu_item')
+def register_admin_menu_item():
+    return ApprovalMenuItem()
