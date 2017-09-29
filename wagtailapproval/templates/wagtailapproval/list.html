@@ -6,6 +6,7 @@
     <thead>
       <tr class="table-headers">
         <th class="title">Title</th>
+        <th class="type">Type</th>
       </tr>
     </thead>
     <tbody>
@@ -13,8 +14,8 @@
       <tr>
         <td class="title">
           <h2>
-            {% if item.approval_step.can_edit %}
-            <a href="/editthisitem">
+            {% if item.step.can_edit %}
+            <a href="{{ item.edit_url }}">
               {{ item.title }}
             </a>
             {% else %}
@@ -22,14 +23,17 @@
             {% endif %}
           </h2>
           <ul class="actions">
-            {% if item.approval_step.can_edit %}
-            <li><a href="#" class="button button-small">{% trans 'Edit' %}</a></li>
+            {% if item.step.can_edit %}
+            <li><a href="{{ item.edit_url }}" class="button button-small">{% trans 'Edit' %}</a></li>
             {% endif %}
-            <li><a href="#" class="button button-small button-secondary">{% trans 'View' %}</a></li>
-            {% if item.approval_step.can_delete %}
-            <li><a href="#" class="button button-small button-secondary no">{% trans 'Delete' %}</a></li>
+            <li><a href="{{ item.view_url }}" class="button button-small button-secondary">{% trans 'View' %}</a></li>
+            {% if item.step.can_delete %}
+            <li><a href="{{ item.delete_url }}" class="button button-small button-secondary no">{% trans 'Delete' %}</a></li>
             {% endif %}
           </ul>
+        </td>
+        <td class="type" valign="top">
+          {{ item.type }}
         </td>
       </tr>
       {% endfor %}
