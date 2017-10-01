@@ -1,0 +1,24 @@
+{% extends "wagtailadmin/base.html" %}
+{% load i18n %}
+{% block titletag %}{% blocktrans with item=item %}Reject {{ item }}{% endblocktrans %}{% endblock %}
+{% block bodyclass %}menu-news{% endblock %}
+{% block content %}
+
+{% blocktrans asvar title_str %}Reject{% endblocktrans %}
+{% include "wagtailadmin/shared/header.html" with title=title_str subtitle=item icon="cross" %}
+
+<div class="row row-flush nice-padding">
+  <form action="{% url 'wagtailapproval:reject' pk=ticket.pk|stringformat:'s' %}" method="POST">
+    {% csrf_token %}
+    <p>{% blocktrans %}Are you sure you want to reject this item?{% endblocktrans %}</p>
+    <input class="button no" type="submit" value="{% trans 'Yes, I reject it' %}">
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+{% include "wagtailadmin/pages/_editor_css.html" %}
+{% endblock %}
+{% block extra_js %}
+{% include "wagtailadmin/pages/_editor_js.html" %}
+{% endblock %}

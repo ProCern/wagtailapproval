@@ -1,5 +1,6 @@
 from django.conf.urls import include, url
 from wagtail.wagtailcore import hooks
+from wagtail.wagtailcore.models import Page
 
 from . import urls
 from .menu import ApprovalMenuItem
@@ -24,5 +25,7 @@ def take_ownership_if_necessary(request, page):
     for step in ApprovalStep.objects.all():
         group = step.owned_group
         if group in user.groups.all():
-            step.take_ownership(page)
+            # We do this to enforce that ApprovalTickets only grab the base
+            # Page object, not the subclass
+            step.take_ownership(Page.objects.get(pk=page.pk))
             step.save()

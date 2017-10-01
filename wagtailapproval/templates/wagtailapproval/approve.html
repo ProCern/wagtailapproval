@@ -1,0 +1,24 @@
+{% extends "wagtailadmin/base.html" %}
+{% load i18n %}
+{% block titletag %}{% blocktrans with item=item %}Approve {{ item }}{% endblocktrans %}{% endblock %}
+{% block bodyclass %}menu-news{% endblock %}
+{% block content %}
+
+{% blocktrans asvar title_str %}Approve{% endblocktrans %}
+{% include "wagtailadmin/shared/header.html" with title=title_str subtitle=item icon="tick" %}
+
+<div class="row row-flush nice-padding">
+  <form action="{% url 'wagtailapproval:approve' pk=ticket.pk|stringformat:'s' %}" method="POST">
+    {% csrf_token %}
+    <p>{% blocktrans %}Are you sure you want to approve of this item?{% endblocktrans %}</p>
+    <input class="button" type="submit" value="{% trans 'Yes, I approve' %}">
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+{% include "wagtailadmin/pages/_editor_css.html" %}
+{% endblock %}
+{% block extra_js %}
+{% include "wagtailadmin/pages/_editor_js.html" %}
+{% endblock %}

@@ -7,6 +7,8 @@
       <tr class="table-headers">
         <th class="title">Title</th>
         <th class="type">Type</th>
+        <th class="pipeline">Pipeline</th>
+        <th class="step">Step</th>
       </tr>
     </thead>
     <tbody>
@@ -30,10 +32,22 @@
             {% if item.step.can_delete %}
             <li><a href="{{ item.delete_url }}" class="button button-small button-secondary no">{% trans 'Delete' %}</a></li>
             {% endif %}
+            {% if item.step.approval_step %}
+            <li><a href="{% url 'wagtailapproval:approve' pk=item.uuid|stringformat:'s' %}" class="button button-small button-secondary yes">{% trans 'Approve' %}</a></li>
+            {% endif %}
+            {% if item.step.rejection_step %}
+            <li><a href="{% url 'wagtailapproval:reject' pk=item.uuid|stringformat:'s' %}" class="button button-small button-secondary no">{% trans 'Reject' %}</a></li>
+            {% endif %}
           </ul>
         </td>
         <td class="type" valign="top">
           {{ item.type }}
+        </td>
+        <td class="pipeline" valign="top">
+          {{ item.step.get_parent.specific }}
+        </td>
+        <td class="step" valign="top">
+          {{ item.step }}
         </td>
       </tr>
       {% endfor %}

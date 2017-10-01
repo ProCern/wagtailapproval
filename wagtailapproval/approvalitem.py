@@ -1,7 +1,7 @@
 class ApprovalItem:
     """An Approval menu item, used for building the munu list, including links and all."""
 
-    def __init__(self, title, view_url, edit_url, delete_url, obj, step, type):
+    def __init__(self, title, view_url, edit_url, delete_url, obj, step, type, uuid):
         """
         :param str title: TODO
         :param str view_url: TODO
@@ -10,6 +10,7 @@ class ApprovalItem:
         :param obj: TODO
         :param step: TODO
         :param type: TODO
+        :param uuid: TODO
         """
         self._title = title
         self._view_url = view_url
@@ -18,6 +19,7 @@ class ApprovalItem:
         self._obj = obj
         self._step = step
         self._type = type
+        self._uuid = uuid
 
     @property
     def title(self):
@@ -46,3 +48,7 @@ class ApprovalItem:
     @property
     def type(self):
         return self._type
+
+    @property
+    def uuid(self):
+        return self._uuid

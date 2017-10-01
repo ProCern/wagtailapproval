@@ -1,14 +1,15 @@
 from django.dispatch import receiver
 from django.contrib.auth.models import Group, Permission
 from django.core.urlresolvers import reverse
+from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import post_save
 
 from wagtail.wagtailcore.signals import page_published, page_unpublished
-from wagtail.wagtailcore.models import Collection, CollectionMember
+from wagtail.wagtailcore.models import Collection, CollectionMember, Page
 from wagtail.wagtailimages.models import Image
 from wagtail.wagtaildocs.models import Document
 
-from .models import ApprovalStep
+from .models import ApprovalStep, ApprovalTicket
 from .signals import step_published, build_approval_item_list
 from .approvalitem import ApprovalItem
 
@@ -82,37 +83,52 @@ def fix_restrictions(sender, **kwargs):
 @receiver(build_approval_item_list)
 def add_pages(sender, **kwargs):
     step = kwargs['approval_step']
-    return [ApprovalItem(
-            title=str(page.specific),
-            view_url=page.specific.url,
+    for ticket in ApprovalTicket.objects.filter(
+        step=step,
+        content_type=ContentType.objects.get_for_model(Page)):
+        page = ticket.item
+        specific = page.specific
+
+        yield ApprovalItem(
+            title=str(specific),
+            view_url=specific.url,
             edit_url=reverse('wagtailadmin_pages:edit', args=(page.id,)),
             delete_url=reverse('wagtailadmin_pages:delete', args=(page.id,)),
-            obj=page.specific,
+            obj=page,
             step=step,
-            type=type(page.specific).__name__) for page in step.owned_pages.all()]
+            type=type(specific).__name__,
+            uuid=ticket.pk)
 
 @receiver(build_approval_item_list)
 def add_images(sender, **kwargs):
     step = kwargs['approval_step']
-    images = Image.objects.filter(collection=step.owned_collection)
-    return [ApprovalItem(
+    for ticket in ApprovalTicket.objects.filter(
+        step=step,
+        content_type=ContentType.objects.get_for_model(Image)):
+        image = ticket.item
+        yield ApprovalItem(
             title=str(image),
             view_url=image.get_rendition('original').file.url,
             edit_url=reverse('wagtailimages:edit', args=(image.id,)),
             delete_url=reverse('wagtailimages:delete', args=(image.id,)),
             obj=image,
             step=step,
-            type=type(image).__name__) for image in images]
+            type=type(image).__name__,
+            uuid=ticket.pk)
 
 @receiver(build_approval_item_list)
 def add_document(sender, **kwargs):
     step = kwargs['approval_step']
-    documents = Document.objects.filter(collection=step.owned_collection)
-    return [ApprovalItem(
+    for document in ApprovalTicket.objects.filter(
+        step=step,
+        content_type=ContentType.objects.get_for_model(Document)):
+        document = ticket.item
+        yield ApprovalItem(
             title=str(document),
             view_url=document.url,
             edit_url=reverse('wagtaildocs:edit', args=(document.id,)),
             delete_url=reverse('wagtaildocs:delete', args=(document.id,)),
             obj=document,
             step=step,
-            type=type(document).__name__) for document in documents]
+            type=type(document).__name__,
+            uuid=ticket.pk)
