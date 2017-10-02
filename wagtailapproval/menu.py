@@ -1,19 +1,36 @@
-from django.core.urlresolvers import reverse_lazy
-from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth import get_user
+from django.core.urlresolvers import reverse, reverse_lazy
+from django.utils.translation import ugettext_lazy as _, ungettext_lazy as _n
+
 from wagtail.wagtailadmin.menu import MenuItem
+from wagtail.wagtailadmin import messages
 
 from .models import ApprovalStep
+from .approvalitem import get_user_approval_items
 
 class ApprovalMenuItem(MenuItem):
+    '''The menu item that shows in the wagtail sidebar'''
+
     def __init__(self,
         label=_('Approval'), url=reverse_lazy('wagtailapproval:index'),
         classnames='icon icon-tick-inverse', order=200, **kwargs):
         super().__init__(label, url, classnames=classnames, order=order, **kwargs)
 
     def is_shown(self, request):
-        user = request.user
-        user_groups = user.groups.all()
-        for step in ApprovalStep.objects.all():
-            if step.owned_group in user_groups:
-                return True
+        '''Only show the menu if the user is in an owned approval group'''
+        user = get_user(request)
+        groups = user.groups.all()
+        if ApprovalStep.objects.filter(group__in=groups).exists():
+            if request.path != reverse('wagtailapproval:index'):
+                # Get the count of waiting approvals
+                waiting_approvals = sum(1 for _ in get_user_approval_items(user))
+                if waiting_approvals > 0:
+                    messages.info(
+                        request,
+                        _n('{num:d} item waiting for approval', '{num:d} items waiting for approval', waiting_approvals).format(num=waiting_approvals),
+                        buttons=[
+                            messages.button(reverse('wagtailapproval:index'), _('Examine Now'))
+                            ]
+                        )
+            return True
         return False

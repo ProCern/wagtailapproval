@@ -3,6 +3,9 @@ from django.dispatch import Signal
 # Sent when a step is published
 step_published = Signal(providing_args=['instance'])
 
+# Sent when a pipeline is published
+pipeline_published = Signal(providing_args=['instance'])
+
 # Used when building the approval items.  Should return an iterable of
 # ApprovalItem instances.
 build_approval_item_list = Signal(providing_args=['approval_step', 'user'])

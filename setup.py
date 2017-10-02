@@ -58,7 +58,10 @@ setup(
     author_email=__email__,
     url=__website__,
     license=__license__,
-    packages=find_packages(exclude=['tests*']),
+    packages=[
+        'wagtailapproval',
+        'wagtailapproval.migrations',
+        ],
     package_data={
         'wagtailapproval': ['templates/**/*'],
         },

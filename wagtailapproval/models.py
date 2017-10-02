@@ -1,6 +1,8 @@
 import itertools
 import uuid
 
+from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -19,6 +21,17 @@ class ApprovalPipeline(Page):
     '''This page type is a very simple page that is only used to hold steps'''
 
     notes = models.TextField(blank=True)
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+        verbose_name=_('owned user'),
+        help_text=_("This is the user that is set to be the owner of all "
+            "pages that become owned by this pipeline."),
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        default=None,
+        related_name='+',
+        )
 
     content_panels = Page.content_panels + [
         FieldPanel('notes', classname="full")
@@ -51,7 +64,7 @@ class ApprovalStep(Page):
         default=None,
         related_name='+')
 
-    owned_group = models.ForeignKey(Group,
+    group = models.ForeignKey(Group,
         verbose_name=_('owned group'),
         help_text=_("The group that permissions are modified for on entering "
             "or leaving this step. This should apply for pages as well as "
@@ -65,7 +78,7 @@ class ApprovalStep(Page):
         related_name='+',
         )
 
-    owned_collection = models.ForeignKey(Collection,
+    collection = models.ForeignKey(Collection,
         verbose_name=_('owned collection'),
         help_text=_("The collection that collection member objects are "
             "assigned to.  This step is the strict owner of this collection"),
@@ -142,6 +155,10 @@ class ApprovalStep(Page):
     def transfer_ownership(self, obj, step):
         '''Give ownership to another step'''
 
+        if isinstance(obj, Page):
+            assert obj.live, _('Can not approve or reject a page that is not published')
+
+
         self.release_ownership(obj)
         step.take_ownership(obj)
         # Do this to fix permissions.  release_ownership releases its own
@@ -153,8 +170,8 @@ class ApprovalStep(Page):
         changing visibility and other such things.  This is idempotent.'''
 
         if not isinstance(obj, Page):
-            if obj.collection != self.owned_collection:
-                obj.collection = self.owned_collection
+            if obj.collection != self.collection:
+                obj.collection = self.collection
                 obj.save()
 
         ApprovalTicket.objects.get_or_create(
@@ -178,7 +195,7 @@ class ApprovalStep(Page):
 
     def set_page_group_privacy(self, page, private):
         '''Sets/unsets the page group privacy'''
-        group = self.owned_group
+        group = self.group
 
         if private:
             restriction, created = PageViewRestriction.objects.get_or_create(
@@ -195,7 +212,7 @@ class ApprovalStep(Page):
                     restriction.delete()
 
     def set_page_edit(self, page, edit):
-        group = self.owned_group
+        group = self.group
         '''Sets/unsets page edit permissinos'''
         if edit:
             GroupPagePermission.objects.get_or_create(group=group, page=page, permission_type='edit')
@@ -203,7 +220,7 @@ class ApprovalStep(Page):
             GroupPagePermission.objects.filter(group=group, page=page, permission_type='edit').delete()
 
     def set_page_delete(self, page, delete):
-        group = self.owned_group
+        group = self.group
         '''Sets/unsets page delete permissinos'''
         if delete:
             GroupPagePermission.objects.get_or_create(group=group, page=page, permission_type='delete')
@@ -212,8 +229,8 @@ class ApprovalStep(Page):
 
     def set_collection_group_privacy(self, private):
         '''Sets/unsets the collection group privacy'''
-        collection = self.owned_collection
-        group = self.owned_group
+        collection = self.collection
+        group = self.group
 
         if private:
             restriction, created = CollectionViewRestriction.objects.get_or_create(
@@ -231,8 +248,8 @@ class ApprovalStep(Page):
 
     def set_collection_edit(self, edit):
         '''Sets/unsets collection edit permissinos'''
-        collection = self.owned_collection
-        group = self.owned_group
+        collection = self.collection
+        group = self.group
 
         imgperm = Permission.objects.get(codename='change_image')
         docperm = Permission.objects.get(codename='change_document')
@@ -249,8 +266,8 @@ class ApprovalStep(Page):
         pages.  Does not perform a save, so it can be safely used in a
         post_save signal.'''
 
-        collection = self.owned_collection
-        group = self.owned_group
+        collection = self.collection
+        group = self.group
 
         if group:
             if collection:
@@ -269,8 +286,10 @@ class ApprovalStep(Page):
         '''Possibly runs processing on an object for automatic approval or
         rejection'''
 
-    def get_item_list(self, user):
-        '''Gets a full list of approval items, for rendering in templates.'''
+    def get_items(self, user):
+        '''Gets an iterator of approval items, for rendering in templates.  In
+        practice, this returns a generator.  If you need a stable view, use
+        this to construct a list or tuple.'''
 
         # All approval items are grabbed through signals.  This is technically
         # unnecessary, but it simplifies the logic a little bit and gives a
@@ -281,18 +300,23 @@ class ApprovalStep(Page):
             approval_step=self,
             user=user)
 
-        approval_items = list(itertools.chain.from_iterable(
-            response for receiver, response in lists))
+        try:
+            approval_items = itertools.chain.from_iterable(tuple(zip(*lists))[1])
+        except IndexError:
+            approvalItems = ()
 
         removal_lists = remove_approval_items.send(
             sender=ApprovalStep,
             approval_items=approval_items,
             user=user)
 
-        removal_items = list(itertools.chain.from_iterable(
-            response for receiver, response in removal_lists))
+        # Need a tuple so items can be removed individually
+        try:
+            removal_items = itertools.chain.from_iterable(tuple(zip(*removal_lists))[1])
+        except IndexError:
+            removal_items = ()
 
-        return [item for item in approval_items if item not in removal_items]
+        return (item for item in approval_items if item not in removal_items)
 
 class ApprovalTicket(models.Model):
     '''A special junction table to reference an arbitrary item by uuid.
@@ -307,7 +331,7 @@ class ApprovalTicket(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    step = models.ForeignKey(ApprovalStep, on_delete=models.CASCADE, related_name='approval_tickets')
+    step = models.ForeignKey(ApprovalStep, on_delete=models.CASCADE, related_name='+')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     item = GenericForeignKey('content_type', 'object_id')

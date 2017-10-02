@@ -1,16 +1,20 @@
+import itertools
+
+from .models import ApprovalStep
+
 class ApprovalItem:
     """An Approval menu item, used for building the munu list, including links and all."""
 
-    def __init__(self, title, view_url, edit_url, delete_url, obj, step, type, uuid):
+    def __init__(self, title, view_url, edit_url, delete_url, obj, step, typename, uuid):
         """
-        :param str title: TODO
-        :param str view_url: TODO
-        :param str edit_url: TODO
-        :param str delete_url: TODO
-        :param obj: TODO
-        :param step: TODO
-        :param type: TODO
-        :param uuid: TODO
+        :param str title: The title as displayed in the list
+        :param str view_url: The URL to view the item.
+        :param str edit_url: The URL to edit the item.
+        :param str delete_url: The URL to delete the item.
+        :param obj: The item itself.
+        :param wagtailapproval.models.ApprovalStep step: The step for this item.
+        :param str typename: The type name of the item.
+        :param uuid.UUID uuid: The UUID for this item, the pk for :class:`wagtailapproval.models.ApprovalTicket`
         """
         self._title = title
         self._view_url = view_url
@@ -18,7 +22,7 @@ class ApprovalItem:
         self._delete_url = delete_url
         self._obj = obj
         self._step = step
-        self._type = type
+        self._typename = typename
         self._uuid = uuid
 
     @property
@@ -46,9 +50,17 @@ class ApprovalItem:
         return self._step
 
     @property
-    def type(self):
-        return self._type
+    def typename(self):
+        return self._typename
 
     @property
     def uuid(self):
         return self._uuid
+
+def get_user_approval_items(user):
+    '''Get an iterable of all items pending for a user's approval.'''
+
+    groups = user.groups.all()
+    steps = ApprovalStep.objects.filter(group__in=groups)
+    return itertools.chain.from_iterable(
+        step.get_items(user) for step in steps)

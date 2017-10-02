@@ -1,31 +1,27 @@
-import itertools
-
+from django.contrib.auth import get_user
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext_lazy as _
 
 from wagtail.wagtailadmin import messages
 
-from .models import ApprovalStep, ApprovalTicket
+from .models import ApprovalTicket
+from .approvalitem import get_user_approval_items
 
 def index(request):
     '''Get all pending approvals that are relevant for the current user'''
-    user = request.user
-    user_groups = user.groups.all()
-    steps = (step for step in ApprovalStep.objects.all()
-        if step.owned_group in user_groups)
-    approval_list = list(itertools.chain.from_iterable(
-        step.get_item_list(user) for step in steps))
+    approval_items = get_user_approval_items(get_user(request))
+
     return render(request, 'wagtailapproval/index.html', {
-        'approval_list': approval_list})
+        'approval_list': approval_items})
 
 def check_permissions(function):
     def check_wrapper(request, pk):
-        user = request.user
+        user = get_user(request)
         ticket = get_object_or_404(ApprovalTicket, pk=pk)
         step = ticket.step
         item = ticket.item
-        if step.owned_group not in user.groups.all():
+        if step.group not in user.groups.all():
             raise PermissionDenied('User not in step group')
 
         return function(request, pk, ticket)

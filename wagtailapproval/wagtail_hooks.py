@@ -22,10 +22,8 @@ def take_ownership_if_necessary(request, page):
     '''Checks the request user and takes ownership of the page if it is created
     by an owned user'''
     user = request.user
-    for step in ApprovalStep.objects.all():
-        group = step.owned_group
-        if group in user.groups.all():
-            # We do this to enforce that ApprovalTickets only grab the base
-            # Page object, not the subclass
-            step.take_ownership(Page.objects.get(pk=page.pk))
-            step.save()
+    for step in ApprovalStep.objects.filter(group__in=user.groups.all()):
+        # We do this to enforce that ApprovalTickets only grab the base
+        # Page object, not the subclass
+        step.take_ownership(Page.objects.get(pk=page.pk))
+        step.save()
