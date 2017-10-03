@@ -35,7 +35,7 @@ def setup_pipeline_user(sender, **kwargs):
     User = get_user_model()
 
     username_max_length = User._meta.get_field('username').max_length
-    username = str(pipeline)[:group_max_length]
+    username = str(pipeline)[:username_max_length]
     user = pipeline.user
     if not user:
         user = User.objects.create(username=username) 
@@ -185,7 +185,7 @@ def add_images(sender, **kwargs):
 def add_document(sender, **kwargs):
     '''Builds the approval item list for documents'''
     step = kwargs['approval_step']
-    for document in ApprovalTicket.objects.filter(
+    for ticket in ApprovalTicket.objects.filter(
         step=step,
         content_type=ContentType.objects.get_for_model(Document)):
         document = ticket.item

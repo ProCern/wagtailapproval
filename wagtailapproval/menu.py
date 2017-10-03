@@ -21,7 +21,8 @@ class ApprovalMenuItem(MenuItem):
         user = get_user(request)
         groups = user.groups.all()
         if ApprovalStep.objects.filter(group__in=groups).exists():
-            if request.path != reverse('wagtailapproval:index'):
+            # Display the approval notification only outside of the approval paths
+            if not request.path.startswith(reverse('wagtailapproval:index')):
                 # Get the count of waiting approvals
                 waiting_approvals = sum(1 for _ in get_user_approval_items(user))
                 if waiting_approvals > 0:

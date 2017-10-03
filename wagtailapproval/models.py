@@ -169,7 +169,11 @@ class ApprovalStep(Page):
         '''Take ownership of an object.  Should run all relevant processing on
         changing visibility and other such things.  This is idempotent.'''
 
-        if not isinstance(obj, Page):
+        if isinstance(obj, Page):
+            pipeline = self.get_parent().specific
+            obj.owner = pipeline.user
+            obj.save()
+        else:
             if obj.collection != self.collection:
                 obj.collection = self.collection
                 obj.save()
