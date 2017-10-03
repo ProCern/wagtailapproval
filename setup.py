@@ -33,7 +33,7 @@ def build_classifiers(classifiers):
 
 classifiers = [classifier for classifier in build_classifiers(
     {
-        'Development Status': '3 - Alpha',
+        'Development Status': '4 - Beta',
         'Environment': 'Web Environment',
         'Framework': 'Django',
         'Intended Audience': 'Developers',
