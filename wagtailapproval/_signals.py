@@ -13,7 +13,7 @@ from wagtail.wagtailimages.models import Image
 from wagtail.wagtaildocs.models import Document
 
 from .models import ApprovalPipeline, ApprovalStep, ApprovalTicket
-from .signals import step_published, pipeline_published, build_approval_item_list
+from .signals import step_published, pipeline_published, build_approval_item_list, set_collection_edit
 from .approvalitem import ApprovalItem
 
 '''This is a private module for signals that this package uses, not ones provided by this app'''
@@ -198,3 +198,35 @@ def add_document(sender, **kwargs):
             step=step,
             typename=type(document).__name__,
             uuid=ticket.pk)
+
+@receiver(set_collection_edit)
+def set_image_collection_edit(sender, **kwargs):
+    '''Sets collection permissions for images'''
+    step = kwargs['approval_step']
+    edit = kwargs['edit']
+
+    collection = step.collection
+    group = step.group
+
+    perm = Permission.objects.get(codename='change_image')
+
+    if edit:
+        GroupCollectionPermission.objects.get_or_create(group=group, collection=collection, permission=perm)
+    else:
+        GroupCollectionPermission.objects.filter(group=group, collection=collection, permission=perm).delete()
+
+@receiver(set_collection_edit)
+def set_document_collection_edit(sender, **kwargs):
+    '''Sets collection permissions for documents'''
+    step = kwargs['approval_step']
+    edit = kwargs['edit']
+
+    collection = step.collection
+    group = step.group
+
+    perm = Permission.objects.get(codename='change_document')
+
+    if edit:
+        GroupCollectionPermission.objects.get_or_create(group=group, collection=collection, permission=perm)
+    else:
+        GroupCollectionPermission.objects.filter(group=group, collection=collection, permission=perm).delete()

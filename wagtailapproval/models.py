@@ -15,7 +15,7 @@ from wagtail.wagtailadmin.edit_handlers import MultiFieldPanel, FieldPanel
 from wagtail.wagtailcore.models import Page, Collection, PageViewRestriction, Permission, GroupCollectionPermission, GroupPagePermission, CollectionViewRestriction
 
 from .forms import StepForm
-from .signals import build_approval_item_list, remove_approval_items
+from .signals import build_approval_item_list, remove_approval_items, set_collection_edit
 
 class ApprovalPipeline(Page):
     '''This page type is a very simple page that is only used to hold steps'''
@@ -250,21 +250,6 @@ class ApprovalStep(Page):
                 if not restriction.groups.exists():
                     restriction.delete()
 
-    def set_collection_edit(self, edit):
-        '''Sets/unsets collection edit permissinos'''
-        collection = self.collection
-        group = self.group
-
-        imgperm = Permission.objects.get(codename='change_image')
-        docperm = Permission.objects.get(codename='change_document')
-
-        if edit:
-            GroupCollectionPermission.objects.get_or_create(group=group, collection=collection, permission=imgperm)
-            GroupCollectionPermission.objects.get_or_create(group=group, collection=collection, permission=docperm)
-        else:
-            GroupCollectionPermission.objects.filter(group=group, collection=collection, permission=imgperm).delete()
-            GroupCollectionPermission.objects.filter(group=group, collection=collection, permission=docperm).delete()
-
     def fix_permissions(self):
         '''Set proper restrictions for the owned collection and all owned
         pages.  Does not perform a save, so it can be safely used in a
@@ -276,7 +261,9 @@ class ApprovalStep(Page):
         if group:
             if collection:
                 self.set_collection_group_privacy(self.private_to_group)
-                self.set_collection_edit(self.can_edit)
+                set_collection_edit.send(sender=ApprovalStep,
+                    approval_step=self,
+                    edit=self.can_edit)
             for ticket in ApprovalTicket.objects.filter(
                 step=self,
                 content_type=ContentType.objects.get_for_model(Page)):

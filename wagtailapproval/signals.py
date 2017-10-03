@@ -15,3 +15,8 @@ build_approval_item_list = Signal(providing_args=['approval_step', 'user'])
 # have to exactly match, but may support equality.  It is preferable that you
 # use the same object, though, as an `is` comparison is faster
 remove_approval_items = Signal(providing_args=['approval_items', 'user'])
+
+# Can be used to customize collection editing permissions.  Use the edit kwarg,
+# not the step's can_edit field, because this is also used for ownership
+# transferring.
+set_collection_edit = Signal(providing_args=['approval_step', 'edit'])
