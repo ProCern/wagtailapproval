@@ -12,7 +12,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from modelcluster.fields import ParentalKey
 from wagtail.wagtailadmin.edit_handlers import MultiFieldPanel, FieldPanel
-from wagtail.wagtailcore.models import Page, Collection, PageViewRestriction, Permission, GroupCollectionPermission, GroupPagePermission, CollectionViewRestriction
+from wagtail.wagtailcore.models import Page, Collection, PageViewRestriction, GroupPagePermission, CollectionViewRestriction
 
 from .forms import StepForm
 from .signals import build_approval_item_list, remove_approval_items, set_collection_edit

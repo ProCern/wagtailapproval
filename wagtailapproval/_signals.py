@@ -8,7 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import post_save, post_delete
 
 from wagtail.wagtailcore.signals import page_published, page_unpublished
-from wagtail.wagtailcore.models import Collection, CollectionMember, Page
+from wagtail.wagtailcore.models import Collection, CollectionMember, Page, GroupCollectionPermission
 from wagtail.wagtailimages.models import Image
 from wagtail.wagtaildocs.models import Document
 
