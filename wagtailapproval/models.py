@@ -168,20 +168,25 @@ class ApprovalStep(Page):
     def take_ownership(self, obj):
         '''Take ownership of an object.  Should run all relevant processing on
         changing visibility and other such things.  This is idempotent.'''
+        pipeline = self.get_parent().specific
 
         try:
             _ = obj.owner
-            obj.owner = self.pipeline.user
+            obj.owner = pipeline.user
+            obj.save()
+            # This also throws an attribute error if not applicable
+            obj.save_revision(user=pipeline.user)
         except AttributeError:
             pass
 
-        if isinstance(obj, Page):
-            pipeline = self.get_parent().specific
-            obj.save()
-        else:
+        if not isinstance(obj, Page):
             if obj.collection != self.collection:
                 obj.collection = self.collection
                 obj.save()
+                try:
+                    obj.save_revision(user=pipeline.user)
+                except AttributeError:
+                    pass
 
         ApprovalTicket.objects.get_or_create(
             step=self,
