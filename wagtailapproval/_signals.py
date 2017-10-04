@@ -227,23 +227,33 @@ def take_collection_member(sender, approval_step, object, **kwargs):
 @receiver(take_ownership)
 def update_image_ownership(sender, approval_step, object, **kwargs):
     if isinstance(object, Image):
+        updated = False
+        pipeline = approval_step.get_parent().specific
+
         if object.collection != approval_step.collection:
             object.collection = approval_step.collection
-            object.save()
+            updated = True
 
         if object.uploaded_by_user != pipeline.user:
-            pipeline = approval_step.get_parent().specific
             object.uploaded_by_user = pipeline.user
+            updated = True
+
+        if updated:
             object.save()
 
 @receiver(take_ownership)
 def update_document_ownership(sender, approval_step, object, **kwargs):
     if isinstance(object, Document):
+        updated = False
+        pipeline = approval_step.get_parent().specific
+
         if object.collection != approval_step.collection:
             object.collection = approval_step.collection
-            object.save()
+            updated = True
 
         if object.uploaded_by_user != pipeline.user:
-            pipeline = approval_step.get_parent().specific
             object.uploaded_by_user = pipeline.user
+            updated = True
+
+        if updated:
             object.save()
