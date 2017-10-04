@@ -171,7 +171,7 @@ class ApprovalStep(Page):
 
         try:
             _ = obj.owner
-            obj.owner = pipeline.user
+            obj.owner = self.pipeline.user
         except AttributeError:
             pass
 
