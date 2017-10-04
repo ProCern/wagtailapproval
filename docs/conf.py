@@ -17,9 +17,9 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+sys.path.insert(0, os.path.abspath('..'))
 
 
 # -- General configuration ------------------------------------------------
@@ -35,6 +35,9 @@ extensions = ['sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages']
 
+autodoc_default_flags = ['members', 'undoc-members', 'show-inheritance']
+autoclass_content = 'both'
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
@@ -47,14 +50,19 @@ source_suffix = '.rst'
 # The master toctree document.
 master_doc = 'index'
 
-# General information about the project.
-project = 'Wagtail Approval'
-copyright = '2017, Taylor C. Richberger'
-author = 'Taylor C. Richberger'
+import wagtailapproval as module
 
-# The version info for the project you're documenting, acts as replacement for
-# |version| and |release|, also used in various other places throughout the
-# built documents.
+# General information about the project.
+project = module.__modulename__
+author = module.__author__
+copyright = '2017, ' + author
+
+from distutils.version import StrictVersion
+v = StrictVersion(module.__version__)
+
+version = '.'.join(str(num) for num in v.version[0:2])
+release = str(v)
+
 #
 # The short X.Y version.
 version = '0.2.11'
@@ -105,11 +113,12 @@ html_static_path = ['_static']
 # refs: http://alabaster.readthedocs.io/en/latest/installation.html#sidebars
 html_sidebars = {
     '**': [
+        'globaltoc.html',
         'about.html',
         'navigation.html',
         'relations.html',  # needs 'show_related': True theme option to display
+        'sourcelink.html',
         'searchbox.html',
-        'donate.html',
     ]
 }
 
