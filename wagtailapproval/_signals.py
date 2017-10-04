@@ -231,7 +231,7 @@ def update_image_ownership(sender, approval_step, object, **kwargs):
             object.collection = approval_step.collection
             object.save()
 
-        if object.uploaded_by_user != pipeline.user
+        if object.uploaded_by_user != pipeline.user:
             pipeline = approval_step.get_parent().specific
             object.uploaded_by_user = pipeline.user
             object.save()
@@ -243,7 +243,7 @@ def update_document_ownership(sender, approval_step, object, **kwargs):
             object.collection = approval_step.collection
             object.save()
 
-        if object.uploaded_by_user != pipeline.user
+        if object.uploaded_by_user != pipeline.user:
             pipeline = approval_step.get_parent().specific
             object.uploaded_by_user = pipeline.user
             object.save()
