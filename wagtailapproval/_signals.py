@@ -214,7 +214,13 @@ def set_document_collection_edit(sender, approval_step, edit, **kwargs):
         GroupCollectionPermission.objects.filter(group=group, collection=collection, permission=perm).delete()
 
 @receiver(take_ownership)
-def take_collection_member(sender, approval_step, object, **kwargs):
+def update_page_ownership(sender, approval_step, object, pipeline, **kwargs):
+    if isinstance(object, Page):
+        object.owner = pipeline.user
+        object.save()
+
+@receiver(take_ownership)
+def update_collection_ownership(sender, approval_step, object, pipeline, **kwargs):
     '''Individual take_ownerships for each type should be implemented that also
     take the collection member.  This is a fallback in case something doesn't
     work the way it should'''
@@ -225,10 +231,9 @@ def take_collection_member(sender, approval_step, object, **kwargs):
             object.save()
 
 @receiver(take_ownership)
-def update_image_ownership(sender, approval_step, object, **kwargs):
+def update_image_ownership(sender, approval_step, object, pipeline, **kwargs):
     if isinstance(object, Image):
         updated = False
-        pipeline = approval_step.get_parent().specific
 
         if object.collection != approval_step.collection:
             object.collection = approval_step.collection
@@ -242,10 +247,9 @@ def update_image_ownership(sender, approval_step, object, **kwargs):
             object.save()
 
 @receiver(take_ownership)
-def update_document_ownership(sender, approval_step, object, **kwargs):
+def update_document_ownership(sender, approval_step, object, pipeline, **kwargs):
     if isinstance(object, Document):
         updated = False
-        pipeline = approval_step.get_parent().specific
 
         if object.collection != approval_step.collection:
             object.collection = approval_step.collection

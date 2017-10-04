@@ -170,13 +170,10 @@ class ApprovalStep(Page):
         changing visibility and other such things.  This is idempotent.'''
         pipeline = self.get_parent().specific
 
-        if isinstance(obj, Page):
-            obj.owner = pipeline.user
-            obj.save()
-
         signals.take_ownership.send(sender=ApprovalStep,
             approval_step=self,
-            object=obj)
+            object=obj,
+            pipeline=pipeline)
 
         ApprovalTicket.objects.get_or_create(
             step=self,
