@@ -20,3 +20,7 @@ remove_approval_items = Signal(providing_args=['approval_items', 'user'])
 # not the step's can_edit field, because this is also used for ownership
 # transferring.
 set_collection_edit = Signal(providing_args=['approval_step', 'edit'])
+
+# Used for taking ownership by specific type.  Do not do ApprovalTicket here,
+# as it's done automatically
+take_ownership = Signal(providing_args=['approval_step', 'object'])

@@ -15,7 +15,7 @@ from wagtail.wagtailadmin.edit_handlers import MultiFieldPanel, FieldPanel
 from wagtail.wagtailcore.models import Page, Collection, PageViewRestriction, GroupPagePermission, CollectionViewRestriction
 
 from .forms import StepForm
-from .signals import build_approval_item_list, remove_approval_items, set_collection_edit
+from . import signals
 
 class ApprovalPipeline(Page):
     '''This page type is a very simple page that is only used to hold steps'''
@@ -170,23 +170,13 @@ class ApprovalStep(Page):
         changing visibility and other such things.  This is idempotent.'''
         pipeline = self.get_parent().specific
 
-        try:
-            _ = obj.owner
+        if isinstance(obj, Page):
             obj.owner = pipeline.user
             obj.save()
-            # This also throws an attribute error if not applicable
-            obj.save_revision(user=pipeline.user)
-        except AttributeError:
-            pass
 
-        if not isinstance(obj, Page):
-            if obj.collection != self.collection:
-                obj.collection = self.collection
-                obj.save()
-                try:
-                    obj.save_revision(user=pipeline.user)
-                except AttributeError:
-                    pass
+        signals.take_ownership.send(sender=ApprovalStep,
+            approval_step=self,
+            object=obj)
 
         ApprovalTicket.objects.get_or_create(
             step=self,
@@ -230,8 +220,10 @@ class ApprovalStep(Page):
         '''Sets/unsets page edit permissinos'''
         if edit:
             GroupPagePermission.objects.get_or_create(group=group, page=page, permission_type='edit')
+            GroupPagePermission.objects.get_or_create(group=group, page=page, permission_type='publish')
         else:
             GroupPagePermission.objects.filter(group=group, page=page, permission_type='edit').delete()
+            GroupPagePermission.objects.filter(group=group, page=page, permission_type='publish').delete()
 
     def set_page_delete(self, page, delete):
         group = self.group
@@ -271,7 +263,7 @@ class ApprovalStep(Page):
         if group:
             if collection:
                 self.set_collection_group_privacy(self.private_to_group)
-                set_collection_edit.send(sender=ApprovalStep,
+                signals.set_collection_edit.send(sender=ApprovalStep,
                     approval_step=self,
                     edit=self.can_edit)
             for ticket in ApprovalTicket.objects.filter(
@@ -296,7 +288,7 @@ class ApprovalStep(Page):
         # unnecessary, but it simplifies the logic a little bit and gives a
         # chance to illustrate the proper use of the signals by using them
         # internally
-        lists = build_approval_item_list.send(
+        lists = signals.build_approval_item_list.send(
             sender=ApprovalStep,
             approval_step=self,
             user=user)
@@ -306,7 +298,7 @@ class ApprovalStep(Page):
         except IndexError:
             approvalItems = ()
 
-        removal_lists = remove_approval_items.send(
+        removal_lists = signals.remove_approval_items.send(
             sender=ApprovalStep,
             approval_items=approval_items,
             user=user)
