@@ -186,7 +186,7 @@ def add_document(sender, approval_step, **kwargs):
             uuid=ticket.pk)
 
 @receiver(set_collection_edit)
-def set_image_collection_edit(sender, approval_step, edit **kwargs):
+def set_image_collection_edit(sender, approval_step, edit, **kwargs):
     '''Sets collection permissions for images'''
 
     collection = approval_step.collection
