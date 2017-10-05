@@ -47,6 +47,7 @@
 <span class="kn">from</span> <span class="nn">django.core.urlresolvers</span> <span class="k">import</span> <span class="n">reverse</span>
 <span class="kn">from</span> <span class="nn">django.contrib.contenttypes.models</span> <span class="k">import</span> <span class="n">ContentType</span>
 <span class="kn">from</span> <span class="nn">django.db.models.signals</span> <span class="k">import</span> <span class="n">post_save</span><span class="p">,</span> <span class="n">post_delete</span>
+<span class="kn">from</span> <span class="nn">django.utils.translation</span> <span class="k">import</span> <span class="n">ugettext_lazy</span> <span class="k">as</span> <span class="n">_</span>
 
 <span class="kn">from</span> <span class="nn">wagtail.wagtailcore.signals</span> <span class="k">import</span> <span class="n">page_published</span><span class="p">,</span> <span class="n">page_unpublished</span>
 <span class="kn">from</span> <span class="nn">wagtail.wagtailcore.models</span> <span class="k">import</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">CollectionMember</span><span class="p">,</span> <span class="n">Page</span><span class="p">,</span> <span class="n">GroupCollectionPermission</span>
@@ -306,16 +307,16 @@
 
 <div class="viewcode-block" id="release_page_permissions"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.release_page_permissions">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">release_ownership</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">release_page_permissions</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">approval_step</span><span class="p">,</span> <span class="nb">object</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Page</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">Page</span><span class="p">):</span>
         <span class="c1"># Release all page permissions</span>
-        <span class="n">approval_step</span><span class="o">.</span><span class="n">set_page_group_privacy</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-        <span class="n">approval_step</span><span class="o">.</span><span class="n">set_page_edit</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-        <span class="n">approval_step</span><span class="o">.</span><span class="n">set_page_delete</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span></div>
+        <span class="n">approval_step</span><span class="o">.</span><span class="n">set_page_group_privacy</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">approval_step</span><span class="o">.</span><span class="n">set_page_edit</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">approval_step</span><span class="o">.</span><span class="n">set_page_delete</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="assert_page_live"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.assert_page_live">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">pre_transfer_ownership</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">assert_page_live</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">giving_step</span><span class="p">,</span> <span class="n">taking_step</span><span class="p">,</span> <span class="nb">object</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">Page</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">obj</span><span class="o">.</span><span class="n">live</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Can not approve or reject a page that is not published&#39;</span><span class="p">)</span></div>
+        <span class="k">assert</span> <span class="nb">object</span><span class="o">.</span><span class="n">live</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Can not approve or reject a page that is not published&#39;</span><span class="p">)</span></div>
 </pre></div>
 
           </div>
