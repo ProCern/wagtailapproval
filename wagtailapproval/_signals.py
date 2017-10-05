@@ -264,7 +264,7 @@ def update_document_ownership(sender, approval_step, object, pipeline, **kwargs)
             object.save()
 
 @receiver(release_ownership)
-def release_page_permissions(sender, approval_step, object, pipeline):
+def release_page_permissions(sender, approval_step, object, pipeline, **kwargs):
     if isinstance(obj, Page):
         # Release all page permissions
         approval_step.set_page_group_privacy(obj, False)
