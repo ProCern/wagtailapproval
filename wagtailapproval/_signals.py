@@ -16,24 +16,25 @@ from .models import ApprovalPipeline, ApprovalStep, ApprovalTicket
 from .signals import step_published, pipeline_published, build_approval_item_list, set_collection_edit, take_ownership
 from .approvalitem import ApprovalItem
 
-'''This is a private module for signals that this package uses, not ones provided by this app'''
-
 @receiver(page_published)
 def send_published_signals(sender, instance, **kwargs):
-    '''This simply watches for a published step or pipeline, and sends a signal
-    for it.'''
+    '''This simply watches for a published step or pipeline, and sends a
+    :func:`pipeline_published` or :func:`step_published` signal for it.'''
     if isinstance(instance, ApprovalPipeline):
         pipeline_published.send(sender=type(instance), instance=instance)
     elif isinstance(instance, ApprovalStep):
         step_published.send(sender=type(instance), instance=instance)
+
+# The prefix string for owned collections and users
+_PREFIX = "(Approval) "
 
 @receiver(pipeline_published)
 def setup_pipeline_user(sender, instance, **kwargs):
     '''Setup an ApprovalPipeline user'''
     User = get_user_model()
 
-    username_max_length = User._meta.get_field('username').max_length
-    username = str(instance)[:username_max_length]
+    username_max_length = User._meta.get_field('username').max_length - len(_PREFIX)
+    username = _PREFIX + str(instance)[:username_max_length]
     user = instance.user
     if not user:
         user = User.objects.create(username=username) 
@@ -45,8 +46,8 @@ def setup_pipeline_user(sender, instance, **kwargs):
 def setup_group_and_collection(sender, instance, **kwargs):
     '''Create or rename the step's owned groups and collections'''
     pipeline = instance.get_parent().specific
-    group_max_length = Group._meta.get_field('name').max_length
-    group_name = '{} - {}'.format(pipeline, instance)[:group_max_length]
+    group_max_length = Group._meta.get_field('name').max_length - len(_PREFIX)
+    group_name = _PREFIX + '{} - {}'.format(pipeline, instance)[-group_max_length:]
     group = instance.group
     if not group:
         group = Group.objects.create(name=group_name) 
@@ -58,8 +59,8 @@ def setup_group_and_collection(sender, instance, **kwargs):
         group.name = group_name
         group.save()
 
-    collection_max_length = Collection._meta.get_field('name').max_length
-    collection_name = '{} - {}'.format(pipeline, instance)[:collection_max_length]
+    collection_max_length = Collection._meta.get_field('name').max_length - len(_PREFIX)
+    collection_name = _PREFIX + '{} - {}'.format(pipeline, instance)[-group_max_length:]
 
     collection = instance.collection
 
