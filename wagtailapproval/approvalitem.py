@@ -3,7 +3,9 @@ import itertools
 from .models import ApprovalStep
 
 class ApprovalItem:
-    """An Approval menu item, used for building the munu list, including links and all."""
+    """An Approval menu item, used for building the munu list, including links
+    and all.  Objects of this type should be added through the
+    :func:`build_approval_item_list <build_approval_item_list>` signal."""
 
     def __init__(self, title, view_url, edit_url, delete_url, obj, step, typename, uuid):
         """
@@ -12,9 +14,9 @@ class ApprovalItem:
         :param str edit_url: The URL to edit the item.
         :param str delete_url: The URL to delete the item.
         :param obj: The item itself.
-        :param wagtailapproval.models.ApprovalStep step: The step for this item.
+        :param ApprovalStep step: The step for this item.
         :param str typename: The type name of the item.
-        :param uuid.UUID uuid: The UUID for this item, the pk for :class:`wagtailapproval.models.ApprovalTicket`
+        :param uuid.UUID uuid: The UUID for this item, the pk for :class:`ApprovalTicket <wagtailapproval.models.ApprovalTicket>`
         """
         self._title = title
         self._view_url = view_url
@@ -58,7 +60,11 @@ class ApprovalItem:
         return self._uuid
 
 def get_user_approval_items(user):
-    '''Get an iterable of all items pending for a user's approval.'''
+    '''Get an iterable of all items pending for a user's approval.
+    
+    :param User user: A user object whose groups are to be checked for appropriate steps
+    :rtype: Iterable[ApprovalItem]
+    :returns: All the items that this user can approve or reject.'''
 
     groups = user.groups.all()
     steps = ApprovalStep.objects.filter(group__in=groups)

@@ -10,8 +10,7 @@ Wagtail Approval
    :maxdepth: 2
    :caption: Contents:
 
-
-.. include:: ../README.rst
+   api/index
 
 Indices and tables
 ==================
@@ -19,3 +18,5 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+.. include:: ../README.rst
