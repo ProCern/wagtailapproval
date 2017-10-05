@@ -63,11 +63,13 @@
     <span class="sd">&#39;&#39;&#39;Checks the request user and takes ownership of the page if it is created</span>
 <span class="sd">    by an owned user&#39;&#39;&#39;</span>
     <span class="n">user</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
-    <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">ApprovalStep</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">group__in</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">all</span><span class="p">()):</span>
-        <span class="c1"># We do this to enforce that ApprovalTickets only grab the base</span>
-        <span class="c1"># Page object, not the subclass</span>
-        <span class="n">step</span><span class="o">.</span><span class="n">take_ownership</span><span class="p">(</span><span class="n">Page</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="n">page</span><span class="o">.</span><span class="n">pk</span><span class="p">))</span>
-        <span class="n">step</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div>
+    <span class="c1"># Do not take control of our pipeline or step types</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">page</span><span class="o">.</span><span class="n">specific</span><span class="p">,</span> <span class="p">(</span><span class="n">ApprovalPipeline</span><span class="p">,</span> <span class="n">ApprovalStep</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">ApprovalStep</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">group__in</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">all</span><span class="p">()):</span>
+            <span class="c1"># We do this to enforce that ApprovalTickets only grab the base</span>
+            <span class="c1"># Page object, not the subclass</span>
+            <span class="n">step</span><span class="o">.</span><span class="n">take_ownership</span><span class="p">(</span><span class="n">Page</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="n">page</span><span class="o">.</span><span class="n">pk</span><span class="p">))</span>
+            <span class="n">step</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div>
 </pre></div>
 
           </div>

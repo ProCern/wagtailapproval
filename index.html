@@ -58,10 +58,57 @@
 </li>
 </ul>
 </div>
-<div class="section" id="wagtailapproval">
-<h2>wagtailapproval<a class="headerlink" href="#wagtailapproval" title="Permalink to this headline">¶</a></h2>
-<p>A wagtail plugin for an approval pipeline for pages and documents</p>
+<div class="section" id="id1">
+<h2>Wagtail Approval<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>This is a wagtail plugin for approval pipelines.</p>
 </div>
+</div>
+<div class="section" id="what-is-this">
+<h1>What is this?<a class="headerlink" href="#what-is-this" title="Permalink to this headline">¶</a></h1>
+<p>Essentially, this is a plugin for defining and enforcing flows of approval and
+editing.  You can set up arbitrary “steps” in the flow, each step owning a group
+(and all the users which belong to the group).  When a user creates a relevant
+object, their step will catch it and take ownership of it.  When a user’s step
+owns an object, that user can then approve or reject objects as relevant.  Steps
+can be made to make all of their owned objects private, so that items can be
+kept in an unpublished state until they are fully edited and approved (note that
+“Published” takes a different meaning here than Wagtail’s own).  What this does
+as far as pages are concerned could be replicated by creating a “creation” page
+that is private and allowing approval and editing users to move pages into
+specific areas, but that is messy and prone to failure.  This takes that
+process, avoids all the moving pieces, and puts the whole thing on rails.</p>
+</div>
+<div class="section" id="does-it-work-out-of-the-box">
+<h1>Does it work out of the box?<a class="headerlink" href="#does-it-work-out-of-the-box" title="Permalink to this headline">¶</a></h1>
+<p>Wagtail Approval works out of the box for base wagtail (more specifically, it
+works for Images, Documents, and Pages).  It can be extended to support any
+other collectable type you wish, as long as that type properly implements
+permissions for their collections (ie, respects the <code class="docutils literal"><span class="pre">add</span></code>, <code class="docutils literal"><span class="pre">change</span></code>, and
+<code class="docutils literal"><span class="pre">delete</span></code> permissions and also properly implements view restrictions)</p>
+</div>
+<div class="section" id="what-does-not-work">
+<h1>What does not work?<a class="headerlink" href="#what-does-not-work" title="Permalink to this headline">¶</a></h1>
+<p>Wagtail Images are not made private when they are in their collection.  This is
+an issue in Wagtail, and comes about because wagtail does not actually serve
+images.  Images are instead served directly out of the Django media path.</p>
+</div>
+<div class="section" id="how-do-i-get-started">
+<h1>How do I get started?<a class="headerlink" href="#how-do-i-get-started" title="Permalink to this headline">¶</a></h1>
+<p>You can get started with the following steps:</p>
+<ol class="arabic simple">
+<li>Create an <a class="reference internal" href="api/models.html#wagtailapproval.models.ApprovalPipeline" title="wagtailapproval.models.ApprovalPipeline"><code class="xref py py-class docutils literal"><span class="pre">ApprovalPipeline</span></code></a> page.</li>
+<li>Create a set of <a class="reference internal" href="api/models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><code class="xref py py-class docutils literal"><span class="pre">ApprovalStep</span></code></a>
+pages inside the pipeline.</li>
+<li>Link the steps together (after they are created and published) by their
+approval and rejection fields.</li>
+<li>Create users and assign them to the groups created by the steps.</li>
+<li>Give the groups that should have creation permissions the relevant perms for
+their types and pages that they should be able to create in.</li>
+<li>Publish an object as a content creation user.</li>
+</ol>
+<p>There should be no subclassing necessary.  Appropriate extension should be
+doable entirely through signals.  If you can’t extend this in the way you need
+to through signals, it’s probably a bug in this plugin.</p>
 </div>
 <div class="section" id="license">
 <h1>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h1>
@@ -70,12 +117,30 @@ Performance, Inc.  See the LICENSE document for more information.</p>
 <p>Portions of code are copied from the
 <a class="reference external" href="https://github.com/takeflight/wagtailnews">wagtailnews</a> project, and thus the
 wagtailnews attribution requirements are carried as well by this project:</p>
-<p>Copyright (c) 2014, Tim Heap
-All rights reserved.
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
+<blockquote>
+<div><p>Copyright (c) 2014, Tim Heap</p>
+<p>All rights reserved.</p>
+<p>Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:</p>
+<ol class="arabic simple">
+<li>Redistributions of source code must retain the above copyright notice, this
+list of conditions and the following disclaimer.</li>
+<li>Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution.</li>
+</ol>
+<p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS”
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.</p>
+</div></blockquote>
 </div>
 <div class="section" id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>

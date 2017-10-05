@@ -57,12 +57,10 @@
 <span class="kn">from</span> <span class="nn">.signals</span> <span class="k">import</span> <span class="n">step_published</span><span class="p">,</span> <span class="n">pipeline_published</span><span class="p">,</span> <span class="n">build_approval_item_list</span><span class="p">,</span> <span class="n">set_collection_edit</span><span class="p">,</span> <span class="n">take_ownership</span>
 <span class="kn">from</span> <span class="nn">.approvalitem</span> <span class="k">import</span> <span class="n">ApprovalItem</span>
 
-<span class="sd">&#39;&#39;&#39;This is a private module for signals that this package uses, not ones provided by this app&#39;&#39;&#39;</span>
-
 <div class="viewcode-block" id="send_published_signals"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.send_published_signals">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">page_published</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">send_published_signals</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;This simply watches for a published step or pipeline, and sends a signal</span>
-<span class="sd">    for it.&#39;&#39;&#39;</span>
+    <span class="sd">&#39;&#39;&#39;This simply watches for a published step or pipeline, and sends a</span>
+<span class="sd">    :func:`pipeline_published` or :func:`step_published` signal for it.&#39;&#39;&#39;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">ApprovalPipeline</span><span class="p">):</span>
         <span class="n">pipeline_published</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">sender</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="n">instance</span><span class="p">),</span> <span class="n">instance</span><span class="o">=</span><span class="n">instance</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">ApprovalStep</span><span class="p">):</span>

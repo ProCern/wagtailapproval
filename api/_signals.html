@@ -39,9 +39,11 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-wagtailapproval._signals">
-<span id="wagtailapproval-signals"></span><h1>wagtailapproval._signals<a class="headerlink" href="#module-wagtailapproval._signals" title="Permalink to this headline">¶</a></h1>
-<dl class="function">
+  <div class="section" id="wagtailapproval-signals">
+<h1>wagtailapproval._signals<a class="headerlink" href="#wagtailapproval-signals" title="Permalink to this headline">¶</a></h1>
+<p>These are the signals used for internal behavior.  Some of these are great
+places to start if you’re looking at adding your own types to your pipeline.</p>
+<span class="target" id="module-wagtailapproval._signals"></span><dl class="function">
 <dt id="wagtailapproval._signals.add_document">
 <code class="descname">add_document</code><span class="sig-paren">(</span><em>sender</em>, <em>approval_step</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/_signals.html#add_document"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval._signals.add_document" title="Permalink to this definition">¶</a></dt>
 <dd><p>Builds the approval item list for documents</p>
@@ -100,8 +102,8 @@ pipeline is deleted.</p>
 <dl class="function">
 <dt id="wagtailapproval._signals.send_published_signals">
 <code class="descname">send_published_signals</code><span class="sig-paren">(</span><em>sender</em>, <em>instance</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/_signals.html#send_published_signals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval._signals.send_published_signals" title="Permalink to this definition">¶</a></dt>
-<dd><p>This simply watches for a published step or pipeline, and sends a signal
-for it.</p>
+<dd><p>This simply watches for a published step or pipeline, and sends a
+<a class="reference internal" href="signals.html#pipeline_published" title="pipeline_published"><code class="xref py py-func docutils literal"><span class="pre">pipeline_published()</span></code></a> or <a class="reference internal" href="signals.html#step_published" title="step_published"><code class="xref py py-func docutils literal"><span class="pre">step_published()</span></code></a> signal for it.</p>
 </dd></dl>
 
 <dl class="function">
