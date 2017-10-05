@@ -41,6 +41,8 @@ class ApprovalPipeline(Page):
         verbose_name = _('approval pipeline')
         verbose_name_plural = _('approval pipelines')
 
+    subpage_types = ['wagtailapproval.ApprovalStep']
+
 class ApprovalStep(Page):
     '''Holds posts and facilitates the automatic moving to other steps in the
     same pipeline on approval and rejection.
@@ -142,35 +144,79 @@ class ApprovalStep(Page):
         '''Run approval on an object'''
 
         step = self.approval_step
+
         if step:
+            signals.pre_approve.send(
+                sender=ApprovalStep,
+                giving_step=self,
+                taking_step=step,
+                object=obj,
+                pipeline=pipeline)
+
             self.transfer_ownership(obj, step)
+
+            signals.post_approve.send(
+                sender=ApprovalStep,
+                giving_step=self,
+                taking_step=step,
+                object=obj,
+                pipeline=pipeline)
 
     def reject(self, obj):
         '''Run rejection on an object'''
 
         step = self.rejection_step
         if step:
+            signals.pre_reject.send(
+                sender=ApprovalStep,
+                giving_step=self,
+                taking_step=step,
+                object=obj,
+                pipeline=pipeline)
+
             self.transfer_ownership(obj, step)
+
+            signals.post_reject.send(
+                sender=ApprovalStep,
+                giving_step=self,
+                taking_step=step,
+                object=obj,
+                pipeline=pipeline)
 
     def transfer_ownership(self, obj, step):
         '''Give ownership to another step'''
 
-        if isinstance(obj, Page):
-            assert obj.live, _('Can not approve or reject a page that is not published')
+        signals.pre_transfer_ownership.send(
+            sender=ApprovalStep,
+            giving_step=self,
+            taking_step=step,
+            object=obj,
+            pipeline=pipeline)
 
-
-        self.release_ownership(obj)
+        # Ownership should be taken by the following step before it is released
+        # by the current, otherwise an exception could drop the step.  In the
+        # case of error, we'd rather it be owned by two steps than by none,
+        # otherwise it could accidentally become public early.
         step.take_ownership(obj)
+        self.release_ownership(obj)
         # Do this to fix permissions.  release_ownership releases its own
         # permissions manually, take_ownership does not.
         step.save()
+
+        signals.post_transfer_ownership.send(
+            sender=ApprovalStep,
+            giving_step=self,
+            taking_step=step,
+            object=obj,
+            pipeline=pipeline)
 
     def take_ownership(self, obj):
         '''Take ownership of an object.  Should run all relevant processing on
         changing visibility and other such things.  This is idempotent.'''
         pipeline = self.get_parent().specific
 
-        signals.take_ownership.send(sender=ApprovalStep,
+        signals.take_ownership.send(
+            sender=ApprovalStep,
             approval_step=self,
             object=obj,
             pipeline=pipeline)
@@ -183,11 +229,13 @@ class ApprovalStep(Page):
     def release_ownership(self, obj):
         '''Release ownership of an object.  This is idempotent.'''
 
-        if isinstance(obj, Page):
-            # Release all page permissions
-            self.set_page_group_privacy(obj, False)
-            self.set_page_edit(obj, False)
-            self.set_page_delete(obj, False)
+        pipeline = self.get_parent().specific
+
+        signals.release_ownership.send(
+            sender=ApprovalStep,
+            approval_step=self,
+            object=obj,
+            pipeline=pipeline)
 
         ApprovalTicket.objects.filter(
             step=self,

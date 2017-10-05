@@ -13,7 +13,7 @@ from wagtail.wagtailimages.models import Image
 from wagtail.wagtaildocs.models import Document
 
 from .models import ApprovalPipeline, ApprovalStep, ApprovalTicket
-from .signals import step_published, pipeline_published, build_approval_item_list, set_collection_edit, take_ownership
+from .signals import step_published, pipeline_published, build_approval_item_list, set_collection_edit, take_ownership, pre_transfer_ownership, release_ownership
 from .approvalitem import ApprovalItem
 
 @receiver(page_published)
@@ -262,3 +262,16 @@ def update_document_ownership(sender, approval_step, object, pipeline, **kwargs)
 
         if updated:
             object.save()
+
+@receiver(release_ownership)
+def release_page_permissions(sender, approval_step, object, pipeline):
+    if isinstance(obj, Page):
+        # Release all page permissions
+        approval_step.set_page_group_privacy(obj, False)
+        approval_step.set_page_edit(obj, False)
+        approval_step.set_page_delete(obj, False)
+
+@receiver(pre_transfer_ownership)
+def assert_page_live(sender, giving_step, taking_step, object, pipeline, **kwargs):
+    if isinstance(object, Page):
+        assert obj.live, _('Can not approve or reject a page that is not published')
