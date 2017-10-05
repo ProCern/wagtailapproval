@@ -6,6 +6,7 @@ from django.contrib.auth.models import Group, Permission
 from django.core.urlresolvers import reverse
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import post_save, post_delete
+from django.utils.translation import ugettext_lazy as _
 
 from wagtail.wagtailcore.signals import page_published, page_unpublished
 from wagtail.wagtailcore.models import Collection, CollectionMember, Page, GroupCollectionPermission
@@ -265,13 +266,13 @@ def update_document_ownership(sender, approval_step, object, pipeline, **kwargs)
 
 @receiver(release_ownership)
 def release_page_permissions(sender, approval_step, object, pipeline, **kwargs):
-    if isinstance(obj, Page):
+    if isinstance(object, Page):
         # Release all page permissions
-        approval_step.set_page_group_privacy(obj, False)
-        approval_step.set_page_edit(obj, False)
-        approval_step.set_page_delete(obj, False)
+        approval_step.set_page_group_privacy(object, False)
+        approval_step.set_page_edit(object, False)
+        approval_step.set_page_delete(object, False)
 
 @receiver(pre_transfer_ownership)
 def assert_page_live(sender, giving_step, taking_step, object, pipeline, **kwargs):
     if isinstance(object, Page):
-        assert obj.live, _('Can not approve or reject a page that is not published')
+        assert object.live, _('Can not approve or reject a page that is not published')
