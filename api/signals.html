@@ -202,7 +202,7 @@ or <a class="reference internal" href="#pre_reject" title="pre_reject"><code cla
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>giving_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step who will be releasing the object</li>
 <li><strong>taking_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step who will be taking the object</li>
-<li><strong>object</strong> – The object being transferred</li>
+<li><strong>object</strong> – The object to be transferred.</li>
 <li><strong>pipeline</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalPipeline" title="wagtailapproval.models.ApprovalPipeline"><em>ApprovalPipeline</em></a>) – The pipeline for the steps</li>
 </ul>
 </td>
@@ -222,9 +222,9 @@ after each transfer.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>giving_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step who will be releasing the object</li>
-<li><strong>taking_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step who will be taking the object</li>
-<li><strong>object</strong> – The object being transferred</li>
+<li><strong>giving_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step that has released the object</li>
+<li><strong>taking_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step that has taken the object</li>
+<li><strong>object</strong> – The object that has been transferred</li>
 <li><strong>pipeline</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalPipeline" title="wagtailapproval.models.ApprovalPipeline"><em>ApprovalPipeline</em></a>) – The pipeline for the steps</li>
 </ul>
 </td>
@@ -247,7 +247,7 @@ object that has no approval step, this will not be executed.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>giving_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step who will be releasing the object</li>
 <li><strong>taking_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step who will be taking the object</li>
-<li><strong>object</strong> – The object being transferred</li>
+<li><strong>object</strong> – The object to be transferred.</li>
 <li><strong>pipeline</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalPipeline" title="wagtailapproval.models.ApprovalPipeline"><em>ApprovalPipeline</em></a>) – The pipeline for the steps</li>
 </ul>
 </td>
@@ -270,9 +270,9 @@ object that has no approval step, this will not be executed.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>giving_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step who will be releasing the object</li>
-<li><strong>taking_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step who will be taking the object</li>
-<li><strong>object</strong> – The object being transferred</li>
+<li><strong>giving_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step that has released the object</li>
+<li><strong>taking_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step that has taken the object</li>
+<li><strong>object</strong> – The object that has been transferred</li>
 <li><strong>pipeline</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalPipeline" title="wagtailapproval.models.ApprovalPipeline"><em>ApprovalPipeline</em></a>) – The pipeline for the steps</li>
 </ul>
 </td>
@@ -295,7 +295,7 @@ object that has no rejection step, this will not be executed.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>giving_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step who will be releasing the object</li>
 <li><strong>taking_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step who will be taking the object</li>
-<li><strong>object</strong> – The object being transferred</li>
+<li><strong>object</strong> – The object to be transferred.</li>
 <li><strong>pipeline</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalPipeline" title="wagtailapproval.models.ApprovalPipeline"><em>ApprovalPipeline</em></a>) – The pipeline for the steps</li>
 </ul>
 </td>
@@ -318,9 +318,9 @@ object that has no rejection step, this will not be executed.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>giving_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step who will be releasing the object</li>
-<li><strong>taking_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step who will be taking the object</li>
-<li><strong>object</strong> – The object being transferred</li>
+<li><strong>giving_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step that has released the object</li>
+<li><strong>taking_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step that has taken the object</li>
+<li><strong>object</strong> – The object that has been transferred</li>
 <li><strong>pipeline</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalPipeline" title="wagtailapproval.models.ApprovalPipeline"><em>ApprovalPipeline</em></a>) – The pipeline for the steps</li>
 </ul>
 </td>

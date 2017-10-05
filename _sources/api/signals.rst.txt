@@ -80,7 +80,7 @@ are expected to.
 
     :param ApprovalStep giving_step: The step who will be releasing the object
     :param ApprovalStep taking_step: The step who will be taking the object
-    :param object: The object being transferred
+    :param object: The object to be transferred.
     :param ApprovalPipeline pipeline: The pipeline for the steps
 
 .. function:: post_transfer_ownership(giving_step, taking_step, object, pipeline)
@@ -89,9 +89,9 @@ are expected to.
     or :func:`post_reject`.  This should be used if you want to do something
     after each transfer.
 
-    :param ApprovalStep giving_step: The step who will be releasing the object
-    :param ApprovalStep taking_step: The step who will be taking the object
-    :param object: The object being transferred
+    :param ApprovalStep giving_step: The step that has released the object
+    :param ApprovalStep taking_step: The step that has taken the object
+    :param object: The object that has been transferred
     :param ApprovalPipeline pipeline: The pipeline for the steps
 
 .. function:: pre_approve(giving_step, taking_step, object, pipeline)
@@ -103,7 +103,7 @@ are expected to.
 
     :param ApprovalStep giving_step: The step who will be releasing the object
     :param ApprovalStep taking_step: The step who will be taking the object
-    :param object: The object being transferred
+    :param object: The object to be transferred.
     :param ApprovalPipeline pipeline: The pipeline for the steps
 
 .. function:: post_approve(giving_step, taking_step, object, pipeline)
@@ -115,9 +115,9 @@ are expected to.
     :meth:`approve <wagtailapproval.models.ApprovalStep.approve>` is run on an
     object that has no approval step, this will not be executed.
 
-    :param ApprovalStep giving_step: The step who will be releasing the object
-    :param ApprovalStep taking_step: The step who will be taking the object
-    :param object: The object being transferred
+    :param ApprovalStep giving_step: The step that has released the object
+    :param ApprovalStep taking_step: The step that has taken the object
+    :param object: The object that has been transferred
     :param ApprovalPipeline pipeline: The pipeline for the steps
 
 .. function:: pre_reject(giving_step, taking_step, object, pipeline)
@@ -129,7 +129,7 @@ are expected to.
 
     :param ApprovalStep giving_step: The step who will be releasing the object
     :param ApprovalStep taking_step: The step who will be taking the object
-    :param object: The object being transferred
+    :param object: The object to be transferred.
     :param ApprovalPipeline pipeline: The pipeline for the steps
 
 .. function:: post_reject(giving_step, taking_step, object, pipeline)
@@ -141,7 +141,7 @@ are expected to.
     :meth:`approve <wagtailapproval.models.ApprovalStep.reject>` is run on an
     object that has no rejection step, this will not be executed.
 
-    :param ApprovalStep giving_step: The step who will be releasing the object
-    :param ApprovalStep taking_step: The step who will be taking the object
-    :param object: The object being transferred
+    :param ApprovalStep giving_step: The step that has released the object
+    :param ApprovalStep taking_step: The step that has taken the object
+    :param object: The object that has been transferred
     :param ApprovalPipeline pipeline: The pipeline for the steps
