@@ -80,7 +80,9 @@
 
     <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
         <span class="n">verbose_name</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s1">&#39;approval pipeline&#39;</span><span class="p">)</span>
-        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s1">&#39;approval pipelines&#39;</span><span class="p">)</span></div>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s1">&#39;approval pipelines&#39;</span><span class="p">)</span>
+
+    <span class="n">subpage_types</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;wagtailapproval.ApprovalStep&#39;</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="ApprovalStep"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalStep">[docs]</a><span class="k">class</span> <span class="nc">ApprovalStep</span><span class="p">(</span><span class="n">Page</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Holds posts and facilitates the automatic moving to other steps in the</span>
@@ -183,35 +185,79 @@
         <span class="sd">&#39;&#39;&#39;Run approval on an object&#39;&#39;&#39;</span>
 
         <span class="n">step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">approval_step</span>
+
         <span class="k">if</span> <span class="n">step</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">transfer_ownership</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span></div>
+            <span class="n">signals</span><span class="o">.</span><span class="n">pre_approve</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
+                <span class="n">sender</span><span class="o">=</span><span class="n">ApprovalStep</span><span class="p">,</span>
+                <span class="n">giving_step</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+                <span class="n">taking_step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span>
+                <span class="nb">object</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span>
+                <span class="n">pipeline</span><span class="o">=</span><span class="n">pipeline</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">transfer_ownership</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+
+            <span class="n">signals</span><span class="o">.</span><span class="n">post_approve</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
+                <span class="n">sender</span><span class="o">=</span><span class="n">ApprovalStep</span><span class="p">,</span>
+                <span class="n">giving_step</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+                <span class="n">taking_step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span>
+                <span class="nb">object</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span>
+                <span class="n">pipeline</span><span class="o">=</span><span class="n">pipeline</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ApprovalStep.reject"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalStep.reject">[docs]</a>    <span class="k">def</span> <span class="nf">reject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Run rejection on an object&#39;&#39;&#39;</span>
 
         <span class="n">step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rejection_step</span>
         <span class="k">if</span> <span class="n">step</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">transfer_ownership</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span></div>
+            <span class="n">signals</span><span class="o">.</span><span class="n">pre_reject</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
+                <span class="n">sender</span><span class="o">=</span><span class="n">ApprovalStep</span><span class="p">,</span>
+                <span class="n">giving_step</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+                <span class="n">taking_step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span>
+                <span class="nb">object</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span>
+                <span class="n">pipeline</span><span class="o">=</span><span class="n">pipeline</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">transfer_ownership</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+
+            <span class="n">signals</span><span class="o">.</span><span class="n">post_reject</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
+                <span class="n">sender</span><span class="o">=</span><span class="n">ApprovalStep</span><span class="p">,</span>
+                <span class="n">giving_step</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+                <span class="n">taking_step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span>
+                <span class="nb">object</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span>
+                <span class="n">pipeline</span><span class="o">=</span><span class="n">pipeline</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ApprovalStep.transfer_ownership"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalStep.transfer_ownership">[docs]</a>    <span class="k">def</span> <span class="nf">transfer_ownership</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Give ownership to another step&#39;&#39;&#39;</span>
 
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Page</span><span class="p">):</span>
-            <span class="k">assert</span> <span class="n">obj</span><span class="o">.</span><span class="n">live</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Can not approve or reject a page that is not published&#39;</span><span class="p">)</span>
+        <span class="n">signals</span><span class="o">.</span><span class="n">pre_transfer_ownership</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
+            <span class="n">sender</span><span class="o">=</span><span class="n">ApprovalStep</span><span class="p">,</span>
+            <span class="n">giving_step</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">taking_step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span>
+            <span class="nb">object</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span>
+            <span class="n">pipeline</span><span class="o">=</span><span class="n">pipeline</span><span class="p">)</span>
 
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">release_ownership</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="c1"># Ownership should be taken by the following step before it is released</span>
+        <span class="c1"># by the current, otherwise an exception could drop the step.  In the</span>
+        <span class="c1"># case of error, we&#39;d rather it be owned by two steps than by none,</span>
+        <span class="c1"># otherwise it could accidentally become public early.</span>
         <span class="n">step</span><span class="o">.</span><span class="n">take_ownership</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">release_ownership</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
         <span class="c1"># Do this to fix permissions.  release_ownership releases its own</span>
         <span class="c1"># permissions manually, take_ownership does not.</span>
-        <span class="n">step</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div>
+        <span class="n">step</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+        <span class="n">signals</span><span class="o">.</span><span class="n">post_transfer_ownership</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
+            <span class="n">sender</span><span class="o">=</span><span class="n">ApprovalStep</span><span class="p">,</span>
+            <span class="n">giving_step</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">taking_step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span>
+            <span class="nb">object</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span>
+            <span class="n">pipeline</span><span class="o">=</span><span class="n">pipeline</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ApprovalStep.take_ownership"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalStep.take_ownership">[docs]</a>    <span class="k">def</span> <span class="nf">take_ownership</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Take ownership of an object.  Should run all relevant processing on</span>
 <span class="sd">        changing visibility and other such things.  This is idempotent.&#39;&#39;&#39;</span>
         <span class="n">pipeline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_parent</span><span class="p">()</span><span class="o">.</span><span class="n">specific</span>
 
-        <span class="n">signals</span><span class="o">.</span><span class="n">take_ownership</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">sender</span><span class="o">=</span><span class="n">ApprovalStep</span><span class="p">,</span>
+        <span class="n">signals</span><span class="o">.</span><span class="n">take_ownership</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
+            <span class="n">sender</span><span class="o">=</span><span class="n">ApprovalStep</span><span class="p">,</span>
             <span class="n">approval_step</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
             <span class="nb">object</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span>
             <span class="n">pipeline</span><span class="o">=</span><span class="n">pipeline</span><span class="p">)</span>
@@ -224,11 +270,13 @@
 <div class="viewcode-block" id="ApprovalStep.release_ownership"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalStep.release_ownership">[docs]</a>    <span class="k">def</span> <span class="nf">release_ownership</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Release ownership of an object.  This is idempotent.&#39;&#39;&#39;</span>
 
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Page</span><span class="p">):</span>
-            <span class="c1"># Release all page permissions</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_page_group_privacy</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_page_edit</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_page_delete</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">pipeline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_parent</span><span class="p">()</span><span class="o">.</span><span class="n">specific</span>
+
+        <span class="n">signals</span><span class="o">.</span><span class="n">release_ownership</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
+            <span class="n">sender</span><span class="o">=</span><span class="n">ApprovalStep</span><span class="p">,</span>
+            <span class="n">approval_step</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="nb">object</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span>
+            <span class="n">pipeline</span><span class="o">=</span><span class="n">pipeline</span><span class="p">)</span>
 
         <span class="n">ApprovalTicket</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
             <span class="n">step</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>

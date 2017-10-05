@@ -53,10 +53,95 @@ are expected to.
     :param ApprovalStep approval_step: The step to modify collection permissions for
     :param bool edit: whether editing is to be enabled or disabled
 
-.. function:: take_ownership(approval_step, object)
+.. function:: take_ownership(approval_step, object, pipeline)
 
     Used for taking ownership by specific type.  Do not work with ApprovalTicket
-    here, as it's done automatically after this signal is called.
+    here, as it's done automatically after this signal is called.  This is done
+    for permissions management.
 
     :param ApprovalStep approval_step: The step to give the object to.
     :param object: The object to give to the step
+    :param ApprovalPipeline pipeline: The pipeline for the ApprovalStep
+
+.. function:: release_ownership(approval_step, object, pipeline)
+
+    Used for releasing ownership by specific type.  Do not work with ApprovalTicket
+    here, as it's done automatically after this signal is called.  This is used
+    for permissions management.
+
+    :param ApprovalStep approval_step: The step to give the object to.
+    :param object: The object to give to the step
+    :param ApprovalPipeline pipeline: The pipeline for the ApprovalStep
+
+.. function:: pre_transfer_ownership(giving_step, taking_step, object, pipeline)
+
+    Sent before transferring ownership.  This is done after :func:`pre_approve`
+    or :func:`pre_reject`.  This can be used for validation.
+
+    :param ApprovalStep giving_step: The step who will be releasing the object
+    :param ApprovalStep taking_step: The step who will be taking the object
+    :param object: The object being transferred
+    :param ApprovalPipeline pipeline: The pipeline for the steps
+
+.. function:: post_transfer_ownership(giving_step, taking_step, object, pipeline)
+
+    Sent after transferring ownership.  This is done before :func:`post_approve`
+    or :func:`post_reject`.  This should be used if you want to do something
+    after each transfer.
+
+    :param ApprovalStep giving_step: The step who will be releasing the object
+    :param ApprovalStep taking_step: The step who will be taking the object
+    :param object: The object being transferred
+    :param ApprovalPipeline pipeline: The pipeline for the steps
+
+.. function:: pre_approve(giving_step, taking_step, object, pipeline)
+
+    Sent before approval.  This is done before :func:`pre_transfer_ownership`.
+    This can be used for validation.  If
+    :meth:`approve <wagtailapproval.models.ApprovalStep.approve>` is run on an
+    object that has no approval step, this will not be executed.
+
+    :param ApprovalStep giving_step: The step who will be releasing the object
+    :param ApprovalStep taking_step: The step who will be taking the object
+    :param object: The object being transferred
+    :param ApprovalPipeline pipeline: The pipeline for the steps
+
+.. function:: post_approve(giving_step, taking_step, object, pipeline)
+
+    Sent after approval.  This is done after :func:`post_transfer_ownership`.
+    This should be used if you want to do something after each transfer (such as
+    if :data:`taking_step` is a step that is meant to perform some sort of
+    automatic validation or automatic approval/rejection).  If
+    :meth:`approve <wagtailapproval.models.ApprovalStep.approve>` is run on an
+    object that has no approval step, this will not be executed.
+
+    :param ApprovalStep giving_step: The step who will be releasing the object
+    :param ApprovalStep taking_step: The step who will be taking the object
+    :param object: The object being transferred
+    :param ApprovalPipeline pipeline: The pipeline for the steps
+
+.. function:: pre_reject(giving_step, taking_step, object, pipeline)
+
+    Sent before rejection.  This is done before :func:`pre_transfer_ownership`.
+    This can be used for validation.  If
+    :meth:`approve <wagtailapproval.models.ApprovalStep.reject>` is run on an
+    object that has no rejection step, this will not be executed.
+
+    :param ApprovalStep giving_step: The step who will be releasing the object
+    :param ApprovalStep taking_step: The step who will be taking the object
+    :param object: The object being transferred
+    :param ApprovalPipeline pipeline: The pipeline for the steps
+
+.. function:: post_reject(giving_step, taking_step, object, pipeline)
+
+    Sent after rejection.  This is done after :func:`post_transfer_ownership`.
+    This should be used if you want to do something after each transfer (such as
+    if :data:`taking_step` is a step that is meant to perform some sort of
+    automatic validation or automatic approval/rejection).  If
+    :meth:`approve <wagtailapproval.models.ApprovalStep.reject>` is run on an
+    object that has no rejection step, this will not be executed.
+
+    :param ApprovalStep giving_step: The step who will be releasing the object
+    :param ApprovalStep taking_step: The step who will be taking the object
+    :param object: The object being transferred
+    :param ApprovalPipeline pipeline: The pipeline for the steps

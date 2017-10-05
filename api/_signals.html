@@ -72,6 +72,11 @@ Essentially, this is a custom cascade delete.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="wagtailapproval._signals.assert_page_live">
+<code class="descname">assert_page_live</code><span class="sig-paren">(</span><em>sender</em>, <em>giving_step</em>, <em>taking_step</em>, <em>object</em>, <em>pipeline</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/_signals.html#assert_page_live"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval._signals.assert_page_live" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
 <dt id="wagtailapproval._signals.catch_collection_objects">
 <code class="descname">catch_collection_objects</code><span class="sig-paren">(</span><em>sender</em>, <em>instance</em>, <em>created</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/_signals.html#catch_collection_objects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval._signals.catch_collection_objects" title="Permalink to this definition">¶</a></dt>
 <dd><p>If newly-created objects are created inside of a collection that is
@@ -98,6 +103,11 @@ pipeline is deleted.</p>
 <code class="descname">fix_restrictions</code><span class="sig-paren">(</span><em>sender</em>, <em>instance</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/_signals.html#fix_restrictions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval._signals.fix_restrictions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update ApprovalStep restrictions on a save.</p>
 </dd></dl>
+
+<dl class="function">
+<dt id="wagtailapproval._signals.release_page_permissions">
+<code class="descname">release_page_permissions</code><span class="sig-paren">(</span><em>sender</em>, <em>approval_step</em>, <em>object</em>, <em>pipeline</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/_signals.html#release_page_permissions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval._signals.release_page_permissions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="function">
 <dt id="wagtailapproval._signals.send_published_signals">

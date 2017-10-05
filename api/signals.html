@@ -150,9 +150,10 @@ kwarg, not the step’s can_edit field, because they might not match.</p>
 
 <dl class="function">
 <dt id="take_ownership">
-<code class="descname">take_ownership</code><span class="sig-paren">(</span><em>approval_step</em>, <em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#take_ownership" title="Permalink to this definition">¶</a></dt>
+<code class="descname">take_ownership</code><span class="sig-paren">(</span><em>approval_step</em>, <em>object</em>, <em>pipeline</em><span class="sig-paren">)</span><a class="headerlink" href="#take_ownership" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used for taking ownership by specific type.  Do not work with ApprovalTicket
-here, as it’s done automatically after this signal is called.</p>
+here, as it’s done automatically after this signal is called.  This is done
+for permissions management.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -160,6 +161,167 @@ here, as it’s done automatically after this signal is called.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>approval_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step to give the object to.</li>
 <li><strong>object</strong> – The object to give to the step</li>
+<li><strong>pipeline</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalPipeline" title="wagtailapproval.models.ApprovalPipeline"><em>ApprovalPipeline</em></a>) – The pipeline for the ApprovalStep</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="release_ownership">
+<code class="descname">release_ownership</code><span class="sig-paren">(</span><em>approval_step</em>, <em>object</em>, <em>pipeline</em><span class="sig-paren">)</span><a class="headerlink" href="#release_ownership" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used for releasing ownership by specific type.  Do not work with ApprovalTicket
+here, as it’s done automatically after this signal is called.  This is used
+for permissions management.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>approval_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step to give the object to.</li>
+<li><strong>object</strong> – The object to give to the step</li>
+<li><strong>pipeline</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalPipeline" title="wagtailapproval.models.ApprovalPipeline"><em>ApprovalPipeline</em></a>) – The pipeline for the ApprovalStep</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pre_transfer_ownership">
+<code class="descname">pre_transfer_ownership</code><span class="sig-paren">(</span><em>giving_step</em>, <em>taking_step</em>, <em>object</em>, <em>pipeline</em><span class="sig-paren">)</span><a class="headerlink" href="#pre_transfer_ownership" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sent before transferring ownership.  This is done after <a class="reference internal" href="#pre_approve" title="pre_approve"><code class="xref py py-func docutils literal"><span class="pre">pre_approve()</span></code></a>
+or <a class="reference internal" href="#pre_reject" title="pre_reject"><code class="xref py py-func docutils literal"><span class="pre">pre_reject()</span></code></a>.  This can be used for validation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>giving_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step who will be releasing the object</li>
+<li><strong>taking_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step who will be taking the object</li>
+<li><strong>object</strong> – The object being transferred</li>
+<li><strong>pipeline</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalPipeline" title="wagtailapproval.models.ApprovalPipeline"><em>ApprovalPipeline</em></a>) – The pipeline for the steps</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="post_transfer_ownership">
+<code class="descname">post_transfer_ownership</code><span class="sig-paren">(</span><em>giving_step</em>, <em>taking_step</em>, <em>object</em>, <em>pipeline</em><span class="sig-paren">)</span><a class="headerlink" href="#post_transfer_ownership" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sent after transferring ownership.  This is done before <a class="reference internal" href="#post_approve" title="post_approve"><code class="xref py py-func docutils literal"><span class="pre">post_approve()</span></code></a>
+or <a class="reference internal" href="#post_reject" title="post_reject"><code class="xref py py-func docutils literal"><span class="pre">post_reject()</span></code></a>.  This should be used if you want to do something
+after each transfer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>giving_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step who will be releasing the object</li>
+<li><strong>taking_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step who will be taking the object</li>
+<li><strong>object</strong> – The object being transferred</li>
+<li><strong>pipeline</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalPipeline" title="wagtailapproval.models.ApprovalPipeline"><em>ApprovalPipeline</em></a>) – The pipeline for the steps</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pre_approve">
+<code class="descname">pre_approve</code><span class="sig-paren">(</span><em>giving_step</em>, <em>taking_step</em>, <em>object</em>, <em>pipeline</em><span class="sig-paren">)</span><a class="headerlink" href="#pre_approve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sent before approval.  This is done before <a class="reference internal" href="#pre_transfer_ownership" title="pre_transfer_ownership"><code class="xref py py-func docutils literal"><span class="pre">pre_transfer_ownership()</span></code></a>.
+This can be used for validation.  If
+<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep.approve" title="wagtailapproval.models.ApprovalStep.approve"><code class="xref py py-meth docutils literal"><span class="pre">approve</span></code></a> is run on an
+object that has no approval step, this will not be executed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>giving_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step who will be releasing the object</li>
+<li><strong>taking_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step who will be taking the object</li>
+<li><strong>object</strong> – The object being transferred</li>
+<li><strong>pipeline</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalPipeline" title="wagtailapproval.models.ApprovalPipeline"><em>ApprovalPipeline</em></a>) – The pipeline for the steps</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="post_approve">
+<code class="descname">post_approve</code><span class="sig-paren">(</span><em>giving_step</em>, <em>taking_step</em>, <em>object</em>, <em>pipeline</em><span class="sig-paren">)</span><a class="headerlink" href="#post_approve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sent after approval.  This is done after <a class="reference internal" href="#post_transfer_ownership" title="post_transfer_ownership"><code class="xref py py-func docutils literal"><span class="pre">post_transfer_ownership()</span></code></a>.
+This should be used if you want to do something after each transfer (such as
+if <code class="xref py py-data docutils literal"><span class="pre">taking_step</span></code> is a step that is meant to perform some sort of
+automatic validation or automatic approval/rejection).  If
+<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep.approve" title="wagtailapproval.models.ApprovalStep.approve"><code class="xref py py-meth docutils literal"><span class="pre">approve</span></code></a> is run on an
+object that has no approval step, this will not be executed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>giving_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step who will be releasing the object</li>
+<li><strong>taking_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step who will be taking the object</li>
+<li><strong>object</strong> – The object being transferred</li>
+<li><strong>pipeline</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalPipeline" title="wagtailapproval.models.ApprovalPipeline"><em>ApprovalPipeline</em></a>) – The pipeline for the steps</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pre_reject">
+<code class="descname">pre_reject</code><span class="sig-paren">(</span><em>giving_step</em>, <em>taking_step</em>, <em>object</em>, <em>pipeline</em><span class="sig-paren">)</span><a class="headerlink" href="#pre_reject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sent before rejection.  This is done before <a class="reference internal" href="#pre_transfer_ownership" title="pre_transfer_ownership"><code class="xref py py-func docutils literal"><span class="pre">pre_transfer_ownership()</span></code></a>.
+This can be used for validation.  If
+<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep.reject" title="wagtailapproval.models.ApprovalStep.reject"><code class="xref py py-meth docutils literal"><span class="pre">approve</span></code></a> is run on an
+object that has no rejection step, this will not be executed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>giving_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step who will be releasing the object</li>
+<li><strong>taking_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step who will be taking the object</li>
+<li><strong>object</strong> – The object being transferred</li>
+<li><strong>pipeline</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalPipeline" title="wagtailapproval.models.ApprovalPipeline"><em>ApprovalPipeline</em></a>) – The pipeline for the steps</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="post_reject">
+<code class="descname">post_reject</code><span class="sig-paren">(</span><em>giving_step</em>, <em>taking_step</em>, <em>object</em>, <em>pipeline</em><span class="sig-paren">)</span><a class="headerlink" href="#post_reject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sent after rejection.  This is done after <a class="reference internal" href="#post_transfer_ownership" title="post_transfer_ownership"><code class="xref py py-func docutils literal"><span class="pre">post_transfer_ownership()</span></code></a>.
+This should be used if you want to do something after each transfer (such as
+if <code class="xref py py-data docutils literal"><span class="pre">taking_step</span></code> is a step that is meant to perform some sort of
+automatic validation or automatic approval/rejection).  If
+<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep.reject" title="wagtailapproval.models.ApprovalStep.reject"><code class="xref py py-meth docutils literal"><span class="pre">approve</span></code></a> is run on an
+object that has no rejection step, this will not be executed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>giving_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step who will be releasing the object</li>
+<li><strong>taking_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step who will be taking the object</li>
+<li><strong>object</strong> – The object being transferred</li>
+<li><strong>pipeline</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalPipeline" title="wagtailapproval.models.ApprovalPipeline"><em>ApprovalPipeline</em></a>) – The pipeline for the steps</li>
 </ul>
 </td>
 </tr>
