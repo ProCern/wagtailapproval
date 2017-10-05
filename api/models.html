@@ -1,0 +1,234 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>wagtailapproval.models &#8212; wagtailapproval 0.2.11 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.2.11',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="wagtailapproval.approvalitem" href="approvalitem.html" />
+    <link rel="prev" title="API" href="index.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-wagtailapproval.models">
+<span id="wagtailapproval-models"></span><h1>wagtailapproval.models<a class="headerlink" href="#module-wagtailapproval.models" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="wagtailapproval.models.ApprovalPipeline">
+<em class="property">class </em><code class="descname">ApprovalPipeline</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/models.html#ApprovalPipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.models.ApprovalPipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">wagtail.wagtailcore.models.Page</span></code></p>
+<p>This page type is a very simple page that is only used to hold steps</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="wagtailapproval.models.ApprovalStep">
+<em class="property">class </em><code class="descname">ApprovalStep</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/models.html#ApprovalStep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.models.ApprovalStep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">wagtail.wagtailcore.models.Page</span></code></p>
+<p>Holds posts and facilitates the automatic moving to other steps in the
+same pipeline on approval and rejection.</p>
+<dl class="method">
+<dt id="wagtailapproval.models.ApprovalStep.approve">
+<code class="descname">approve</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/models.html#ApprovalStep.approve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.models.ApprovalStep.approve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run approval on an object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wagtailapproval.models.ApprovalStep.automatic_approval">
+<code class="descname">automatic_approval</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/models.html#ApprovalStep.automatic_approval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.models.ApprovalStep.automatic_approval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Possibly runs processing on an object for automatic approval or
+rejection</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wagtailapproval.models.ApprovalStep.base_form_class">
+<code class="descname">base_form_class</code><a class="headerlink" href="#wagtailapproval.models.ApprovalStep.base_form_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">StepForm</span></code></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wagtailapproval.models.ApprovalStep.clean">
+<code class="descname">clean</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/models.html#ApprovalStep.clean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.models.ApprovalStep.clean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes sure parents are the same</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wagtailapproval.models.ApprovalStep.fix_permissions">
+<code class="descname">fix_permissions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/models.html#ApprovalStep.fix_permissions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.models.ApprovalStep.fix_permissions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set proper restrictions for the owned collection and all owned
+pages.  Does not perform a save, so it can be safely used in a
+post_save signal.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wagtailapproval.models.ApprovalStep.get_items">
+<code class="descname">get_items</code><span class="sig-paren">(</span><em>user</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/models.html#ApprovalStep.get_items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.models.ApprovalStep.get_items" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets an iterator of approval items, for rendering in templates.  In
+practice, this returns a generator.  If you need a stable view, use
+this to construct a list or tuple.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wagtailapproval.models.ApprovalStep.reject">
+<code class="descname">reject</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/models.html#ApprovalStep.reject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.models.ApprovalStep.reject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run rejection on an object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wagtailapproval.models.ApprovalStep.release_ownership">
+<code class="descname">release_ownership</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/models.html#ApprovalStep.release_ownership"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.models.ApprovalStep.release_ownership" title="Permalink to this definition">¶</a></dt>
+<dd><p>Release ownership of an object.  This is idempotent.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wagtailapproval.models.ApprovalStep.set_collection_group_privacy">
+<code class="descname">set_collection_group_privacy</code><span class="sig-paren">(</span><em>private</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/models.html#ApprovalStep.set_collection_group_privacy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.models.ApprovalStep.set_collection_group_privacy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets/unsets the collection group privacy</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wagtailapproval.models.ApprovalStep.set_page_group_privacy">
+<code class="descname">set_page_group_privacy</code><span class="sig-paren">(</span><em>page</em>, <em>private</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/models.html#ApprovalStep.set_page_group_privacy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.models.ApprovalStep.set_page_group_privacy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets/unsets the page group privacy</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wagtailapproval.models.ApprovalStep.take_ownership">
+<code class="descname">take_ownership</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/models.html#ApprovalStep.take_ownership"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.models.ApprovalStep.take_ownership" title="Permalink to this definition">¶</a></dt>
+<dd><p>Take ownership of an object.  Should run all relevant processing on
+changing visibility and other such things.  This is idempotent.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wagtailapproval.models.ApprovalStep.transfer_ownership">
+<code class="descname">transfer_ownership</code><span class="sig-paren">(</span><em>obj</em>, <em>step</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/models.html#ApprovalStep.transfer_ownership"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.models.ApprovalStep.transfer_ownership" title="Permalink to this definition">¶</a></dt>
+<dd><p>Give ownership to another step</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="wagtailapproval.models.ApprovalTicket">
+<em class="property">class </em><code class="descname">ApprovalTicket</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/models.html#ApprovalTicket"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.models.ApprovalTicket" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.db.models.base.Model</span></code></p>
+<p>A special junction table to reference an arbitrary item by uuid.</p>
+<p>This is used to create an arbitrary approval/rejection URL, as it would be
+very difficult to do otherwise (as an approval step can own arbitrary pages
+and collection members with conflicting PKs otherwise).  UUID is done for a
+minor security gain (prevent people from being able to try to act on
+arbitrary PKs, though that will be prevented through user privileges
+anyway, and the UUID should only be used for approvals and rejections, not
+GETs), as well as making the URL more opaque.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">wagtailapproval</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">wagtailapproval.models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="approvalitem.html">wagtailapproval.approvalitem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apps.html">wagtailapproval.apps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="forms.html">wagtailapproval.forms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="menu.html">wagtailapproval.menu</a></li>
+<li class="toctree-l2"><a class="reference internal" href="signals.html">wagtailapproval.signals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="views.html">wagtailapproval.views</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wagtail_hooks.html">wagtailapproval.wagtail_hooks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_signals.html">wagtailapproval._signals</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">API</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">API</a></li>
+      <li>Next: <a href="approvalitem.html" title="next chapter">wagtailapproval.approvalitem</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/models.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Taylor C. Richberger <tcr@absolute-performance.com>.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/api/models.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

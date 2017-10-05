@@ -1,0 +1,129 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>wagtailapproval.wagtail_hooks &#8212; wagtailapproval 0.2.11 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.2.11',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for wagtailapproval.wagtail_hooks</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">django.conf.urls</span> <span class="k">import</span> <span class="n">include</span><span class="p">,</span> <span class="n">url</span>
+<span class="kn">from</span> <span class="nn">wagtail.wagtailcore</span> <span class="k">import</span> <span class="n">hooks</span>
+<span class="kn">from</span> <span class="nn">wagtail.wagtailcore.models</span> <span class="k">import</span> <span class="n">Page</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">urls</span>
+<span class="kn">from</span> <span class="nn">.menu</span> <span class="k">import</span> <span class="n">ApprovalMenuItem</span>
+<span class="kn">from</span> <span class="nn">.models</span> <span class="k">import</span> <span class="n">ApprovalStep</span>
+
+
+<div class="viewcode-block" id="register_admin_urls"><a class="viewcode-back" href="../../api/wagtail_hooks.html#wagtailapproval.wagtail_hooks.register_admin_urls">[docs]</a><span class="nd">@hooks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s1">&#39;register_admin_urls&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">register_admin_urls</span><span class="p">():</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">url</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^approval/&#39;</span><span class="p">,</span> <span class="n">include</span><span class="p">(</span><span class="n">urls</span><span class="p">)),</span>
+        <span class="p">]</span></div>
+
+<div class="viewcode-block" id="register_admin_menu_item"><a class="viewcode-back" href="../../api/wagtail_hooks.html#wagtailapproval.wagtail_hooks.register_admin_menu_item">[docs]</a><span class="nd">@hooks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s1">&#39;register_admin_menu_item&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">register_admin_menu_item</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">ApprovalMenuItem</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="take_ownership_if_necessary"><a class="viewcode-back" href="../../api/wagtail_hooks.html#wagtailapproval.wagtail_hooks.take_ownership_if_necessary">[docs]</a><span class="nd">@hooks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s1">&#39;after_create_page&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">take_ownership_if_necessary</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">page</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Checks the request user and takes ownership of the page if it is created</span>
+<span class="sd">    by an owned user&#39;&#39;&#39;</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
+    <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">ApprovalStep</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">group__in</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">all</span><span class="p">()):</span>
+        <span class="c1"># We do this to enforce that ApprovalTickets only grab the base</span>
+        <span class="c1"># Page object, not the subclass</span>
+        <span class="n">step</span><span class="o">.</span><span class="n">take_ownership</span><span class="p">(</span><span class="n">Page</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="n">page</span><span class="o">.</span><span class="n">pk</span><span class="p">))</span>
+        <span class="n">step</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">wagtailapproval</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Taylor C. Richberger <tcr@absolute-performance.com>.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

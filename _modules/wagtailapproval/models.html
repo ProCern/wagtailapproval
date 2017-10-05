@@ -1,0 +1,430 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>wagtailapproval.models &#8212; wagtailapproval 0.2.11 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.2.11',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for wagtailapproval.models</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
+
+<span class="kn">from</span> <span class="nn">django.conf</span> <span class="k">import</span> <span class="n">settings</span>
+<span class="kn">from</span> <span class="nn">django.contrib.auth</span> <span class="k">import</span> <span class="n">get_user_model</span>
+<span class="kn">from</span> <span class="nn">django.contrib.auth.models</span> <span class="k">import</span> <span class="n">Group</span>
+<span class="kn">from</span> <span class="nn">django.contrib.contenttypes.models</span> <span class="k">import</span> <span class="n">ContentType</span>
+<span class="kn">from</span> <span class="nn">django.contrib.contenttypes.fields</span> <span class="k">import</span> <span class="n">GenericForeignKey</span>
+<span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="k">import</span> <span class="n">ValidationError</span>
+<span class="kn">from</span> <span class="nn">django.db</span> <span class="k">import</span> <span class="n">models</span>
+<span class="kn">from</span> <span class="nn">django.utils.translation</span> <span class="k">import</span> <span class="n">ugettext_lazy</span> <span class="k">as</span> <span class="n">_</span>
+
+<span class="kn">from</span> <span class="nn">modelcluster.fields</span> <span class="k">import</span> <span class="n">ParentalKey</span>
+<span class="kn">from</span> <span class="nn">wagtail.wagtailadmin.edit_handlers</span> <span class="k">import</span> <span class="n">MultiFieldPanel</span><span class="p">,</span> <span class="n">FieldPanel</span>
+<span class="kn">from</span> <span class="nn">wagtail.wagtailcore.models</span> <span class="k">import</span> <span class="n">Page</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">PageViewRestriction</span><span class="p">,</span> <span class="n">GroupPagePermission</span><span class="p">,</span> <span class="n">CollectionViewRestriction</span>
+
+<span class="kn">from</span> <span class="nn">.forms</span> <span class="k">import</span> <span class="n">StepForm</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">signals</span>
+
+<div class="viewcode-block" id="ApprovalPipeline"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalPipeline">[docs]</a><span class="k">class</span> <span class="nc">ApprovalPipeline</span><span class="p">(</span><span class="n">Page</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;This page type is a very simple page that is only used to hold steps&#39;&#39;&#39;</span>
+
+    <span class="n">notes</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">user</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">AUTH_USER_MODEL</span><span class="p">,</span>
+        <span class="n">verbose_name</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s1">&#39;owned user&#39;</span><span class="p">),</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;This is the user that is set to be the owner of all &quot;</span>
+            <span class="s2">&quot;pages that become owned by this pipeline.&quot;</span><span class="p">),</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">SET_NULL</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">content_panels</span> <span class="o">=</span> <span class="n">Page</span><span class="o">.</span><span class="n">content_panels</span> <span class="o">+</span> <span class="p">[</span>
+        <span class="n">FieldPanel</span><span class="p">(</span><span class="s1">&#39;notes&#39;</span><span class="p">,</span> <span class="n">classname</span><span class="o">=</span><span class="s2">&quot;full&quot;</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">verbose_name</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s1">&#39;approval pipeline&#39;</span><span class="p">)</span>
+        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s1">&#39;approval pipelines&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ApprovalStep"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalStep">[docs]</a><span class="k">class</span> <span class="nc">ApprovalStep</span><span class="p">(</span><span class="n">Page</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Holds posts and facilitates the automatic moving to other steps in the</span>
+<span class="sd">    same pipeline on approval and rejection.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">approval_step</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="s1">&#39;self&#39;</span><span class="p">,</span>
+        <span class="n">verbose_name</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s1">&#39;approval step&#39;</span><span class="p">),</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;The step that ownership is given to on approval&quot;</span><span class="p">),</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">SET_NULL</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">)</span>
+
+    <span class="n">rejection_step</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="s1">&#39;self&#39;</span><span class="p">,</span>
+        <span class="n">verbose_name</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s1">&#39;rejection step&#39;</span><span class="p">),</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;The step that ownership is given to on rejection&quot;</span><span class="p">),</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">SET_NULL</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">)</span>
+
+    <span class="n">group</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Group</span><span class="p">,</span>
+        <span class="n">verbose_name</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s1">&#39;owned group&#39;</span><span class="p">),</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;The group that permissions are modified for on entering &quot;</span>
+            <span class="s2">&quot;or leaving this step. This should apply for pages as well as &quot;</span>
+            <span class="s2">&quot;collections.  For all intents and purposes, users in this group &quot;</span>
+            <span class="s2">&quot;are owned by this step, and everything they do is subject to the &quot;</span>
+            <span class="s2">&quot;approval pipeline.  This step is the strict owner of this group.&quot;</span><span class="p">),</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">SET_NULL</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">collection</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Collection</span><span class="p">,</span>
+        <span class="n">verbose_name</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s1">&#39;owned collection&#39;</span><span class="p">),</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;The collection that collection member objects are &quot;</span>
+            <span class="s2">&quot;assigned to.  This step is the strict owner of this collection&quot;</span><span class="p">),</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">SET_NULL</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">can_delete</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span>
+        <span class="n">verbose_name</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s1">&#39;can delete owned objects&#39;</span><span class="p">),</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Whether or not owned objects can be deleted&quot;</span><span class="p">),</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">can_edit</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span>
+        <span class="n">verbose_name</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s1">&#39;can edit owned objects&#39;</span><span class="p">),</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Whether or not owned objects can be edited.  This may be &quot;</span>
+            <span class="s2">&quot;False for most non-edit steps, such as Approval, Published, or &quot;</span>
+            <span class="s2">&quot;automatic Approval steps&quot;</span><span class="p">),</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">private_to_group</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span>
+        <span class="n">verbose_name</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s1">&#39;make owned objects private to group&#39;</span><span class="p">),</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Whether the object is made private to its group.  This &quot;</span>
+            <span class="s2">&quot;is done for most steps, and should typically only be disabled for &quot;</span>
+            <span class="s2">&quot;a published step.&quot;</span><span class="p">),</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">content_panels</span> <span class="o">=</span> <span class="n">Page</span><span class="o">.</span><span class="n">content_panels</span> <span class="o">+</span> <span class="p">[</span>
+        <span class="n">MultiFieldPanel</span><span class="p">([</span>
+                <span class="n">FieldPanel</span><span class="p">(</span><span class="s1">&#39;approval_step&#39;</span><span class="p">),</span>
+                <span class="n">FieldPanel</span><span class="p">(</span><span class="s1">&#39;rejection_step&#39;</span><span class="p">),</span>
+            <span class="p">],</span>
+            <span class="n">heading</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Connected Steps&quot;</span><span class="p">),</span>
+            <span class="p">),</span>
+        <span class="n">MultiFieldPanel</span><span class="p">([</span>
+                <span class="n">FieldPanel</span><span class="p">(</span><span class="s1">&#39;can_delete&#39;</span><span class="p">),</span>
+                <span class="n">FieldPanel</span><span class="p">(</span><span class="s1">&#39;can_edit&#39;</span><span class="p">),</span>
+                <span class="n">FieldPanel</span><span class="p">(</span><span class="s1">&#39;private_to_group&#39;</span><span class="p">),</span>
+            <span class="p">],</span>
+            <span class="n">heading</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Owned Restrictions&quot;</span><span class="p">),</span>
+            <span class="p">),</span>
+    <span class="p">]</span>
+
+    <span class="n">parent_page_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">ApprovalPipeline</span><span class="p">]</span>
+    <span class="n">subpage_types</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">base_form_class</span> <span class="o">=</span> <span class="n">StepForm</span>
+
+<div class="viewcode-block" id="ApprovalStep.clean"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalStep.clean">[docs]</a>    <span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Makes sure parents are the same&#39;&#39;&#39;</span>
+
+        <span class="n">approval</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">approval_step</span>
+        <span class="n">rejection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rejection_step</span>
+        <span class="k">if</span> <span class="n">approval</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_parent</span><span class="p">()</span> <span class="o">!=</span> <span class="n">approval</span><span class="o">.</span><span class="n">get_parent</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s1">&#39;Linked steps must have the same parent&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">rejection</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_parent</span><span class="p">()</span> <span class="o">!=</span> <span class="n">rejection</span><span class="o">.</span><span class="n">get_parent</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s1">&#39;Linked steps must have the same parent&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ApprovalStep.approve"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalStep.approve">[docs]</a>    <span class="k">def</span> <span class="nf">approve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Run approval on an object&#39;&#39;&#39;</span>
+
+        <span class="n">step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">approval_step</span>
+        <span class="k">if</span> <span class="n">step</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transfer_ownership</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ApprovalStep.reject"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalStep.reject">[docs]</a>    <span class="k">def</span> <span class="nf">reject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Run rejection on an object&#39;&#39;&#39;</span>
+
+        <span class="n">step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rejection_step</span>
+        <span class="k">if</span> <span class="n">step</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transfer_ownership</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ApprovalStep.transfer_ownership"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalStep.transfer_ownership">[docs]</a>    <span class="k">def</span> <span class="nf">transfer_ownership</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Give ownership to another step&#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Page</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="n">obj</span><span class="o">.</span><span class="n">live</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Can not approve or reject a page that is not published&#39;</span><span class="p">)</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">release_ownership</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="n">step</span><span class="o">.</span><span class="n">take_ownership</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="c1"># Do this to fix permissions.  release_ownership releases its own</span>
+        <span class="c1"># permissions manually, take_ownership does not.</span>
+        <span class="n">step</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ApprovalStep.take_ownership"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalStep.take_ownership">[docs]</a>    <span class="k">def</span> <span class="nf">take_ownership</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Take ownership of an object.  Should run all relevant processing on</span>
+<span class="sd">        changing visibility and other such things.  This is idempotent.&#39;&#39;&#39;</span>
+        <span class="n">pipeline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_parent</span><span class="p">()</span><span class="o">.</span><span class="n">specific</span>
+
+        <span class="n">signals</span><span class="o">.</span><span class="n">take_ownership</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">sender</span><span class="o">=</span><span class="n">ApprovalStep</span><span class="p">,</span>
+            <span class="n">approval_step</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="nb">object</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span>
+            <span class="n">pipeline</span><span class="o">=</span><span class="n">pipeline</span><span class="p">)</span>
+
+        <span class="n">ApprovalTicket</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span>
+            <span class="n">step</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">content_type</span><span class="o">=</span><span class="n">ContentType</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_for_model</span><span class="p">(</span><span class="n">obj</span><span class="p">),</span>
+            <span class="n">object_id</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ApprovalStep.release_ownership"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalStep.release_ownership">[docs]</a>    <span class="k">def</span> <span class="nf">release_ownership</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Release ownership of an object.  This is idempotent.&#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Page</span><span class="p">):</span>
+            <span class="c1"># Release all page permissions</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_page_group_privacy</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_page_edit</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_page_delete</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">ApprovalTicket</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">step</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">content_type</span><span class="o">=</span><span class="n">ContentType</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_for_model</span><span class="p">(</span><span class="n">obj</span><span class="p">),</span>
+            <span class="n">object_id</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ApprovalStep.set_page_group_privacy"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalStep.set_page_group_privacy">[docs]</a>    <span class="k">def</span> <span class="nf">set_page_group_privacy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">page</span><span class="p">,</span> <span class="n">private</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Sets/unsets the page group privacy&#39;&#39;&#39;</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span>
+
+        <span class="k">if</span> <span class="n">private</span><span class="p">:</span>
+            <span class="n">restriction</span><span class="p">,</span> <span class="n">created</span> <span class="o">=</span> <span class="n">PageViewRestriction</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span>
+                <span class="n">page</span><span class="o">=</span><span class="n">page</span><span class="p">,</span>
+                <span class="n">restriction_type</span><span class="o">=</span><span class="n">PageViewRestriction</span><span class="o">.</span><span class="n">GROUPS</span><span class="p">)</span>
+            <span class="n">restriction</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">restrictions</span> <span class="o">=</span> <span class="n">PageViewRestriction</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">page</span><span class="o">=</span><span class="n">page</span><span class="p">,</span>
+                <span class="n">restriction_type</span><span class="o">=</span><span class="n">PageViewRestriction</span><span class="o">.</span><span class="n">GROUPS</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">restriction</span> <span class="ow">in</span> <span class="n">restrictions</span><span class="p">:</span>
+                <span class="n">restriction</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">restriction</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                    <span class="n">restriction</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">set_page_edit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">page</span><span class="p">,</span> <span class="n">edit</span><span class="p">):</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span>
+        <span class="sd">&#39;&#39;&#39;Sets/unsets page edit permissinos&#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">edit</span><span class="p">:</span>
+            <span class="n">GroupPagePermission</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span><span class="n">group</span><span class="o">=</span><span class="n">group</span><span class="p">,</span> <span class="n">page</span><span class="o">=</span><span class="n">page</span><span class="p">,</span> <span class="n">permission_type</span><span class="o">=</span><span class="s1">&#39;edit&#39;</span><span class="p">)</span>
+            <span class="n">GroupPagePermission</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span><span class="n">group</span><span class="o">=</span><span class="n">group</span><span class="p">,</span> <span class="n">page</span><span class="o">=</span><span class="n">page</span><span class="p">,</span> <span class="n">permission_type</span><span class="o">=</span><span class="s1">&#39;publish&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">GroupPagePermission</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">group</span><span class="o">=</span><span class="n">group</span><span class="p">,</span> <span class="n">page</span><span class="o">=</span><span class="n">page</span><span class="p">,</span> <span class="n">permission_type</span><span class="o">=</span><span class="s1">&#39;edit&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+            <span class="n">GroupPagePermission</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">group</span><span class="o">=</span><span class="n">group</span><span class="p">,</span> <span class="n">page</span><span class="o">=</span><span class="n">page</span><span class="p">,</span> <span class="n">permission_type</span><span class="o">=</span><span class="s1">&#39;publish&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">set_page_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">page</span><span class="p">,</span> <span class="n">delete</span><span class="p">):</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span>
+        <span class="sd">&#39;&#39;&#39;Sets/unsets page delete permissinos&#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">delete</span><span class="p">:</span>
+            <span class="n">GroupPagePermission</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span><span class="n">group</span><span class="o">=</span><span class="n">group</span><span class="p">,</span> <span class="n">page</span><span class="o">=</span><span class="n">page</span><span class="p">,</span> <span class="n">permission_type</span><span class="o">=</span><span class="s1">&#39;delete&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">GroupPagePermission</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">group</span><span class="o">=</span><span class="n">group</span><span class="p">,</span> <span class="n">page</span><span class="o">=</span><span class="n">page</span><span class="p">,</span> <span class="n">permission_type</span><span class="o">=</span><span class="s1">&#39;delete&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ApprovalStep.set_collection_group_privacy"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalStep.set_collection_group_privacy">[docs]</a>    <span class="k">def</span> <span class="nf">set_collection_group_privacy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">private</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Sets/unsets the collection group privacy&#39;&#39;&#39;</span>
+        <span class="n">collection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collection</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span>
+
+        <span class="k">if</span> <span class="n">private</span><span class="p">:</span>
+            <span class="n">restriction</span><span class="p">,</span> <span class="n">created</span> <span class="o">=</span> <span class="n">CollectionViewRestriction</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span>
+                <span class="n">collection</span><span class="o">=</span><span class="n">collection</span><span class="p">,</span>
+                <span class="n">restriction_type</span><span class="o">=</span><span class="n">CollectionViewRestriction</span><span class="o">.</span><span class="n">GROUPS</span><span class="p">)</span>
+            <span class="n">restriction</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">restrictions</span> <span class="o">=</span> <span class="n">CollectionViewRestriction</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">collection</span><span class="o">=</span><span class="n">collection</span><span class="p">,</span>
+                <span class="n">restriction_type</span><span class="o">=</span><span class="n">CollectionViewRestriction</span><span class="o">.</span><span class="n">GROUPS</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">restriction</span> <span class="ow">in</span> <span class="n">restrictions</span><span class="p">:</span>
+                <span class="n">restriction</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">restriction</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                    <span class="n">restriction</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ApprovalStep.fix_permissions"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalStep.fix_permissions">[docs]</a>    <span class="k">def</span> <span class="nf">fix_permissions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Set proper restrictions for the owned collection and all owned</span>
+<span class="sd">        pages.  Does not perform a save, so it can be safely used in a</span>
+<span class="sd">        post_save signal.&#39;&#39;&#39;</span>
+
+        <span class="n">collection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collection</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">group</span>
+
+        <span class="k">if</span> <span class="n">group</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">collection</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_collection_group_privacy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">private_to_group</span><span class="p">)</span>
+                <span class="n">signals</span><span class="o">.</span><span class="n">set_collection_edit</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">sender</span><span class="o">=</span><span class="n">ApprovalStep</span><span class="p">,</span>
+                    <span class="n">approval_step</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+                    <span class="n">edit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">can_edit</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">ticket</span> <span class="ow">in</span> <span class="n">ApprovalTicket</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">step</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+                <span class="n">content_type</span><span class="o">=</span><span class="n">ContentType</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_for_model</span><span class="p">(</span><span class="n">Page</span><span class="p">)):</span>
+
+                <span class="n">page</span> <span class="o">=</span> <span class="n">ticket</span><span class="o">.</span><span class="n">item</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_page_group_privacy</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">private_to_group</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_page_edit</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">can_edit</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_page_delete</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">can_delete</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ApprovalStep.automatic_approval"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalStep.automatic_approval">[docs]</a>    <span class="k">def</span> <span class="nf">automatic_approval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Possibly runs processing on an object for automatic approval or</span>
+<span class="sd">        rejection&#39;&#39;&#39;</span></div>
+
+<div class="viewcode-block" id="ApprovalStep.get_items"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalStep.get_items">[docs]</a>    <span class="k">def</span> <span class="nf">get_items</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Gets an iterator of approval items, for rendering in templates.  In</span>
+<span class="sd">        practice, this returns a generator.  If you need a stable view, use</span>
+<span class="sd">        this to construct a list or tuple.&#39;&#39;&#39;</span>
+
+        <span class="c1"># All approval items are grabbed through signals.  This is technically</span>
+        <span class="c1"># unnecessary, but it simplifies the logic a little bit and gives a</span>
+        <span class="c1"># chance to illustrate the proper use of the signals by using them</span>
+        <span class="c1"># internally</span>
+        <span class="n">lists</span> <span class="o">=</span> <span class="n">signals</span><span class="o">.</span><span class="n">build_approval_item_list</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
+            <span class="n">sender</span><span class="o">=</span><span class="n">ApprovalStep</span><span class="p">,</span>
+            <span class="n">approval_step</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">approval_items</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">lists</span><span class="p">))[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="n">approvalItems</span> <span class="o">=</span> <span class="p">()</span>
+
+        <span class="n">removal_lists</span> <span class="o">=</span> <span class="n">signals</span><span class="o">.</span><span class="n">remove_approval_items</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
+            <span class="n">sender</span><span class="o">=</span><span class="n">ApprovalStep</span><span class="p">,</span>
+            <span class="n">approval_items</span><span class="o">=</span><span class="n">approval_items</span><span class="p">,</span>
+            <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
+
+        <span class="c1"># Need a tuple so items can be removed individually</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">removal_items</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">removal_lists</span><span class="p">))[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="n">removal_items</span> <span class="o">=</span> <span class="p">()</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">approval_items</span> <span class="k">if</span> <span class="n">item</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">removal_items</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="ApprovalTicket"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalTicket">[docs]</a><span class="k">class</span> <span class="nc">ApprovalTicket</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;A special junction table to reference an arbitrary item by uuid.</span>
+<span class="sd">    </span>
+<span class="sd">    This is used to create an arbitrary approval/rejection URL, as it would be</span>
+<span class="sd">    very difficult to do otherwise (as an approval step can own arbitrary pages</span>
+<span class="sd">    and collection members with conflicting PKs otherwise).  UUID is done for a</span>
+<span class="sd">    minor security gain (prevent people from being able to try to act on</span>
+<span class="sd">    arbitrary PKs, though that will be prevented through user privileges</span>
+<span class="sd">    anyway, and the UUID should only be used for approvals and rejections, not</span>
+<span class="sd">    GETs), as well as making the URL more opaque.&#39;&#39;&#39;</span>
+
+    <span class="nb">id</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">UUIDField</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">,</span> <span class="n">editable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">step</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">ApprovalStep</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">)</span>
+    <span class="n">content_type</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">ContentType</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
+    <span class="n">object_id</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveIntegerField</span><span class="p">()</span>
+    <span class="n">item</span> <span class="o">=</span> <span class="n">GenericForeignKey</span><span class="p">(</span><span class="s1">&#39;content_type&#39;</span><span class="p">,</span> <span class="s1">&#39;object_id&#39;</span><span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">unique_together</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;step&#39;</span><span class="p">,</span> <span class="s1">&#39;content_type&#39;</span><span class="p">,</span> <span class="s1">&#39;object_id&#39;</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">wagtailapproval</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Taylor C. Richberger <tcr@absolute-performance.com>.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

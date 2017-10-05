@@ -1,0 +1,235 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>wagtailapproval._signals &#8212; wagtailapproval 0.2.11 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.2.11',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="wagtailapproval.wagtail_hooks" href="wagtail_hooks.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-wagtailapproval._signals">
+<span id="wagtailapproval-signals"></span><h1>wagtailapproval._signals<a class="headerlink" href="#module-wagtailapproval._signals" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="wagtailapproval._signals.add_document">
+<code class="descname">add_document</code><span class="sig-paren">(</span><em>sender</em>, <em>approval_step</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/_signals.html#add_document"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval._signals.add_document" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds the approval item list for documents</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="wagtailapproval._signals.add_images">
+<code class="descname">add_images</code><span class="sig-paren">(</span><em>sender</em>, <em>approval_step</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/_signals.html#add_images"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval._signals.add_images" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds the approval item list for images</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="wagtailapproval._signals.add_pages">
+<code class="descname">add_pages</code><span class="sig-paren">(</span><em>sender</em>, <em>approval_step</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/_signals.html#add_pages"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval._signals.add_pages" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds the approval item list for pages</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="wagtailapproval._signals.approvalticket_cascade_delete">
+<code class="descname">approvalticket_cascade_delete</code><span class="sig-paren">(</span><em>sender</em>, <em>instance</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/_signals.html#approvalticket_cascade_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval._signals.approvalticket_cascade_delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>This deletes objects from <code class="xref py py-class docutils literal"><span class="pre">ApprovalTicket</span></code> if they are deleted,
+to avoid leaking space (a deleted object would otherwise never be freed
+from the ticket database, as cascades don’t work for
+<code class="xref py py-class docutils literal"><span class="pre">GenericForeignKey</span></code> without a <code class="xref py py-class docutils literal"><span class="pre">GenericRelation</span></code> ).
+Essentially, this is a custom cascade delete.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="wagtailapproval._signals.catch_collection_objects">
+<code class="descname">catch_collection_objects</code><span class="sig-paren">(</span><em>sender</em>, <em>instance</em>, <em>created</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/_signals.html#catch_collection_objects"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval._signals.catch_collection_objects" title="Permalink to this definition">¶</a></dt>
+<dd><p>If newly-created objects are created inside of a collection that is
+owned by an ApprovalStep, it will automatically take ownership of those
+objects</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="wagtailapproval._signals.delete_owned_group_and_collection">
+<code class="descname">delete_owned_group_and_collection</code><span class="sig-paren">(</span><em>sender</em>, <em>instance</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/_signals.html#delete_owned_group_and_collection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval._signals.delete_owned_group_and_collection" title="Permalink to this definition">¶</a></dt>
+<dd><p>This deletes the owned group and collection from <code class="xref py py-class docutils literal"><span class="pre">ApprovalStep</span></code>
+when the step is deleted.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="wagtailapproval._signals.delete_owned_user">
+<code class="descname">delete_owned_user</code><span class="sig-paren">(</span><em>sender</em>, <em>instance</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/_signals.html#delete_owned_user"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval._signals.delete_owned_user" title="Permalink to this definition">¶</a></dt>
+<dd><p>This deletes the owned user from <code class="xref py py-class docutils literal"><span class="pre">ApprovalPipeline</span></code> when the
+pipeline is deleted.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="wagtailapproval._signals.fix_restrictions">
+<code class="descname">fix_restrictions</code><span class="sig-paren">(</span><em>sender</em>, <em>instance</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/_signals.html#fix_restrictions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval._signals.fix_restrictions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update ApprovalStep restrictions on a save.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="wagtailapproval._signals.send_published_signals">
+<code class="descname">send_published_signals</code><span class="sig-paren">(</span><em>sender</em>, <em>instance</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/_signals.html#send_published_signals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval._signals.send_published_signals" title="Permalink to this definition">¶</a></dt>
+<dd><p>This simply watches for a published step or pipeline, and sends a signal
+for it.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="wagtailapproval._signals.set_document_collection_edit">
+<code class="descname">set_document_collection_edit</code><span class="sig-paren">(</span><em>sender</em>, <em>approval_step</em>, <em>edit</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/_signals.html#set_document_collection_edit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval._signals.set_document_collection_edit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets collection permissions for documents</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="wagtailapproval._signals.set_image_collection_edit">
+<code class="descname">set_image_collection_edit</code><span class="sig-paren">(</span><em>sender</em>, <em>approval_step</em>, <em>edit</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/_signals.html#set_image_collection_edit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval._signals.set_image_collection_edit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets collection permissions for images</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="wagtailapproval._signals.setup_group_and_collection">
+<code class="descname">setup_group_and_collection</code><span class="sig-paren">(</span><em>sender</em>, <em>instance</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/_signals.html#setup_group_and_collection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval._signals.setup_group_and_collection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create or rename the step’s owned groups and collections</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="wagtailapproval._signals.setup_pipeline_user">
+<code class="descname">setup_pipeline_user</code><span class="sig-paren">(</span><em>sender</em>, <em>instance</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/_signals.html#setup_pipeline_user"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval._signals.setup_pipeline_user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup an ApprovalPipeline user</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="wagtailapproval._signals.update_collection_ownership">
+<code class="descname">update_collection_ownership</code><span class="sig-paren">(</span><em>sender</em>, <em>approval_step</em>, <em>object</em>, <em>pipeline</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/_signals.html#update_collection_ownership"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval._signals.update_collection_ownership" title="Permalink to this definition">¶</a></dt>
+<dd><p>Individual take_ownerships for each type should be implemented that also
+take the collection member.  This is a fallback in case something doesn’t
+work the way it should</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="wagtailapproval._signals.update_document_ownership">
+<code class="descname">update_document_ownership</code><span class="sig-paren">(</span><em>sender</em>, <em>approval_step</em>, <em>object</em>, <em>pipeline</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/_signals.html#update_document_ownership"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval._signals.update_document_ownership" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="wagtailapproval._signals.update_image_ownership">
+<code class="descname">update_image_ownership</code><span class="sig-paren">(</span><em>sender</em>, <em>approval_step</em>, <em>object</em>, <em>pipeline</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/_signals.html#update_image_ownership"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval._signals.update_image_ownership" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="wagtailapproval._signals.update_page_ownership">
+<code class="descname">update_page_ownership</code><span class="sig-paren">(</span><em>sender</em>, <em>approval_step</em>, <em>object</em>, <em>pipeline</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/_signals.html#update_page_ownership"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval._signals.update_page_ownership" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">wagtailapproval</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="models.html">wagtailapproval.models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="approvalitem.html">wagtailapproval.approvalitem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apps.html">wagtailapproval.apps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="forms.html">wagtailapproval.forms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="menu.html">wagtailapproval.menu</a></li>
+<li class="toctree-l2"><a class="reference internal" href="signals.html">wagtailapproval.signals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="views.html">wagtailapproval.views</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wagtail_hooks.html">wagtailapproval.wagtail_hooks</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">wagtailapproval._signals</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">API</a><ul>
+      <li>Previous: <a href="wagtail_hooks.html" title="previous chapter">wagtailapproval.wagtail_hooks</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/_signals.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Taylor C. Richberger <tcr@absolute-performance.com>.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/api/_signals.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

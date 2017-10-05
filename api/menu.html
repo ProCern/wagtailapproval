@@ -1,0 +1,145 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>wagtailapproval.menu &#8212; wagtailapproval 0.2.11 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.2.11',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="wagtailapproval.signals" href="signals.html" />
+    <link rel="prev" title="wagtailapproval.forms" href="forms.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-wagtailapproval.menu">
+<span id="wagtailapproval-menu"></span><h1>wagtailapproval.menu<a class="headerlink" href="#module-wagtailapproval.menu" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="wagtailapproval.menu.ApprovalMenuItem">
+<em class="property">class </em><code class="descname">ApprovalMenuItem</code><span class="sig-paren">(</span><em>label='Approval'</em>, <em>url='/admin/approval/'</em>, <em>classnames='icon icon-tick-inverse'</em>, <em>order=200</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/menu.html#ApprovalMenuItem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.menu.ApprovalMenuItem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">wagtail.wagtailadmin.menu.MenuItem</span></code></p>
+<p>The menu item that shows in the wagtail sidebar</p>
+<dl class="method">
+<dt id="wagtailapproval.menu.ApprovalMenuItem.is_shown">
+<code class="descname">is_shown</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/menu.html#ApprovalMenuItem.is_shown"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.menu.ApprovalMenuItem.is_shown" title="Permalink to this definition">¶</a></dt>
+<dd><p>Only show the menu if the user is in an owned approval group</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wagtailapproval.menu.ApprovalMenuItem.media">
+<code class="descname">media</code><a class="headerlink" href="#wagtailapproval.menu.ApprovalMenuItem.media" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">wagtailapproval</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="models.html">wagtailapproval.models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="approvalitem.html">wagtailapproval.approvalitem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apps.html">wagtailapproval.apps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="forms.html">wagtailapproval.forms</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">wagtailapproval.menu</a></li>
+<li class="toctree-l2"><a class="reference internal" href="signals.html">wagtailapproval.signals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="views.html">wagtailapproval.views</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wagtail_hooks.html">wagtailapproval.wagtail_hooks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_signals.html">wagtailapproval._signals</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">API</a><ul>
+      <li>Previous: <a href="forms.html" title="previous chapter">wagtailapproval.forms</a></li>
+      <li>Next: <a href="signals.html" title="next chapter">wagtailapproval.signals</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/menu.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Taylor C. Richberger <tcr@absolute-performance.com>.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/api/menu.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

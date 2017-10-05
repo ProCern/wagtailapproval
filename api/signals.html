@@ -1,0 +1,252 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>wagtailapproval.signals &#8212; wagtailapproval 0.2.11 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.2.11',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="wagtailapproval.views" href="views.html" />
+    <link rel="prev" title="wagtailapproval.menu" href="menu.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="wagtailapproval-signals">
+<h1>wagtailapproval.signals<a class="headerlink" href="#wagtailapproval-signals" title="Permalink to this headline">¶</a></h1>
+<p>This is all the signals supported by wagtailapproval.  Examples of most of the
+important ones can be found directly in <a class="reference internal" href="_signals.html#module-wagtailapproval._signals" title="wagtailapproval._signals"><code class="xref py py-mod docutils literal"><span class="pre">wagtailapproval._signals</span></code></a>.</p>
+<p>Signals are documented here as the functions that catch them.  <code class="docutils literal"><span class="pre">sender</span></code>,
+<code class="docutils literal"><span class="pre">signal</span></code>, and <code class="docutils literal"><span class="pre">**kwargs</span></code> are ommitted for brevity.  Some signals expect
+return values and may misbehave if the signal handlers don’t return what they
+are expected to.</p>
+<dl class="function">
+<dt id="step_published">
+<code class="descname">step_published</code><span class="sig-paren">(</span><em>instance</em><span class="sig-paren">)</span><a class="headerlink" href="#step_published" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sent when a step is published.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>instance</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The instance that was published</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pipeline_published">
+<code class="descname">pipeline_published</code><span class="sig-paren">(</span><em>instance</em><span class="sig-paren">)</span><a class="headerlink" href="#pipeline_published" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sent when a pipeline is published.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>instance</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalPipeline" title="wagtailapproval.models.ApprovalPipeline"><em>ApprovalPipeline</em></a>) – The instance that was published</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="build_approval_item_list">
+<code class="descname">build_approval_item_list</code><span class="sig-paren">(</span><em>approval_step</em>, <em>user</em><span class="sig-paren">)</span><a class="headerlink" href="#build_approval_item_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used when building the approval items.  Should return an iterable of
+ApprovalItem instances.  You may return any iterable, meaning generators are
+also acceptable.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>approval_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step to grab items from</li>
+<li><strong>user</strong> (<em>User</em>) – The user to grab items for</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">Iterable[<a class="reference internal" href="approvalitem.html#wagtailapproval.approvalitem.ApprovalItem" title="wagtailapproval.approvalitem.ApprovalItem">ApprovalItem</a>]</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">An iterable of <a class="reference internal" href="approvalitem.html#wagtailapproval.approvalitem.ApprovalItem" title="wagtailapproval.approvalitem.ApprovalItem"><code class="xref py py-class docutils literal"><span class="pre">ApprovalItem</span></code></a> instances</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="remove_approval_items">
+<code class="descname">remove_approval_items</code><span class="sig-paren">(</span><em>approval_items</em>, <em>user</em><span class="sig-paren">)</span><a class="headerlink" href="#remove_approval_items" title="Permalink to this definition">¶</a></dt>
+<dd><p>Can be used to implement custom filtering.  Should return an iterable of
+ApprovalItem instances that the user doesn’t want shown.  The instances
+don’t have to exactly match, but may support equality.  It is preferable
+that you use the same object, though, as an <code class="docutils literal"><span class="pre">is</span></code> comparison is faster.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>approval_items</strong> (<em>tuple</em><em>[</em><a class="reference internal" href="approvalitem.html#wagtailapproval.approvalitem.ApprovalItem" title="wagtailapproval.approvalitem.ApprovalItem"><em>ApprovalItem</em></a><em>]</em>) – The full list of approval items</li>
+<li><strong>user</strong> (<em>User</em>) – The user to filter items for</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">Iterable[<a class="reference internal" href="approvalitem.html#wagtailapproval.approvalitem.ApprovalItem" title="wagtailapproval.approvalitem.ApprovalItem">ApprovalItem</a>]</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">An iterable of <a class="reference internal" href="approvalitem.html#wagtailapproval.approvalitem.ApprovalItem" title="wagtailapproval.approvalitem.ApprovalItem"><code class="xref py py-class docutils literal"><span class="pre">ApprovalItem</span></code></a> instances</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="set_collection_edit">
+<code class="descname">set_collection_edit</code><span class="sig-paren">(</span><em>approval_step</em>, <em>edit</em><span class="sig-paren">)</span><a class="headerlink" href="#set_collection_edit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Can be used to customize collection editing permissions.  Use the edit
+kwarg, not the step’s can_edit field, because they might not match.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>approval_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step to modify collection permissions for</li>
+<li><strong>edit</strong> (<em>bool</em>) – whether editing is to be enabled or disabled</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="take_ownership">
+<code class="descname">take_ownership</code><span class="sig-paren">(</span><em>approval_step</em>, <em>object</em><span class="sig-paren">)</span><a class="headerlink" href="#take_ownership" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used for taking ownership by specific type.  Do not work with ApprovalTicket
+here, as it’s done automatically after this signal is called.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>approval_step</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.ApprovalStep" title="wagtailapproval.models.ApprovalStep"><em>ApprovalStep</em></a>) – The step to give the object to.</li>
+<li><strong>object</strong> – The object to give to the step</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">wagtailapproval</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="models.html">wagtailapproval.models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="approvalitem.html">wagtailapproval.approvalitem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="apps.html">wagtailapproval.apps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="forms.html">wagtailapproval.forms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="menu.html">wagtailapproval.menu</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">wagtailapproval.signals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="views.html">wagtailapproval.views</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wagtail_hooks.html">wagtailapproval.wagtail_hooks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="_signals.html">wagtailapproval._signals</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">API</a><ul>
+      <li>Previous: <a href="menu.html" title="previous chapter">wagtailapproval.menu</a></li>
+      <li>Next: <a href="views.html" title="next chapter">wagtailapproval.views</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/signals.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Taylor C. Richberger <tcr@absolute-performance.com>.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/api/signals.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
