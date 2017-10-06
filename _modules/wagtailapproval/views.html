@@ -39,15 +39,18 @@
           <div class="body" role="main">
             
   <h1>Source code for wagtailapproval.views</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">django.contrib.auth</span> <span class="k">import</span> <span class="n">get_user</span>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="p">(</span><span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span>
+                        <span class="n">unicode_literals</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">django.contrib.auth</span> <span class="k">import</span> <span class="n">get_user</span>
 <span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="k">import</span> <span class="n">PermissionDenied</span>
 <span class="kn">from</span> <span class="nn">django.shortcuts</span> <span class="k">import</span> <span class="n">get_object_or_404</span><span class="p">,</span> <span class="n">redirect</span><span class="p">,</span> <span class="n">render</span>
 <span class="kn">from</span> <span class="nn">django.utils.translation</span> <span class="k">import</span> <span class="n">ugettext_lazy</span> <span class="k">as</span> <span class="n">_</span>
-
 <span class="kn">from</span> <span class="nn">wagtail.wagtailadmin</span> <span class="k">import</span> <span class="n">messages</span>
 
-<span class="kn">from</span> <span class="nn">.models</span> <span class="k">import</span> <span class="n">ApprovalTicket</span>
 <span class="kn">from</span> <span class="nn">.approvalitem</span> <span class="k">import</span> <span class="n">get_user_approval_items</span>
+<span class="kn">from</span> <span class="nn">.models</span> <span class="k">import</span> <span class="n">ApprovalTicket</span>
+
 
 <div class="viewcode-block" id="index"><a class="viewcode-back" href="../../api/views.html#wagtailapproval.views.index">[docs]</a><span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Get all pending approvals that are relevant for the current user&#39;&#39;&#39;</span>
@@ -56,17 +59,17 @@
     <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;wagtailapproval/index.html&#39;</span><span class="p">,</span> <span class="p">{</span>
         <span class="s1">&#39;approval_list&#39;</span><span class="p">:</span> <span class="n">approval_items</span><span class="p">})</span></div>
 
+
 <div class="viewcode-block" id="check_permissions"><a class="viewcode-back" href="../../api/views.html#wagtailapproval.views.check_permissions">[docs]</a><span class="k">def</span> <span class="nf">check_permissions</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">check_wrapper</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">pk</span><span class="p">):</span>
         <span class="n">user</span> <span class="o">=</span> <span class="n">get_user</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
         <span class="n">ticket</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">ApprovalTicket</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="n">pk</span><span class="p">)</span>
-        <span class="n">step</span> <span class="o">=</span> <span class="n">ticket</span><span class="o">.</span><span class="n">step</span>
-        <span class="n">item</span> <span class="o">=</span> <span class="n">ticket</span><span class="o">.</span><span class="n">item</span>
-        <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">group</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">user</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">ticket</span><span class="o">.</span><span class="n">step</span><span class="o">.</span><span class="n">group</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">user</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
             <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="s1">&#39;User not in step group&#39;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">function</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">pk</span><span class="p">,</span> <span class="n">ticket</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">check_wrapper</span></div>
+
 
 <div class="viewcode-block" id="approve"><a class="viewcode-back" href="../../api/views.html#wagtailapproval.views.approve">[docs]</a><span class="nd">@check_permissions</span>
 <span class="k">def</span> <span class="nf">approve</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">pk</span><span class="p">,</span> <span class="n">ticket</span><span class="p">):</span>
@@ -79,8 +82,8 @@
 
     <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;wagtailapproval/approve.html&#39;</span><span class="p">,</span> <span class="p">{</span>
         <span class="s1">&#39;step&#39;</span><span class="p">:</span> <span class="n">step</span><span class="p">,</span>
-        <span class="s1">&#39;ticket&#39;</span><span class="p">:</span> <span class="n">ticket</span><span class="p">,</span>
-        <span class="p">})</span></div>
+        <span class="s1">&#39;ticket&#39;</span><span class="p">:</span> <span class="n">ticket</span><span class="p">})</span></div>
+
 
 <div class="viewcode-block" id="reject"><a class="viewcode-back" href="../../api/views.html#wagtailapproval.views.reject">[docs]</a><span class="nd">@check_permissions</span>
 <span class="k">def</span> <span class="nf">reject</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">pk</span><span class="p">,</span> <span class="n">ticket</span><span class="p">):</span>
@@ -93,8 +96,7 @@
 
     <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;wagtailapproval/reject.html&#39;</span><span class="p">,</span> <span class="p">{</span>
         <span class="s1">&#39;step&#39;</span><span class="p">:</span> <span class="n">step</span><span class="p">,</span>
-        <span class="s1">&#39;ticket&#39;</span><span class="p">:</span> <span class="n">ticket</span><span class="p">,</span>
-        <span class="p">})</span></div>
+        <span class="s1">&#39;ticket&#39;</span><span class="p">:</span> <span class="n">ticket</span><span class="p">})</span></div>
 </pre></div>
 
           </div>

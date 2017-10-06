@@ -39,41 +39,58 @@
           <div class="body" role="main">
             
   <h1>Source code for wagtailapproval.menu</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">django.contrib.auth</span> <span class="k">import</span> <span class="n">get_user</span>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="p">(</span><span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span>
+                        <span class="n">unicode_literals</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">django.contrib.auth</span> <span class="k">import</span> <span class="n">get_user</span>
 <span class="kn">from</span> <span class="nn">django.core.urlresolvers</span> <span class="k">import</span> <span class="n">reverse</span><span class="p">,</span> <span class="n">reverse_lazy</span>
-<span class="kn">from</span> <span class="nn">django.utils.translation</span> <span class="k">import</span> <span class="n">ugettext_lazy</span> <span class="k">as</span> <span class="n">_</span><span class="p">,</span> <span class="n">ungettext_lazy</span> <span class="k">as</span> <span class="n">_n</span>
-
-<span class="kn">from</span> <span class="nn">wagtail.wagtailadmin.menu</span> <span class="k">import</span> <span class="n">MenuItem</span>
+<span class="kn">from</span> <span class="nn">django.utils.translation</span> <span class="k">import</span> <span class="n">ugettext_lazy</span> <span class="k">as</span> <span class="n">_</span>
+<span class="kn">from</span> <span class="nn">django.utils.translation</span> <span class="k">import</span> <span class="n">ungettext_lazy</span> <span class="k">as</span> <span class="n">_n</span>
 <span class="kn">from</span> <span class="nn">wagtail.wagtailadmin</span> <span class="k">import</span> <span class="n">messages</span>
+<span class="kn">from</span> <span class="nn">wagtail.wagtailadmin.menu</span> <span class="k">import</span> <span class="n">MenuItem</span>
 
-<span class="kn">from</span> <span class="nn">.models</span> <span class="k">import</span> <span class="n">ApprovalStep</span>
 <span class="kn">from</span> <span class="nn">.approvalitem</span> <span class="k">import</span> <span class="n">get_user_approval_items</span>
+<span class="kn">from</span> <span class="nn">.models</span> <span class="k">import</span> <span class="n">ApprovalStep</span>
+
 
 <div class="viewcode-block" id="ApprovalMenuItem"><a class="viewcode-back" href="../../api/menu.html#wagtailapproval.menu.ApprovalMenuItem">[docs]</a><span class="k">class</span> <span class="nc">ApprovalMenuItem</span><span class="p">(</span><span class="n">MenuItem</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;The menu item that shows in the wagtail sidebar&#39;&#39;&#39;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
         <span class="n">label</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s1">&#39;Approval&#39;</span><span class="p">),</span> <span class="n">url</span><span class="o">=</span><span class="n">reverse_lazy</span><span class="p">(</span><span class="s1">&#39;wagtailapproval:index&#39;</span><span class="p">),</span>
         <span class="n">classnames</span><span class="o">=</span><span class="s1">&#39;icon icon-tick-inverse&#39;</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">classnames</span><span class="o">=</span><span class="n">classnames</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">label</span><span class="p">,</span>
+            <span class="n">url</span><span class="p">,</span>
+            <span class="n">classnames</span><span class="o">=</span><span class="n">classnames</span><span class="p">,</span>
+            <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ApprovalMenuItem.is_shown"><a class="viewcode-back" href="../../api/menu.html#wagtailapproval.menu.ApprovalMenuItem.is_shown">[docs]</a>    <span class="k">def</span> <span class="nf">is_shown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Only show the menu if the user is in an owned approval group&#39;&#39;&#39;</span>
         <span class="n">user</span> <span class="o">=</span> <span class="n">get_user</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
         <span class="n">groups</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">ApprovalStep</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">group__in</span><span class="o">=</span><span class="n">groups</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-            <span class="c1"># Display the approval notification only outside of the approval paths</span>
+            <span class="c1"># Display the approval notification only outside of the approval</span>
+            <span class="c1"># paths</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;wagtailapproval:index&#39;</span><span class="p">)):</span>
                 <span class="c1"># Get the count of waiting approvals</span>
-                <span class="n">waiting_approvals</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">get_user_approval_items</span><span class="p">(</span><span class="n">user</span><span class="p">))</span>
+                <span class="n">waiting_approvals</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+                    <span class="mi">1</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">get_user_approval_items</span><span class="p">(</span><span class="n">user</span><span class="p">))</span>
                 <span class="k">if</span> <span class="n">waiting_approvals</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">messages</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                         <span class="n">request</span><span class="p">,</span>
-                        <span class="n">_n</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{num:d}</span><span class="s1"> item waiting for approval&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{num:d}</span><span class="s1"> items waiting for approval&#39;</span><span class="p">,</span> <span class="n">waiting_approvals</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="n">waiting_approvals</span><span class="p">),</span>
+                        <span class="n">_n</span><span class="p">(</span>
+                            <span class="s1">&#39;</span><span class="si">{num:d}</span><span class="s1"> item waiting for approval&#39;</span><span class="p">,</span>
+                            <span class="s1">&#39;</span><span class="si">{num:d}</span><span class="s1"> items waiting for approval&#39;</span><span class="p">,</span>
+                            <span class="n">waiting_approvals</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="n">waiting_approvals</span><span class="p">),</span>
                         <span class="n">buttons</span><span class="o">=</span><span class="p">[</span>
-                            <span class="n">messages</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;wagtailapproval:index&#39;</span><span class="p">),</span> <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Examine Now&#39;</span><span class="p">))</span>
-                            <span class="p">]</span>
-                        <span class="p">)</span>
+                            <span class="n">messages</span><span class="o">.</span><span class="n">button</span><span class="p">(</span>
+                                <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;wagtailapproval:index&#39;</span><span class="p">),</span>
+                                <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Examine Now&#39;</span><span class="p">))</span>
+                        <span class="p">]</span>
+                    <span class="p">)</span>
             <span class="k">return</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="kc">False</span></div></div>
 </pre></div>

@@ -39,13 +39,18 @@
           <div class="body" role="main">
             
   <h1>Source code for wagtailapproval.apps</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">django.apps</span> <span class="k">import</span> <span class="n">AppConfig</span>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="p">(</span><span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span>
+                        <span class="n">unicode_literals</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">django.apps</span> <span class="k">import</span> <span class="n">AppConfig</span>
+
 
 <div class="viewcode-block" id="WagtailApprovalConfig"><a class="viewcode-back" href="../../api/apps.html#wagtailapproval.apps.WagtailApprovalConfig">[docs]</a><span class="k">class</span> <span class="nc">WagtailApprovalConfig</span><span class="p">(</span><span class="n">AppConfig</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Simply imports signals&#39;&#39;&#39;</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;wagtailapproval&#39;</span>
+
 <div class="viewcode-block" id="WagtailApprovalConfig.ready"><a class="viewcode-back" href="../../api/apps.html#wagtailapproval.apps.WagtailApprovalConfig.ready">[docs]</a>    <span class="k">def</span> <span class="nf">ready</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">_signals</span></div></div>
+        <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">_signals</span>  <span class="c1"># noqa: F401</span></div></div>
 </pre></div>
 
           </div>

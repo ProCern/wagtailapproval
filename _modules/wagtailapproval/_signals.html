@@ -39,24 +39,30 @@
           <div class="body" role="main">
             
   <h1>Source code for wagtailapproval._signals</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">numbers</span> <span class="k">import</span> <span class="n">Integral</span>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="p">(</span><span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span>
+                        <span class="n">unicode_literals</span><span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">django.dispatch</span> <span class="k">import</span> <span class="n">receiver</span>
+<span class="kn">from</span> <span class="nn">numbers</span> <span class="k">import</span> <span class="n">Integral</span>
+
 <span class="kn">from</span> <span class="nn">django.contrib.auth</span> <span class="k">import</span> <span class="n">get_user_model</span>
 <span class="kn">from</span> <span class="nn">django.contrib.auth.models</span> <span class="k">import</span> <span class="n">Group</span><span class="p">,</span> <span class="n">Permission</span>
-<span class="kn">from</span> <span class="nn">django.core.urlresolvers</span> <span class="k">import</span> <span class="n">reverse</span>
 <span class="kn">from</span> <span class="nn">django.contrib.contenttypes.models</span> <span class="k">import</span> <span class="n">ContentType</span>
-<span class="kn">from</span> <span class="nn">django.db.models.signals</span> <span class="k">import</span> <span class="n">post_save</span><span class="p">,</span> <span class="n">post_delete</span>
+<span class="kn">from</span> <span class="nn">django.core.urlresolvers</span> <span class="k">import</span> <span class="n">reverse</span>
+<span class="kn">from</span> <span class="nn">django.db.models.signals</span> <span class="k">import</span> <span class="n">post_delete</span><span class="p">,</span> <span class="n">post_save</span>
+<span class="kn">from</span> <span class="nn">django.dispatch</span> <span class="k">import</span> <span class="n">receiver</span>
 <span class="kn">from</span> <span class="nn">django.utils.translation</span> <span class="k">import</span> <span class="n">ugettext_lazy</span> <span class="k">as</span> <span class="n">_</span>
-
-<span class="kn">from</span> <span class="nn">wagtail.wagtailcore.signals</span> <span class="k">import</span> <span class="n">page_published</span><span class="p">,</span> <span class="n">page_unpublished</span>
-<span class="kn">from</span> <span class="nn">wagtail.wagtailcore.models</span> <span class="k">import</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">CollectionMember</span><span class="p">,</span> <span class="n">Page</span><span class="p">,</span> <span class="n">GroupCollectionPermission</span>
-<span class="kn">from</span> <span class="nn">wagtail.wagtailimages.models</span> <span class="k">import</span> <span class="n">Image</span>
+<span class="kn">from</span> <span class="nn">wagtail.wagtailcore.models</span> <span class="k">import</span> <span class="p">(</span><span class="n">Collection</span><span class="p">,</span> <span class="n">CollectionMember</span><span class="p">,</span>
+                                        <span class="n">GroupCollectionPermission</span><span class="p">,</span> <span class="n">Page</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">wagtail.wagtailcore.signals</span> <span class="k">import</span> <span class="n">page_published</span>
 <span class="kn">from</span> <span class="nn">wagtail.wagtaildocs.models</span> <span class="k">import</span> <span class="n">Document</span>
+<span class="kn">from</span> <span class="nn">wagtail.wagtailimages.models</span> <span class="k">import</span> <span class="n">Image</span>
 
-<span class="kn">from</span> <span class="nn">.models</span> <span class="k">import</span> <span class="n">ApprovalPipeline</span><span class="p">,</span> <span class="n">ApprovalStep</span><span class="p">,</span> <span class="n">ApprovalTicket</span>
-<span class="kn">from</span> <span class="nn">.signals</span> <span class="k">import</span> <span class="n">step_published</span><span class="p">,</span> <span class="n">pipeline_published</span><span class="p">,</span> <span class="n">build_approval_item_list</span><span class="p">,</span> <span class="n">set_collection_edit</span><span class="p">,</span> <span class="n">take_ownership</span><span class="p">,</span> <span class="n">pre_transfer_ownership</span><span class="p">,</span> <span class="n">release_ownership</span>
 <span class="kn">from</span> <span class="nn">.approvalitem</span> <span class="k">import</span> <span class="n">ApprovalItem</span>
+<span class="kn">from</span> <span class="nn">.models</span> <span class="k">import</span> <span class="n">ApprovalPipeline</span><span class="p">,</span> <span class="n">ApprovalStep</span><span class="p">,</span> <span class="n">ApprovalTicket</span>
+<span class="kn">from</span> <span class="nn">.signals</span> <span class="k">import</span> <span class="p">(</span><span class="n">build_approval_item_list</span><span class="p">,</span> <span class="n">pipeline_published</span><span class="p">,</span>
+                      <span class="n">pre_transfer_ownership</span><span class="p">,</span> <span class="n">release_ownership</span><span class="p">,</span>
+                      <span class="n">set_collection_edit</span><span class="p">,</span> <span class="n">step_published</span><span class="p">,</span> <span class="n">take_ownership</span><span class="p">)</span>
+
 
 <div class="viewcode-block" id="send_published_signals"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.send_published_signals">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">page_published</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">send_published_signals</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -67,32 +73,36 @@
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">ApprovalStep</span><span class="p">):</span>
         <span class="n">step_published</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">sender</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="n">instance</span><span class="p">),</span> <span class="n">instance</span><span class="o">=</span><span class="n">instance</span><span class="p">)</span></div>
 
+
 <span class="c1"># The prefix string for owned collections and users</span>
 <span class="n">_PREFIX</span> <span class="o">=</span> <span class="s2">&quot;(Approval) &quot;</span>
+
 
 <div class="viewcode-block" id="setup_pipeline_user"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.setup_pipeline_user">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">pipeline_published</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">setup_pipeline_user</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Setup an ApprovalPipeline user&#39;&#39;&#39;</span>
     <span class="n">User</span> <span class="o">=</span> <span class="n">get_user_model</span><span class="p">()</span>
 
-    <span class="n">username_max_length</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">get_field</span><span class="p">(</span><span class="s1">&#39;username&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">max_length</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">_PREFIX</span><span class="p">)</span>
-    <span class="n">username</span> <span class="o">=</span> <span class="n">_PREFIX</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">instance</span><span class="p">)[:</span><span class="n">username_max_length</span><span class="p">]</span>
+    <span class="n">username_max_length</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">get_field</span><span class="p">(</span><span class="s1">&#39;username&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">max_length</span>
+    <span class="n">username</span> <span class="o">=</span> <span class="p">(</span><span class="n">_PREFIX</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">instance</span><span class="p">))[:</span><span class="n">username_max_length</span><span class="p">]</span>
     <span class="n">user</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">user</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="p">:</span>
-        <span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">)</span> 
+        <span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">)</span>
         <span class="n">instance</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="n">user</span>
 
     <span class="n">instance</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div>
+
 
 <div class="viewcode-block" id="setup_group_and_collection"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.setup_group_and_collection">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">step_published</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">setup_group_and_collection</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Create or rename the step&#39;s owned groups and collections&#39;&#39;&#39;</span>
     <span class="n">pipeline</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">get_parent</span><span class="p">()</span><span class="o">.</span><span class="n">specific</span>
     <span class="n">group_max_length</span> <span class="o">=</span> <span class="n">Group</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">get_field</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">max_length</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">_PREFIX</span><span class="p">)</span>
-    <span class="n">group_name</span> <span class="o">=</span> <span class="n">_PREFIX</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> - </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">instance</span><span class="p">)[</span><span class="o">-</span><span class="n">group_max_length</span><span class="p">:]</span>
+    <span class="n">group_name</span> <span class="o">=</span> <span class="n">_PREFIX</span> <span class="o">+</span> <span class="p">(</span>
+        <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> - </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">instance</span><span class="p">)[</span><span class="o">-</span><span class="n">group_max_length</span><span class="p">:])</span>
     <span class="n">group</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">group</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">group</span><span class="p">:</span>
-        <span class="n">group</span> <span class="o">=</span> <span class="n">Group</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">group_name</span><span class="p">)</span> 
+        <span class="n">group</span> <span class="o">=</span> <span class="n">Group</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">group_name</span><span class="p">)</span>
         <span class="n">access_admin</span> <span class="o">=</span> <span class="n">Permission</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">codename</span><span class="o">=</span><span class="s1">&#39;access_admin&#39;</span><span class="p">)</span>
         <span class="n">group</span><span class="o">.</span><span class="n">permissions</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">access_admin</span><span class="p">)</span>
         <span class="n">instance</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="n">group</span>
@@ -101,14 +111,16 @@
         <span class="n">group</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">group_name</span>
         <span class="n">group</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 
-    <span class="n">collection_max_length</span> <span class="o">=</span> <span class="n">Collection</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">get_field</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">max_length</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">_PREFIX</span><span class="p">)</span>
-    <span class="n">collection_name</span> <span class="o">=</span> <span class="n">_PREFIX</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> - </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">instance</span><span class="p">)[</span><span class="o">-</span><span class="n">group_max_length</span><span class="p">:]</span>
+    <span class="n">collection_max_length</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">Collection</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">get_field</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">max_length</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">_PREFIX</span><span class="p">))</span>
+    <span class="n">collection_name</span> <span class="o">=</span> <span class="n">_PREFIX</span> <span class="o">+</span> <span class="p">(</span>
+        <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> - </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">instance</span><span class="p">)[</span><span class="o">-</span><span class="n">collection_max_length</span><span class="p">:])</span>
 
     <span class="n">collection</span> <span class="o">=</span> <span class="n">instance</span><span class="o">.</span><span class="n">collection</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">collection</span><span class="p">:</span>
         <span class="n">root_collection</span> <span class="o">=</span> <span class="n">Collection</span><span class="o">.</span><span class="n">get_first_root_node</span><span class="p">()</span>
-        <span class="n">collection</span> <span class="o">=</span> <span class="n">root_collection</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">collection_name</span><span class="p">)</span> 
+        <span class="n">collection</span> <span class="o">=</span> <span class="n">root_collection</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">collection_name</span><span class="p">)</span>
         <span class="n">instance</span><span class="o">.</span><span class="n">collection</span> <span class="o">=</span> <span class="n">collection</span>
 
     <span class="k">if</span> <span class="n">collection</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">collection_name</span><span class="p">:</span>
@@ -117,6 +129,7 @@
 
     <span class="c1"># We run a save regardless to ensure permissions are properly set up</span>
     <span class="n">instance</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div>
+
 
 <div class="viewcode-block" id="catch_collection_objects"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.catch_collection_objects">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">post_save</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">catch_collection_objects</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">created</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -133,6 +146,7 @@
 
         <span class="n">step</span><span class="o">.</span><span class="n">take_ownership</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span></div>
 
+
 <div class="viewcode-block" id="approvalticket_cascade_delete"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.approvalticket_cascade_delete">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">post_delete</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">approvalticket_cascade_delete</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;This deletes objects from :class:`ApprovalTicket` if they are deleted,</span>
@@ -148,6 +162,7 @@
             <span class="n">content_type</span><span class="o">=</span><span class="n">ContentType</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_for_model</span><span class="p">(</span><span class="n">instance</span><span class="p">),</span>
             <span class="n">object_id</span><span class="o">=</span><span class="n">instance</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span></div>
 
+
 <div class="viewcode-block" id="delete_owned_user"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.delete_owned_user">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">post_delete</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="n">ApprovalPipeline</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">delete_owned_user</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;This deletes the owned user from :class:`ApprovalPipeline` when the</span>
@@ -155,6 +170,7 @@
 
     <span class="k">if</span> <span class="n">instance</span><span class="o">.</span><span class="n">user</span><span class="p">:</span>
         <span class="n">instance</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span></div>
+
 
 <div class="viewcode-block" id="delete_owned_group_and_collection"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.delete_owned_group_and_collection">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">post_delete</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="n">ApprovalStep</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">delete_owned_group_and_collection</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -167,11 +183,13 @@
     <span class="k">if</span> <span class="n">instance</span><span class="o">.</span><span class="n">collection</span><span class="p">:</span>
         <span class="n">instance</span><span class="o">.</span><span class="n">collection</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span></div>
 
+
 <div class="viewcode-block" id="fix_restrictions"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.fix_restrictions">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">post_save</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="n">ApprovalStep</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">fix_restrictions</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Update ApprovalStep restrictions on a save.&#39;&#39;&#39;</span>
 
     <span class="n">instance</span><span class="o">.</span><span class="n">fix_permissions</span><span class="p">()</span></div>
+
 
 <div class="viewcode-block" id="add_pages"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.add_pages">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">build_approval_item_list</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">add_pages</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">approval_step</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -187,12 +205,15 @@
             <span class="k">yield</span> <span class="n">ApprovalItem</span><span class="p">(</span>
                 <span class="n">title</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">specific</span><span class="p">),</span>
                 <span class="n">view_url</span><span class="o">=</span><span class="n">specific</span><span class="o">.</span><span class="n">url</span><span class="p">,</span>
-                <span class="n">edit_url</span><span class="o">=</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;wagtailadmin_pages:edit&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">page</span><span class="o">.</span><span class="n">id</span><span class="p">,)),</span>
-                <span class="n">delete_url</span><span class="o">=</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;wagtailadmin_pages:delete&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">page</span><span class="o">.</span><span class="n">id</span><span class="p">,)),</span>
+                <span class="n">edit_url</span><span class="o">=</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;wagtailadmin_pages:edit&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">page</span><span class="o">.</span><span class="n">pk</span><span class="p">]),</span>
+                <span class="n">delete_url</span><span class="o">=</span><span class="n">reverse</span><span class="p">(</span>
+                    <span class="s1">&#39;wagtailadmin_pages:delete&#39;</span><span class="p">,</span>
+                    <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">page</span><span class="o">.</span><span class="n">pk</span><span class="p">]),</span>
                 <span class="n">obj</span><span class="o">=</span><span class="n">page</span><span class="p">,</span>
                 <span class="n">step</span><span class="o">=</span><span class="n">approval_step</span><span class="p">,</span>
                 <span class="n">typename</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="n">specific</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
                 <span class="n">uuid</span><span class="o">=</span><span class="n">ticket</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="add_images"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.add_images">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">build_approval_item_list</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">add_images</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">approval_step</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -204,12 +225,13 @@
         <span class="k">yield</span> <span class="n">ApprovalItem</span><span class="p">(</span>
             <span class="n">title</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">image</span><span class="p">),</span>
             <span class="n">view_url</span><span class="o">=</span><span class="n">image</span><span class="o">.</span><span class="n">get_rendition</span><span class="p">(</span><span class="s1">&#39;original&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">url</span><span class="p">,</span>
-            <span class="n">edit_url</span><span class="o">=</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;wagtailimages:edit&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">,)),</span>
-            <span class="n">delete_url</span><span class="o">=</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;wagtailimages:delete&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">id</span><span class="p">,)),</span>
+            <span class="n">edit_url</span><span class="o">=</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;wagtailimages:edit&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">image</span><span class="o">.</span><span class="n">pk</span><span class="p">]),</span>
+            <span class="n">delete_url</span><span class="o">=</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;wagtailimages:delete&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">image</span><span class="o">.</span><span class="n">pk</span><span class="p">]),</span>
             <span class="n">obj</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
             <span class="n">step</span><span class="o">=</span><span class="n">approval_step</span><span class="p">,</span>
             <span class="n">typename</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="n">image</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
             <span class="n">uuid</span><span class="o">=</span><span class="n">ticket</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="add_document"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.add_document">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">build_approval_item_list</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">add_document</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">approval_step</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -221,12 +243,13 @@
         <span class="k">yield</span> <span class="n">ApprovalItem</span><span class="p">(</span>
             <span class="n">title</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">document</span><span class="p">),</span>
             <span class="n">view_url</span><span class="o">=</span><span class="n">document</span><span class="o">.</span><span class="n">url</span><span class="p">,</span>
-            <span class="n">edit_url</span><span class="o">=</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;wagtaildocs:edit&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">document</span><span class="o">.</span><span class="n">id</span><span class="p">,)),</span>
-            <span class="n">delete_url</span><span class="o">=</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;wagtaildocs:delete&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">document</span><span class="o">.</span><span class="n">id</span><span class="p">,)),</span>
+            <span class="n">edit_url</span><span class="o">=</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;wagtaildocs:edit&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">document</span><span class="o">.</span><span class="n">pk</span><span class="p">]),</span>
+            <span class="n">delete_url</span><span class="o">=</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;wagtaildocs:delete&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">document</span><span class="o">.</span><span class="n">pk</span><span class="p">]),</span>
             <span class="n">obj</span><span class="o">=</span><span class="n">document</span><span class="p">,</span>
             <span class="n">step</span><span class="o">=</span><span class="n">approval_step</span><span class="p">,</span>
             <span class="n">typename</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="n">document</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
             <span class="n">uuid</span><span class="o">=</span><span class="n">ticket</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="set_image_collection_edit"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.set_image_collection_edit">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">set_collection_edit</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">set_image_collection_edit</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">approval_step</span><span class="p">,</span> <span class="n">edit</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -238,9 +261,16 @@
     <span class="n">perm</span> <span class="o">=</span> <span class="n">Permission</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">codename</span><span class="o">=</span><span class="s1">&#39;change_image&#39;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">edit</span><span class="p">:</span>
-        <span class="n">GroupCollectionPermission</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span><span class="n">group</span><span class="o">=</span><span class="n">group</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="n">collection</span><span class="p">,</span> <span class="n">permission</span><span class="o">=</span><span class="n">perm</span><span class="p">)</span>
+        <span class="n">GroupCollectionPermission</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span>
+            <span class="n">group</span><span class="o">=</span><span class="n">group</span><span class="p">,</span>
+            <span class="n">collection</span><span class="o">=</span><span class="n">collection</span><span class="p">,</span>
+            <span class="n">permission</span><span class="o">=</span><span class="n">perm</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">GroupCollectionPermission</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">group</span><span class="o">=</span><span class="n">group</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="n">collection</span><span class="p">,</span> <span class="n">permission</span><span class="o">=</span><span class="n">perm</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span></div>
+        <span class="n">GroupCollectionPermission</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">group</span><span class="o">=</span><span class="n">group</span><span class="p">,</span>
+            <span class="n">collection</span><span class="o">=</span><span class="n">collection</span><span class="p">,</span>
+            <span class="n">permission</span><span class="o">=</span><span class="n">perm</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span></div>
+
 
 <div class="viewcode-block" id="set_document_collection_edit"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.set_document_collection_edit">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">set_collection_edit</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">set_document_collection_edit</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">approval_step</span><span class="p">,</span> <span class="n">edit</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -252,9 +282,16 @@
     <span class="n">perm</span> <span class="o">=</span> <span class="n">Permission</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">codename</span><span class="o">=</span><span class="s1">&#39;change_document&#39;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">edit</span><span class="p">:</span>
-        <span class="n">GroupCollectionPermission</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span><span class="n">group</span><span class="o">=</span><span class="n">group</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="n">collection</span><span class="p">,</span> <span class="n">permission</span><span class="o">=</span><span class="n">perm</span><span class="p">)</span>
+        <span class="n">GroupCollectionPermission</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span>
+            <span class="n">group</span><span class="o">=</span><span class="n">group</span><span class="p">,</span>
+            <span class="n">collection</span><span class="o">=</span><span class="n">collection</span><span class="p">,</span>
+            <span class="n">permission</span><span class="o">=</span><span class="n">perm</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">GroupCollectionPermission</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">group</span><span class="o">=</span><span class="n">group</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="n">collection</span><span class="p">,</span> <span class="n">permission</span><span class="o">=</span><span class="n">perm</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span></div>
+        <span class="n">GroupCollectionPermission</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">group</span><span class="o">=</span><span class="n">group</span><span class="p">,</span>
+            <span class="n">collection</span><span class="o">=</span><span class="n">collection</span><span class="p">,</span>
+            <span class="n">permission</span><span class="o">=</span><span class="n">perm</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span></div>
+
 
 <div class="viewcode-block" id="update_page_ownership"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.update_page_ownership">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">take_ownership</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">update_page_ownership</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">approval_step</span><span class="p">,</span> <span class="nb">object</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -262,8 +299,10 @@
         <span class="nb">object</span><span class="o">.</span><span class="n">owner</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">user</span>
         <span class="nb">object</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div>
 
+
 <div class="viewcode-block" id="update_collection_ownership"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.update_collection_ownership">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">take_ownership</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">update_collection_ownership</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">approval_step</span><span class="p">,</span> <span class="nb">object</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">update_collection_ownership</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">approval_step</span><span class="p">,</span> <span class="nb">object</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Individual take_ownerships for each type should be implemented that also</span>
 <span class="sd">    take the collection member.  This is a fallback in case something doesn&#39;t</span>
 <span class="sd">    work the way it should&#39;&#39;&#39;</span>
@@ -272,6 +311,7 @@
         <span class="k">if</span> <span class="nb">object</span><span class="o">.</span><span class="n">collection</span> <span class="o">!=</span> <span class="n">approval_step</span><span class="o">.</span><span class="n">collection</span><span class="p">:</span>
             <span class="nb">object</span><span class="o">.</span><span class="n">collection</span> <span class="o">=</span> <span class="n">approval_step</span><span class="o">.</span><span class="n">collection</span>
             <span class="nb">object</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div>
+
 
 <div class="viewcode-block" id="update_image_ownership"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.update_image_ownership">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">take_ownership</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">update_image_ownership</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">approval_step</span><span class="p">,</span> <span class="nb">object</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -289,8 +329,11 @@
         <span class="k">if</span> <span class="n">updated</span><span class="p">:</span>
             <span class="nb">object</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div>
 
+
 <div class="viewcode-block" id="update_document_ownership"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.update_document_ownership">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">take_ownership</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">update_document_ownership</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">approval_step</span><span class="p">,</span> <span class="nb">object</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">update_document_ownership</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">approval_step</span><span class="p">,</span> <span class="nb">object</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">Document</span><span class="p">):</span>
         <span class="n">updated</span> <span class="o">=</span> <span class="kc">False</span>
 
@@ -305,18 +348,25 @@
         <span class="k">if</span> <span class="n">updated</span><span class="p">:</span>
             <span class="nb">object</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div>
 
+
 <div class="viewcode-block" id="release_page_permissions"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.release_page_permissions">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">release_ownership</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">release_page_permissions</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">approval_step</span><span class="p">,</span> <span class="nb">object</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">release_page_permissions</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">approval_step</span><span class="p">,</span> <span class="nb">object</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">Page</span><span class="p">):</span>
         <span class="c1"># Release all page permissions</span>
         <span class="n">approval_step</span><span class="o">.</span><span class="n">set_page_group_privacy</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
         <span class="n">approval_step</span><span class="o">.</span><span class="n">set_page_edit</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
         <span class="n">approval_step</span><span class="o">.</span><span class="n">set_page_delete</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span></div>
 
+
 <div class="viewcode-block" id="assert_page_live"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.assert_page_live">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">pre_transfer_ownership</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">assert_page_live</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">giving_step</span><span class="p">,</span> <span class="n">taking_step</span><span class="p">,</span> <span class="nb">object</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">assert_page_live</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">giving_step</span><span class="p">,</span> <span class="n">taking_step</span><span class="p">,</span> <span class="nb">object</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">Page</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="nb">object</span><span class="o">.</span><span class="n">live</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Can not approve or reject a page that is not published&#39;</span><span class="p">)</span></div>
+        <span class="k">assert</span> <span class="nb">object</span><span class="o">.</span><span class="n">live</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span>
+            <span class="s1">&#39;Can not approve or reject a page that is not published&#39;</span><span class="p">)</span></div>
 </pre></div>
 
           </div>

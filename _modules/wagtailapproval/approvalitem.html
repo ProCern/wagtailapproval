@@ -39,16 +39,22 @@
           <div class="body" role="main">
             
   <h1>Source code for wagtailapproval.approvalitem</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">itertools</span>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="p">(</span><span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span>
+                        <span class="n">unicode_literals</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">itertools</span>
 
 <span class="kn">from</span> <span class="nn">.models</span> <span class="k">import</span> <span class="n">ApprovalStep</span>
+
 
 <div class="viewcode-block" id="ApprovalItem"><a class="viewcode-back" href="../../api/approvalitem.html#wagtailapproval.approvalitem.ApprovalItem">[docs]</a><span class="k">class</span> <span class="nc">ApprovalItem</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;An Approval menu item, used for building the munu list, including links</span>
 <span class="sd">    and all.  Objects of this type should be added through the</span>
 <span class="sd">    :func:`build_approval_item_list &lt;build_approval_item_list&gt;` signal.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">view_url</span><span class="p">,</span> <span class="n">edit_url</span><span class="p">,</span> <span class="n">delete_url</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">typename</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">view_url</span><span class="p">,</span> <span class="n">edit_url</span><span class="p">,</span> <span class="n">delete_url</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span>
+        <span class="n">typename</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
+
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param str title: The title as displayed in the list</span>
 <span class="sd">        :param str view_url: The URL to view the item.</span>
@@ -57,8 +63,10 @@
 <span class="sd">        :param obj: The item itself.</span>
 <span class="sd">        :param ApprovalStep step: The step for this item.</span>
 <span class="sd">        :param str typename: The type name of the item.</span>
-<span class="sd">        :param uuid.UUID uuid: The UUID for this item, the pk for :class:`ApprovalTicket &lt;wagtailapproval.models.ApprovalTicket&gt;`</span>
+<span class="sd">        :param uuid.UUID uuid: The UUID for this item, the pk for</span>
+<span class="sd">            :class:`ApprovalTicket &lt;wagtailapproval.models.ApprovalTicket&gt;`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_title</span> <span class="o">=</span> <span class="n">title</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_view_url</span> <span class="o">=</span> <span class="n">view_url</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_edit_url</span> <span class="o">=</span> <span class="n">edit_url</span>
@@ -100,12 +108,15 @@
     <span class="k">def</span> <span class="nf">uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span></div>
 
+
 <div class="viewcode-block" id="get_user_approval_items"><a class="viewcode-back" href="../../api/approvalitem.html#wagtailapproval.approvalitem.get_user_approval_items">[docs]</a><span class="k">def</span> <span class="nf">get_user_approval_items</span><span class="p">(</span><span class="n">user</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Get an iterable of all items pending for a user&#39;s approval.</span>
-<span class="sd">    </span>
-<span class="sd">    :param User user: A user object whose groups are to be checked for appropriate steps</span>
+
+<span class="sd">    :param User user: A user object whose groups are to be checked for</span>
+<span class="sd">        appropriate steps</span>
 <span class="sd">    :rtype: Iterable[ApprovalItem]</span>
-<span class="sd">    :returns: All the items that this user can approve or reject.&#39;&#39;&#39;</span>
+<span class="sd">    :returns: All the items that this user can approve or reject.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
 
     <span class="n">groups</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
     <span class="n">steps</span> <span class="o">=</span> <span class="n">ApprovalStep</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">group__in</span><span class="o">=</span><span class="n">groups</span><span class="p">)</span>

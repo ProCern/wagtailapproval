@@ -39,24 +39,27 @@
           <div class="body" role="main">
             
   <h1>Source code for wagtailapproval.wagtail_hooks</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">django.conf.urls</span> <span class="k">import</span> <span class="n">include</span><span class="p">,</span> <span class="n">url</span>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="p">(</span><span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span>
+                        <span class="n">unicode_literals</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">django.conf.urls</span> <span class="k">import</span> <span class="n">include</span><span class="p">,</span> <span class="n">url</span>
 <span class="kn">from</span> <span class="nn">wagtail.wagtailcore</span> <span class="k">import</span> <span class="n">hooks</span>
 <span class="kn">from</span> <span class="nn">wagtail.wagtailcore.models</span> <span class="k">import</span> <span class="n">Page</span>
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">urls</span>
 <span class="kn">from</span> <span class="nn">.menu</span> <span class="k">import</span> <span class="n">ApprovalMenuItem</span>
-<span class="kn">from</span> <span class="nn">.models</span> <span class="k">import</span> <span class="n">ApprovalStep</span>
+<span class="kn">from</span> <span class="nn">.models</span> <span class="k">import</span> <span class="n">ApprovalPipeline</span><span class="p">,</span> <span class="n">ApprovalStep</span>
 
 
 <div class="viewcode-block" id="register_admin_urls"><a class="viewcode-back" href="../../api/wagtail_hooks.html#wagtailapproval.wagtail_hooks.register_admin_urls">[docs]</a><span class="nd">@hooks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s1">&#39;register_admin_urls&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">register_admin_urls</span><span class="p">():</span>
-    <span class="k">return</span> <span class="p">[</span>
-        <span class="n">url</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^approval/&#39;</span><span class="p">,</span> <span class="n">include</span><span class="p">(</span><span class="n">urls</span><span class="p">)),</span>
-        <span class="p">]</span></div>
+    <span class="k">return</span> <span class="p">[</span><span class="n">url</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^approval/&#39;</span><span class="p">,</span> <span class="n">include</span><span class="p">(</span><span class="n">urls</span><span class="p">))]</span></div>
+
 
 <div class="viewcode-block" id="register_admin_menu_item"><a class="viewcode-back" href="../../api/wagtail_hooks.html#wagtailapproval.wagtail_hooks.register_admin_menu_item">[docs]</a><span class="nd">@hooks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s1">&#39;register_admin_menu_item&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">register_admin_menu_item</span><span class="p">():</span>
     <span class="k">return</span> <span class="n">ApprovalMenuItem</span><span class="p">()</span></div>
+
 
 <div class="viewcode-block" id="take_ownership_if_necessary"><a class="viewcode-back" href="../../api/wagtail_hooks.html#wagtailapproval.wagtail_hooks.take_ownership_if_necessary">[docs]</a><span class="nd">@hooks</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s1">&#39;after_create_page&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">take_ownership_if_necessary</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">page</span><span class="p">):</span>
