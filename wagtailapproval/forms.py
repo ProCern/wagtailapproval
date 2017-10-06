@@ -1,8 +1,4 @@
-from django import forms
-from django.contrib.auth.models import Group
-from wagtail.wagtailadmin.edit_handlers import FieldPanel
 from wagtail.wagtailadmin.forms import WagtailAdminPageForm
-from wagtail.wagtailcore.models import Page
 
 
 class StepForm(WagtailAdminPageForm):
@@ -15,5 +11,13 @@ class StepForm(WagtailAdminPageForm):
         instance = kwargs['instance']
         parent_page = kwargs['parent_page']
 
-        self.fields['approval_step'].queryset = self.fields['approval_step'].queryset.descendant_of(parent_page).not_page(instance)
-        self.fields['rejection_step'].queryset = self.fields['rejection_step'].queryset.descendant_of(parent_page).not_page(instance)
+        self.fields['approval_step'].queryset = (self
+            .fields['approval_step']
+            .queryset
+            .descendant_of(parent_page)
+            .not_page(instance))
+        self.fields['rejection_step'].queryset = (self
+            .fields['rejection_step']
+            .queryset
+            .descendant_of(parent_page)
+            .not_page(instance))

@@ -4,18 +4,18 @@ from wagtail.wagtailcore.models import Page
 
 from . import urls
 from .menu import ApprovalMenuItem
-from .models import ApprovalStep
+from .models import ApprovalPipeline, ApprovalStep
 
 
 @hooks.register('register_admin_urls')
 def register_admin_urls():
-    return [
-        url(r'^approval/', include(urls)),
-        ]
+    return [url(r'^approval/', include(urls))]
+
 
 @hooks.register('register_admin_menu_item')
 def register_admin_menu_item():
     return ApprovalMenuItem()
+
 
 @hooks.register('after_create_page')
 def take_ownership_if_necessary(request, page):

@@ -1,21 +1,24 @@
 from numbers import Integral
 
-from django.dispatch import receiver
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
-from django.core.urlresolvers import reverse
 from django.contrib.contenttypes.models import ContentType
-from django.db.models.signals import post_save, post_delete
+from django.core.urlresolvers import reverse
+from django.db.models.signals import post_delete, post_save
+from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
-
-from wagtail.wagtailcore.signals import page_published, page_unpublished
-from wagtail.wagtailcore.models import Collection, CollectionMember, Page, GroupCollectionPermission
-from wagtail.wagtailimages.models import Image
+from wagtail.wagtailcore.models import (Collection, CollectionMember,
+                                        GroupCollectionPermission, Page)
+from wagtail.wagtailcore.signals import page_published
 from wagtail.wagtaildocs.models import Document
+from wagtail.wagtailimages.models import Image
 
-from .models import ApprovalPipeline, ApprovalStep, ApprovalTicket
-from .signals import step_published, pipeline_published, build_approval_item_list, set_collection_edit, take_ownership, pre_transfer_ownership, release_ownership
 from .approvalitem import ApprovalItem
+from .models import ApprovalPipeline, ApprovalStep, ApprovalTicket
+from .signals import (build_approval_item_list, pipeline_published,
+                      pre_transfer_ownership, release_ownership,
+                      set_collection_edit, step_published, take_ownership)
+
 
 @receiver(page_published)
 def send_published_signals(sender, instance, **kwargs):
@@ -26,32 +29,37 @@ def send_published_signals(sender, instance, **kwargs):
     elif isinstance(instance, ApprovalStep):
         step_published.send(sender=type(instance), instance=instance)
 
+
 # The prefix string for owned collections and users
 _PREFIX = "(Approval) "
+
 
 @receiver(pipeline_published)
 def setup_pipeline_user(sender, instance, **kwargs):
     '''Setup an ApprovalPipeline user'''
     User = get_user_model()
 
-    username_max_length = User._meta.get_field('username').max_length - len(_PREFIX)
+    username_max_length = (
+        User._meta.get_field('username').max_length - len(_PREFIX))
     username = _PREFIX + str(instance)[:username_max_length]
     user = instance.user
     if not user:
-        user = User.objects.create(username=username) 
+        user = User.objects.create(username=username)
         instance.user = user
 
     instance.save()
+
 
 @receiver(step_published)
 def setup_group_and_collection(sender, instance, **kwargs):
     '''Create or rename the step's owned groups and collections'''
     pipeline = instance.get_parent().specific
     group_max_length = Group._meta.get_field('name').max_length - len(_PREFIX)
-    group_name = _PREFIX + '{} - {}'.format(pipeline, instance)[-group_max_length:]
+    group_name = _PREFIX + (
+        '{} - {}'.format(pipeline, instance)[-group_max_length:])
     group = instance.group
     if not group:
-        group = Group.objects.create(name=group_name) 
+        group = Group.objects.create(name=group_name)
         access_admin = Permission.objects.get(codename='access_admin')
         group.permissions.add(access_admin)
         instance.group = group
@@ -60,14 +68,16 @@ def setup_group_and_collection(sender, instance, **kwargs):
         group.name = group_name
         group.save()
 
-    collection_max_length = Collection._meta.get_field('name').max_length - len(_PREFIX)
-    collection_name = _PREFIX + '{} - {}'.format(pipeline, instance)[-group_max_length:]
+    collection_max_length = (
+        Collection._meta.get_field('name').max_length - len(_PREFIX))
+    collection_name = _PREFIX + (
+        '{} - {}'.format(pipeline, instance)[-collection_max_length:])
 
     collection = instance.collection
 
     if not collection:
         root_collection = Collection.get_first_root_node()
-        collection = root_collection.add_child(name=collection_name) 
+        collection = root_collection.add_child(name=collection_name)
         instance.collection = collection
 
     if collection.name != collection_name:
@@ -76,6 +86,7 @@ def setup_group_and_collection(sender, instance, **kwargs):
 
     # We run a save regardless to ensure permissions are properly set up
     instance.save()
+
 
 @receiver(post_save)
 def catch_collection_objects(sender, instance, created, **kwargs):
@@ -92,6 +103,7 @@ def catch_collection_objects(sender, instance, created, **kwargs):
 
         step.take_ownership(instance)
 
+
 @receiver(post_delete)
 def approvalticket_cascade_delete(sender, instance, **kwargs):
     '''This deletes objects from :class:`ApprovalTicket` if they are deleted,
@@ -107,6 +119,7 @@ def approvalticket_cascade_delete(sender, instance, **kwargs):
             content_type=ContentType.objects.get_for_model(instance),
             object_id=instance.pk).delete()
 
+
 @receiver(post_delete, sender=ApprovalPipeline)
 def delete_owned_user(sender, instance, **kwargs):
     '''This deletes the owned user from :class:`ApprovalPipeline` when the
@@ -114,6 +127,7 @@ def delete_owned_user(sender, instance, **kwargs):
 
     if instance.user:
         instance.user.delete()
+
 
 @receiver(post_delete, sender=ApprovalStep)
 def delete_owned_group_and_collection(sender, instance, **kwargs):
@@ -126,11 +140,13 @@ def delete_owned_group_and_collection(sender, instance, **kwargs):
     if instance.collection:
         instance.collection.delete()
 
+
 @receiver(post_save, sender=ApprovalStep)
 def fix_restrictions(sender, instance, **kwargs):
     '''Update ApprovalStep restrictions on a save.'''
 
     instance.fix_permissions()
+
 
 @receiver(build_approval_item_list)
 def add_pages(sender, approval_step, **kwargs):
@@ -146,12 +162,15 @@ def add_pages(sender, approval_step, **kwargs):
             yield ApprovalItem(
                 title=str(specific),
                 view_url=specific.url,
-                edit_url=reverse('wagtailadmin_pages:edit', args=(page.id,)),
-                delete_url=reverse('wagtailadmin_pages:delete', args=(page.id,)),
+                edit_url=reverse('wagtailadmin_pages:edit', args=[page.pk]),
+                delete_url=reverse(
+                    'wagtailadmin_pages:delete',
+                    args=[page.pk]),
                 obj=page,
                 step=approval_step,
                 typename=type(specific).__name__,
                 uuid=ticket.pk)
+
 
 @receiver(build_approval_item_list)
 def add_images(sender, approval_step, **kwargs):
@@ -163,12 +182,13 @@ def add_images(sender, approval_step, **kwargs):
         yield ApprovalItem(
             title=str(image),
             view_url=image.get_rendition('original').file.url,
-            edit_url=reverse('wagtailimages:edit', args=(image.id,)),
-            delete_url=reverse('wagtailimages:delete', args=(image.id,)),
+            edit_url=reverse('wagtailimages:edit', args=[image.pk]),
+            delete_url=reverse('wagtailimages:delete', args=[image.pk]),
             obj=image,
             step=approval_step,
             typename=type(image).__name__,
             uuid=ticket.pk)
+
 
 @receiver(build_approval_item_list)
 def add_document(sender, approval_step, **kwargs):
@@ -180,12 +200,13 @@ def add_document(sender, approval_step, **kwargs):
         yield ApprovalItem(
             title=str(document),
             view_url=document.url,
-            edit_url=reverse('wagtaildocs:edit', args=(document.id,)),
-            delete_url=reverse('wagtaildocs:delete', args=(document.id,)),
+            edit_url=reverse('wagtaildocs:edit', args=[document.pk]),
+            delete_url=reverse('wagtaildocs:delete', args=[document.pk]),
             obj=document,
             step=approval_step,
             typename=type(document).__name__,
             uuid=ticket.pk)
+
 
 @receiver(set_collection_edit)
 def set_image_collection_edit(sender, approval_step, edit, **kwargs):
@@ -197,9 +218,16 @@ def set_image_collection_edit(sender, approval_step, edit, **kwargs):
     perm = Permission.objects.get(codename='change_image')
 
     if edit:
-        GroupCollectionPermission.objects.get_or_create(group=group, collection=collection, permission=perm)
+        GroupCollectionPermission.objects.get_or_create(
+            group=group,
+            collection=collection,
+            permission=perm)
     else:
-        GroupCollectionPermission.objects.filter(group=group, collection=collection, permission=perm).delete()
+        GroupCollectionPermission.objects.filter(
+            group=group,
+            collection=collection,
+            permission=perm).delete()
+
 
 @receiver(set_collection_edit)
 def set_document_collection_edit(sender, approval_step, edit, **kwargs):
@@ -211,9 +239,16 @@ def set_document_collection_edit(sender, approval_step, edit, **kwargs):
     perm = Permission.objects.get(codename='change_document')
 
     if edit:
-        GroupCollectionPermission.objects.get_or_create(group=group, collection=collection, permission=perm)
+        GroupCollectionPermission.objects.get_or_create(
+            group=group,
+            collection=collection,
+            permission=perm)
     else:
-        GroupCollectionPermission.objects.filter(group=group, collection=collection, permission=perm).delete()
+        GroupCollectionPermission.objects.filter(
+            group=group,
+            collection=collection,
+            permission=perm).delete()
+
 
 @receiver(take_ownership)
 def update_page_ownership(sender, approval_step, object, pipeline, **kwargs):
@@ -221,8 +256,10 @@ def update_page_ownership(sender, approval_step, object, pipeline, **kwargs):
         object.owner = pipeline.user
         object.save()
 
+
 @receiver(take_ownership)
-def update_collection_ownership(sender, approval_step, object, pipeline, **kwargs):
+def update_collection_ownership(sender, approval_step, object, pipeline,
+    **kwargs):
     '''Individual take_ownerships for each type should be implemented that also
     take the collection member.  This is a fallback in case something doesn't
     work the way it should'''
@@ -231,6 +268,7 @@ def update_collection_ownership(sender, approval_step, object, pipeline, **kwarg
         if object.collection != approval_step.collection:
             object.collection = approval_step.collection
             object.save()
+
 
 @receiver(take_ownership)
 def update_image_ownership(sender, approval_step, object, pipeline, **kwargs):
@@ -248,8 +286,11 @@ def update_image_ownership(sender, approval_step, object, pipeline, **kwargs):
         if updated:
             object.save()
 
+
 @receiver(take_ownership)
-def update_document_ownership(sender, approval_step, object, pipeline, **kwargs):
+def update_document_ownership(sender, approval_step, object, pipeline,
+    **kwargs):
+
     if isinstance(object, Document):
         updated = False
 
@@ -264,15 +305,22 @@ def update_document_ownership(sender, approval_step, object, pipeline, **kwargs)
         if updated:
             object.save()
 
+
 @receiver(release_ownership)
-def release_page_permissions(sender, approval_step, object, pipeline, **kwargs):
+def release_page_permissions(sender, approval_step, object, pipeline,
+    **kwargs):
+
     if isinstance(object, Page):
         # Release all page permissions
         approval_step.set_page_group_privacy(object, False)
         approval_step.set_page_edit(object, False)
         approval_step.set_page_delete(object, False)
 
+
 @receiver(pre_transfer_ownership)
-def assert_page_live(sender, giving_step, taking_step, object, pipeline, **kwargs):
+def assert_page_live(sender, giving_step, taking_step, object, pipeline,
+    **kwargs):
+
     if isinstance(object, Page):
-        assert object.live, _('Can not approve or reject a page that is not published')
+        assert object.live, _(
+            'Can not approve or reject a page that is not published')

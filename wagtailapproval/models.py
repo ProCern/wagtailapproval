@@ -2,36 +2,37 @@ import itertools
 import uuid
 
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from wagtail.wagtailadmin.edit_handlers import FieldPanel, MultiFieldPanel
+from wagtail.wagtailcore.models import (Collection, CollectionViewRestriction,
+                                        GroupPagePermission, Page,
+                                        PageViewRestriction)
 
-from modelcluster.fields import ParentalKey
-from wagtail.wagtailadmin.edit_handlers import MultiFieldPanel, FieldPanel
-from wagtail.wagtailcore.models import Page, Collection, PageViewRestriction, GroupPagePermission, CollectionViewRestriction
-
-from .forms import StepForm
 from . import signals
+from .forms import StepForm
+
 
 class ApprovalPipeline(Page):
     '''This page type is a very simple page that is only used to hold steps'''
 
     notes = models.TextField(blank=True)
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
         verbose_name=_('owned user'),
-        help_text=_("This is the user that is set to be the owner of all "
-            "pages that become owned by this pipeline."),
+        help_text=_(
+            "This is the user that is set to be the owner of all pages that "
+            "become owned by this pipeline."),
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         default=None,
-        related_name='+',
-        )
+        related_name='+')
 
     content_panels = Page.content_panels + [
         FieldPanel('notes', classname="full")
@@ -43,12 +44,14 @@ class ApprovalPipeline(Page):
 
     subpage_types = ['wagtailapproval.ApprovalStep']
 
+
 class ApprovalStep(Page):
     '''Holds posts and facilitates the automatic moving to other steps in the
     same pipeline on approval and rejection.
     '''
 
-    approval_step = models.ForeignKey('self',
+    approval_step = models.ForeignKey(
+        'self',
         verbose_name=_('approval step'),
         help_text=_("The step that ownership is given to on approval"),
         on_delete=models.SET_NULL,
@@ -57,7 +60,8 @@ class ApprovalStep(Page):
         default=None,
         related_name='+')
 
-    rejection_step = models.ForeignKey('self',
+    rejection_step = models.ForeignKey(
+        'self',
         verbose_name=_('rejection step'),
         help_text=_("The step that ownership is given to on rejection"),
         on_delete=models.SET_NULL,
@@ -66,30 +70,33 @@ class ApprovalStep(Page):
         default=None,
         related_name='+')
 
-    group = models.ForeignKey(Group,
+    group = models.ForeignKey(
+        Group,
         verbose_name=_('owned group'),
-        help_text=_("The group that permissions are modified for on entering "
-            "or leaving this step. This should apply for pages as well as "
+        help_text=_(
+            "The group that permissions are modified for on entering or "
+            "leaving this step. This should apply for pages as well as "
             "collections.  For all intents and purposes, users in this group "
             "are owned by this step, and everything they do is subject to the "
-            "approval pipeline.  This step is the strict owner of this group."),
+            "approval pipeline.  This step is the strict owner of this "
+            "group."),
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         default=None,
-        related_name='+',
-        )
+        related_name='+')
 
-    collection = models.ForeignKey(Collection,
+    collection = models.ForeignKey(
+        Collection,
         verbose_name=_('owned collection'),
-        help_text=_("The collection that collection member objects are "
-            "assigned to.  This step is the strict owner of this collection"),
+        help_text=_(
+            "The collection that collection member objects are assigned to. "
+            "This step is the strict owner of this collection"),
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         default=None,
-        related_name='+',
-        )
+        related_name='+')
 
     can_delete = models.BooleanField(
         verbose_name=_('can delete owned objects'),
@@ -97,31 +104,35 @@ class ApprovalStep(Page):
         default=False)
     can_edit = models.BooleanField(
         verbose_name=_('can edit owned objects'),
-        help_text=_("Whether or not owned objects can be edited.  This may be "
-            "False for most non-edit steps, such as Approval, Published, or "
+        help_text=_(
+            "Whether or not owned objects can be edited.  This may be False "
+            "for most non-edit steps, such as Approval, Published, or "
             "automatic Approval steps"),
         default=False)
     private_to_group = models.BooleanField(
         verbose_name=_('make owned objects private to group'),
-        help_text=_("Whether the object is made private to its group.  This "
-            "is done for most steps, and should typically only be disabled for "
-            "a published step."),
+        help_text=_(
+            "Whether the object is made private to its group.  This is done "
+            "for most steps, and should typically only be disabled for a "
+            "published step."),
         default=True)
 
     content_panels = Page.content_panels + [
-        MultiFieldPanel([
+        MultiFieldPanel(
+            [
                 FieldPanel('approval_step'),
                 FieldPanel('rejection_step'),
             ],
             heading=_("Connected Steps"),
-            ),
-        MultiFieldPanel([
+        ),
+        MultiFieldPanel(
+            [
                 FieldPanel('can_delete'),
                 FieldPanel('can_edit'),
                 FieldPanel('private_to_group'),
             ],
             heading=_("Owned Restrictions"),
-            ),
+        ),
     ]
 
     parent_page_types = [ApprovalPipeline]
@@ -134,15 +145,14 @@ class ApprovalStep(Page):
 
         approval = self.approval_step
         rejection = self.rejection_step
-        if approval is not None and self.get_parent() != approval.get_parent():
-            raise ValidationError('Linked steps must have the same parent')
-
-        if rejection is not None and self.get_parent() != rejection.get_parent():
-            raise ValidationError('Linked steps must have the same parent')
+        for step in (approval, rejection):
+            if (step is not None and self.get_parent() != step.get_parent()):
+                raise ValidationError('Linked steps must have the same parent')
 
     def approve(self, obj):
         '''Run approval on an object'''
 
+        pipeline = self.get_parent().specific
         step = self.approval_step
 
         if step:
@@ -165,6 +175,8 @@ class ApprovalStep(Page):
     def reject(self, obj):
         '''Run rejection on an object'''
 
+        pipeline = self.get_parent().specific
+
         step = self.rejection_step
         if step:
             signals.pre_reject.send(
@@ -185,6 +197,8 @@ class ApprovalStep(Page):
 
     def transfer_ownership(self, obj, step):
         '''Give ownership to another step'''
+
+        pipeline = self.get_parent().specific
 
         signals.pre_transfer_ownership.send(
             sender=ApprovalStep,
@@ -213,6 +227,7 @@ class ApprovalStep(Page):
     def take_ownership(self, obj):
         '''Take ownership of an object.  Should run all relevant processing on
         changing visibility and other such things.  This is idempotent.'''
+
         pipeline = self.get_parent().specific
 
         signals.take_ownership.send(
@@ -264,19 +279,34 @@ class ApprovalStep(Page):
         group = self.group
         '''Sets/unsets page edit permissinos'''
         if edit:
-            GroupPagePermission.objects.get_or_create(group=group, page=page, permission_type='edit')
-            GroupPagePermission.objects.get_or_create(group=group, page=page, permission_type='publish')
+            GroupPagePermission.objects.get_or_create(group=group,
+                page=page,
+                permission_type='edit')
+            GroupPagePermission.objects.get_or_create(group=group,
+                page=page,
+                permission_type='publish')
         else:
-            GroupPagePermission.objects.filter(group=group, page=page, permission_type='edit').delete()
-            GroupPagePermission.objects.filter(group=group, page=page, permission_type='publish').delete()
+            GroupPagePermission.objects.filter(group=group,
+                page=page,
+                permission_type='edit').delete()
+            GroupPagePermission.objects.filter(
+                group=group,
+                page=page,
+                permission_type='publish').delete()
 
     def set_page_delete(self, page, delete):
         group = self.group
         '''Sets/unsets page delete permissinos'''
         if delete:
-            GroupPagePermission.objects.get_or_create(group=group, page=page, permission_type='delete')
+            GroupPagePermission.objects.get_or_create(
+                group=group,
+                page=page,
+                permission_type='delete')
         else:
-            GroupPagePermission.objects.filter(group=group, page=page, permission_type='delete').delete()
+            GroupPagePermission.objects.filter(
+                group=group,
+                page=page,
+                permission_type='delete').delete()
 
     def set_collection_group_privacy(self, private):
         '''Sets/unsets the collection group privacy'''
@@ -284,9 +314,10 @@ class ApprovalStep(Page):
         group = self.group
 
         if private:
-            restriction, created = CollectionViewRestriction.objects.get_or_create(
-                collection=collection,
-                restriction_type=CollectionViewRestriction.GROUPS)
+            restriction, created = (
+                CollectionViewRestriction.objects.get_or_create(
+                    collection=collection,
+                    restriction_type=CollectionViewRestriction.GROUPS))
             restriction.groups.add(group)
         else:
             restrictions = CollectionViewRestriction.objects.filter(
@@ -308,12 +339,14 @@ class ApprovalStep(Page):
         if group:
             if collection:
                 self.set_collection_group_privacy(self.private_to_group)
-                signals.set_collection_edit.send(sender=ApprovalStep,
+                signals.set_collection_edit.send(
+                    sender=ApprovalStep,
                     approval_step=self,
                     edit=self.can_edit)
             for ticket in ApprovalTicket.objects.filter(
                 step=self,
-                content_type=ContentType.objects.get_for_model(Page)):
+                content_type=ContentType.objects.get_for_model(Page)
+                ):  # noqa: E125
 
                 page = ticket.item
                 self.set_page_group_privacy(page, self.private_to_group)
@@ -339,9 +372,10 @@ class ApprovalStep(Page):
             user=user)
 
         try:
-            approval_items = itertools.chain.from_iterable(tuple(zip(*lists))[1])
+            approval_items = itertools.chain.from_iterable(
+                tuple(zip(*lists))[1])
         except IndexError:
-            approvalItems = ()
+            approval_items = ()
 
         removal_lists = signals.remove_approval_items.send(
             sender=ApprovalStep,
@@ -350,15 +384,17 @@ class ApprovalStep(Page):
 
         # Need a tuple so items can be removed individually
         try:
-            removal_items = itertools.chain.from_iterable(tuple(zip(*removal_lists))[1])
+            removal_items = itertools.chain.from_iterable(
+                tuple(zip(*removal_lists))[1])
         except IndexError:
             removal_items = ()
 
         return (item for item in approval_items if item not in removal_items)
 
+
 class ApprovalTicket(models.Model):
     '''A special junction table to reference an arbitrary item by uuid.
-    
+
     This is used to create an arbitrary approval/rejection URL, as it would be
     very difficult to do otherwise (as an approval step can own arbitrary pages
     and collection members with conflicting PKs otherwise).  UUID is done for a
@@ -369,7 +405,10 @@ class ApprovalTicket(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    step = models.ForeignKey(ApprovalStep, on_delete=models.CASCADE, related_name='+')
+    step = models.ForeignKey(
+        ApprovalStep,
+        on_delete=models.CASCADE,
+        related_name='+')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     item = GenericForeignKey('content_type', 'object_id')
