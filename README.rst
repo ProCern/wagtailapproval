@@ -54,6 +54,19 @@ There should be no subclassing necessary.  Appropriate extension should be
 doable entirely through signals.  If you can't extend this in the way you need
 to through signals, it's probably a bug in this plugin.
 
+What versions of everything are supported?
+==========================================
+
+Officially supported are Python 2.7 and 3.4, across Django 1.8, 1.9, 1.10, and
+1.11, and Wagtail 1.11 and 1.12.  I will not support below this, because
+collection privacy was not supported below this point, and I don't want to
+support this without collection privacy.  It should be relatively easy to hack
+this out on your own (CollectionViewRestriction might be the only pain point),
+but I can't make any promises.
+
+There is a growing test suite in ``tests``, and all combinations of the
+supported versions are automaticaly tested with this suite through tox.
+
 License
 =======
 

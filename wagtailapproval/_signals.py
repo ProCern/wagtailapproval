@@ -42,9 +42,8 @@ def setup_pipeline_user(sender, instance, **kwargs):
     '''Setup an ApprovalPipeline user'''
     User = get_user_model()
 
-    username_max_length = (
-        User._meta.get_field('username').max_length - len(_PREFIX))
-    username = _PREFIX + str(instance)[:username_max_length]
+    username_max_length = User._meta.get_field('username').max_length
+    username = (_PREFIX + str(instance))[:username_max_length]
     user = instance.user
     if not user:
         user = User.objects.create(username=username)

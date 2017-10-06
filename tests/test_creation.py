@@ -1,6 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from wagtail.tests.utils import WagtailTestUtils
 from wagtail.wagtailcore.models import Page
@@ -25,9 +26,11 @@ class TestCreation(TestCase, WagtailTestUtils):
         self.step = Page.objects.all().type(ApprovalStep).first().specific
 
     def test_user_group_collection_names(self):
+        User = get_user_model()
+        max_length = User._meta.get_field('username').max_length
         self.assertEqual(
             self.pipeline.user.username,
-            '(Approval) Approval Pipeline Test')
+            '(Approval) Approval Pipeline Test'[:max_length])
         self.assertEqual(
             self.step.group.name,
             '(Approval) Approval Pipeline Test - Approval Step Test')
