@@ -17,13 +17,21 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
+
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+
 import os
 import sys
-sys.path.insert(0, os.path.abspath('..'))
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "testsite.settings")
+from distutils.version import StrictVersion
 
 import django
+import wagtailapproval as module
+
+sys.path.insert(0, os.path.abspath('..'))
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "tests.app.settings")
+
 django.setup()
 add_module_names = False
 
@@ -55,14 +63,12 @@ source_suffix = '.rst'
 # The master toctree document.
 master_doc = 'index'
 
-import wagtailapproval as module
 
 # General information about the project.
 project = module.__modulename__
 author = module.__author__
 copyright = '2017, ' + author
 
-from distutils.version import StrictVersion
 v = StrictVersion(module.__version__)
 
 version = '.'.join(str(num) for num in v.version[0:2])
@@ -182,6 +188,3 @@ texinfo_documents = [
      author, 'WagtailApproval', 'One line description of project.',
      'Miscellaneous'),
 ]
-
-
-

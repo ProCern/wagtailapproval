@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from __future__ import absolute_import, division, print_function
+
 from os import path
 
 from setuptools import find_packages, setup
@@ -24,12 +26,13 @@ def build_classifiers(classifiers):
 
     elif isinstance(classifiers, dict):
         for key, value in classifiers.items():
-            yield from (join(key, tail) for tail in build_classifiers(value))
+            for tail in build_classifiers(value):
+                yield join(key, tail)
 
     elif isinstance(classifiers, list):
         for item in classifiers:
-            yield from build_classifiers(item)
-
+            for tail in build_classifiers(item):
+                yield tail
 
 classifiers = [classifier for classifier in build_classifiers(
     {

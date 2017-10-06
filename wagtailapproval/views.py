@@ -1,3 +1,6 @@
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+
 from django.contrib.auth import get_user
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect, render
