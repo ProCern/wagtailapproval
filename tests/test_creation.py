@@ -33,7 +33,7 @@ class TestCreation(TestCase, WagtailTestUtils):
             '(Approval) Approval Pipeline Test'[:max_length])
         self.assertEqual(
             self.step.group.name,
-            '(Approval) Approval Pipeline Test - Approval Step Test')
+            'THIS WILL FAIL')
         self.assertEqual(
             self.step.collection.name,
             '(Approval) Approval Pipeline Test - Approval Step Test')
