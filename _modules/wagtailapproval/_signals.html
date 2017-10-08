@@ -293,15 +293,15 @@
             <span class="n">permission</span><span class="o">=</span><span class="n">perm</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="update_page_ownership"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.update_page_ownership">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">take_ownership</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">update_page_ownership</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">approval_step</span><span class="p">,</span> <span class="nb">object</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="take_page_ownership"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.take_page_ownership">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">take_ownership</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">take_page_ownership</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">approval_step</span><span class="p">,</span> <span class="nb">object</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">Page</span><span class="p">):</span>
         <span class="nb">object</span><span class="o">.</span><span class="n">owner</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">user</span>
         <span class="nb">object</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="update_collection_ownership"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.update_collection_ownership">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">take_ownership</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">update_collection_ownership</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">approval_step</span><span class="p">,</span> <span class="nb">object</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span>
+<div class="viewcode-block" id="take_collection_ownership"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.take_collection_ownership">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">take_ownership</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">take_collection_ownership</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">approval_step</span><span class="p">,</span> <span class="nb">object</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Individual take_ownerships for each type should be implemented that also</span>
 <span class="sd">    take the collection member.  This is a fallback in case something doesn&#39;t</span>
@@ -313,8 +313,8 @@
             <span class="nb">object</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="update_image_ownership"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.update_image_ownership">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">take_ownership</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">update_image_ownership</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">approval_step</span><span class="p">,</span> <span class="nb">object</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="take_image_ownership"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.take_image_ownership">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">take_ownership</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">take_image_ownership</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">approval_step</span><span class="p">,</span> <span class="nb">object</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">Image</span><span class="p">):</span>
         <span class="n">updated</span> <span class="o">=</span> <span class="kc">False</span>
 
@@ -330,8 +330,8 @@
             <span class="nb">object</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="update_document_ownership"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.update_document_ownership">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">take_ownership</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">update_document_ownership</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">approval_step</span><span class="p">,</span> <span class="nb">object</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span>
+<div class="viewcode-block" id="take_document_ownership"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.take_document_ownership">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">take_ownership</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">take_document_ownership</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">approval_step</span><span class="p">,</span> <span class="nb">object</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">Document</span><span class="p">):</span>
