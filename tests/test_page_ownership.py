@@ -16,106 +16,327 @@ class TestPageOwnership(TestCase, WagtailTestUtils):
         super(TestPageOwnership, self).setUp()
         self.root_page = Page.objects.get(pk=2)
 
+        # Setup Pipeline
         self.pipeline = self.root_page.add_child(
             instance=ApprovalPipeline(title='Approval Pipeline Test'))
         self.pipeline.save_revision().publish()
         self.pipeline.refresh_from_db()
 
-        self.step1 = self.pipeline.add_child(
-            instance=ApprovalStep(title='Step 1'))
-        self.step2 = self.pipeline.add_child(
-            instance=ApprovalStep(title='Step 2'))
+        self.create_step = self.pipeline.add_child(
+            instance=ApprovalStep(
+                title='Creation Step',
+                can_delete=True,
+                can_edit=True,
+                private_to_group=True))
+        self.edit_step = self.pipeline.add_child(
+            instance=ApprovalStep(
+                title='Edit Step',
+                can_delete=False,
+                can_edit=True,
+                private_to_group=True))
+        self.approve_step = self.pipeline.add_child(
+            instance=ApprovalStep(
+                title='Approve Step',
+                can_delete=False,
+                can_edit=False,
+                private_to_group=True))
+        self.published_step = self.pipeline.add_child(
+            instance=ApprovalStep(
+                title='Publish Step',
+                can_delete=False,
+                can_edit=False,
+                private_to_group=False))
 
-        self.step1.approval_step = self.step2
-        self.step1.save()
+        self.create_step.approval_step = self.edit_step
+        self.edit_step.approval_step = self.approve_step
+        self.approve_step.approval_step = self.published_step
+        self.approve_step.rejection_step = self.edit_step
+        self.published_step.rejection_step = self.edit_step
 
-        self.step1.save_revision().publish()
-        self.step1.refresh_from_db()
-        self.step2.save_revision().publish()
-        self.step2.refresh_from_db()
+        for step in (
+            self.create_step,
+            self.edit_step,
+            self.approve_step,
+            self.published_step):
 
-        # create user manually because we need it to not be a superuser
+            step.save()
+            step.save_revision().publish()
+            step.refresh_from_db()
+
+        # Setup users
         self.User = get_user_model()
         user_data = {}
         user_data = {field: field for field in self.User.REQUIRED_FIELDS}
-        user_data[self.User.USERNAME_FIELD] = 'user1'
+        user_data[self.User.USERNAME_FIELD] = 'creator'
         user_data['password'] = 'password'
-        user1 = self.User.objects.create_user(**user_data)
-        user1.groups.add(self.step1.group)
+        creator = self.User.objects.create_user(**user_data)
+        creator.groups.add(self.create_step.group)
         GroupPagePermission.objects.create(
-            group=self.step1.group,
+            group=self.create_step.group,
             page=self.root_page,
             permission_type='add')
         GroupPagePermission.objects.create(
-            group=self.step1.group,
+            group=self.create_step.group,
             page=self.root_page,
             permission_type='publish')
 
-        user_data[self.User.USERNAME_FIELD] = 'user2'
-        user2 = self.User.objects.create_user(**user_data)
-        user2.groups.add(self.step2.group)
+        user_data[self.User.USERNAME_FIELD] = 'editor'
+        editor = self.User.objects.create_user(**user_data)
+        editor.groups.add(self.edit_step.group)
 
-    def test_user1_can_create(self):
-        self.client.login(**{
-            self.User.USERNAME_FIELD: 'user1',
+        user_data[self.User.USERNAME_FIELD] = 'approver'
+        approver = self.User.objects.create_user(**user_data)
+        approver.groups.add(self.approve_step.group)
+
+        user_data[self.User.USERNAME_FIELD] = 'rejector'
+        rejector = self.User.objects.create_user(**user_data)
+        rejector.groups.add(self.published_step.group)
+
+        self.creator = Client()
+        self.editor = Client()
+        self.approver = Client()
+        self.public = Client()
+
+        # Only for rejecting published pages
+        self.rejector = Client()
+
+        self.creator.login(**{
+            self.User.USERNAME_FIELD: 'creator',
             'password': 'password'})
-        self.client.post(
+        self.editor.login(**{
+            self.User.USERNAME_FIELD: 'editor',
+            'password': 'password'})
+        self.approver.login(**{
+            self.User.USERNAME_FIELD: 'approver',
+            'password': 'password'})
+        self.rejector.login(**{
+            self.User.USERNAME_FIELD: 'rejector',
+            'password': 'password'})
+
+        # Setup owned pages
+        self.creator.post(
+            reverse('wagtailadmin_pages:add',
+                args=['app', 'testpage', self.root_page.pk]),
+            {
+                'title': 'Create page',
+                'slug': 'createpage',
+                'action-publish': 'action-publish'})
+
+        self.creator.post(
+            reverse('wagtailadmin_pages:add',
+                args=['app', 'testpage', self.root_page.pk]),
+            {
+                'title': 'Edit page',
+                'slug': 'editpage',
+                'action-publish': 'action-publish'})
+        self.create_step.transfer_ownership(
+            Page.objects.get(slug='editpage'),
+            self.edit_step)
+
+        self.creator.post(
+            reverse('wagtailadmin_pages:add',
+                args=['app', 'testpage', self.root_page.pk]),
+            {
+                'title': 'Approve page',
+                'slug': 'approvepage',
+                'action-publish': 'action-publish'})
+        self.create_step.transfer_ownership(
+            Page.objects.get(slug='approvepage'),
+            self.approve_step)
+
+        self.creator.post(
+            reverse('wagtailadmin_pages:add',
+                args=['app', 'testpage', self.root_page.pk]),
+            {
+                'title': 'Published page',
+                'slug': 'publishedpage',
+                'action-publish': 'action-publish'})
+        self.create_step.transfer_ownership(
+            Page.objects.get(slug='publishedpage'),
+            self.published_step)
+
+    def test_creator_can_create(self):
+        self.creator.post(
             reverse('wagtailadmin_pages:add',
                 args=['app', 'testpage', self.root_page.pk]),
             {
                 'title': 'child test page',
                 'slug': 'testpage',
                 'action-publish': 'action-publish'})
-        # Should not throw
-        Page.objects.get(slug='testpage').specific
-        self.client.logout()
+        self.assertTrue(Page.objects.filter(slug='testpage'))
 
-    def test_user2_can_not_create(self):
-        self.client.login(**{
-            self.User.USERNAME_FIELD: 'user2',
-            'password': 'password'})
-        self.client.post(
-            reverse('wagtailadmin_pages:add',
-                args=['app', 'testpage', self.root_page.pk]),
-            {
-                'title': 'child test page',
-                'slug': 'testpage',
-                'action-publish': 'action-publish'})
-        self.assertFalse(Page.objects.filter(slug='testpage').exists())
-        self.client.logout()
+    def test_others_can_not_create(self):
+        for user in (self.editor, self.approver, self.public):
+            user.post(
+                reverse('wagtailadmin_pages:add',
+                    args=['app', 'testpage', self.root_page.pk]),
+                {
+                    'title': 'child test page',
+                    'slug': 'testpage',
+                    'action-publish': 'action-publish'})
+        self.assertFalse(Page.objects.filter(slug='testpage'))
 
-    def test_ownership_and_privacy(self):
-        user1 = Client()
-        user2 = Client()
-        user1.login(**{
-            self.User.USERNAME_FIELD: 'user1',
-            'password': 'password'})
-        user2.login(**{
-            self.User.USERNAME_FIELD: 'user2',
-            'password': 'password'})
+    def test_approve_createpage(self):
+        page = Page.objects.get(slug='createpage')
 
-        user1.post(
-            reverse('wagtailadmin_pages:add',
-                args=['app', 'testpage', self.root_page.pk]),
-            {
-                'title': 'child test page',
-                'slug': 'testpage',
-                'action-publish': 'action-publish'})
+        self.assertEqual(self.creator.get(page.url).status_code, 200)
+        self.assertNotEqual(self.editor.get(page.url).status_code, 200)
+        self.assertNotEqual(self.approver.get(page.url).status_code, 200)
+        self.assertNotEqual(self.public.get(page.url).status_code, 200)
 
-        page = Page.objects.get(slug='testpage').specific
-        self.assertEqual(user1.get(page.url).status_code, 200)
-        self.assertNotEqual(user2.get(page.url).status_code, 200)
-
-        # Run approval
         ticket = ApprovalTicket.objects.get(
-            step=self.step1,
+            step=self.create_step,
             content_type=ContentType.objects.get_for_model(Page),
             object_id=page.pk)
 
-        user1.post(
+        for user in (self.editor, self.approver, self.rejector, self.public):
+            user.post(
+                reverse(
+                    'wagtailapproval:approve',
+                    kwargs={'pk': str(ticket.pk)}))
+
+        # Wrong users, no change
+        self.assertEqual(self.creator.get(page.url).status_code, 200)
+        self.assertNotEqual(self.editor.get(page.url).status_code, 200)
+        self.assertNotEqual(self.approver.get(page.url).status_code, 200)
+        self.assertNotEqual(self.public.get(page.url).status_code, 200)
+
+        self.creator.post(
             reverse('wagtailapproval:approve', kwargs={'pk': str(ticket.pk)}))
 
-        # user1 should now be unable to view, and user2 should now be able to
-        # view
-        self.assertNotEqual(user1.get(page.url).status_code, 200)
-        self.assertEqual(user2.get(page.url).status_code, 200)
+        self.assertNotEqual(self.creator.get(page.url).status_code, 200)
+        self.assertEqual(self.editor.get(page.url).status_code, 200)
+        self.assertNotEqual(self.approver.get(page.url).status_code, 200)
+        self.assertNotEqual(self.public.get(page.url).status_code, 200)
+
+    def test_approve_editpage(self):
+        page = Page.objects.get(slug='editpage')
+
+        self.assertNotEqual(self.creator.get(page.url).status_code, 200)
+        self.assertEqual(self.editor.get(page.url).status_code, 200)
+        self.assertNotEqual(self.approver.get(page.url).status_code, 200)
+        self.assertNotEqual(self.public.get(page.url).status_code, 200)
+
+        ticket = ApprovalTicket.objects.get(
+            step=self.edit_step,
+            content_type=ContentType.objects.get_for_model(Page),
+            object_id=page.pk)
+
+        for user in (self.creator, self.approver, self.rejector, self.public):
+            user.post(
+                reverse(
+                    'wagtailapproval:approve',
+                    kwargs={'pk': str(ticket.pk)}))
+
+        # Wrong users, no change
+        self.assertNotEqual(self.creator.get(page.url).status_code, 200)
+        self.assertEqual(self.editor.get(page.url).status_code, 200)
+        self.assertNotEqual(self.approver.get(page.url).status_code, 200)
+        self.assertNotEqual(self.public.get(page.url).status_code, 200)
+
+        self.editor.post(
+            reverse('wagtailapproval:approve', kwargs={'pk': str(ticket.pk)}))
+
+        self.assertNotEqual(self.creator.get(page.url).status_code, 200)
+        self.assertNotEqual(self.editor.get(page.url).status_code, 200)
+        self.assertEqual(self.approver.get(page.url).status_code, 200)
+        self.assertNotEqual(self.public.get(page.url).status_code, 200)
+
+    def test_approve_approvepage(self):
+        page = Page.objects.get(slug='approvepage')
+
+        self.assertNotEqual(self.creator.get(page.url).status_code, 200)
+        self.assertNotEqual(self.editor.get(page.url).status_code, 200)
+        self.assertEqual(self.approver.get(page.url).status_code, 200)
+        self.assertNotEqual(self.public.get(page.url).status_code, 200)
+
+        ticket = ApprovalTicket.objects.get(
+            step=self.approve_step,
+            content_type=ContentType.objects.get_for_model(Page),
+            object_id=page.pk)
+
+        for user in (self.creator, self.editor, self.rejector, self.public):
+            user.post(
+                reverse(
+                    'wagtailapproval:approve',
+                    kwargs={'pk': str(ticket.pk)}))
+
+        # Wrong users, no change
+        self.assertNotEqual(self.creator.get(page.url).status_code, 200)
+        self.assertNotEqual(self.editor.get(page.url).status_code, 200)
+        self.assertEqual(self.approver.get(page.url).status_code, 200)
+        self.assertNotEqual(self.public.get(page.url).status_code, 200)
+
+        self.approver.post(
+            reverse('wagtailapproval:approve', kwargs={'pk': str(ticket.pk)}))
+
+        self.assertEqual(self.creator.get(page.url).status_code, 200)
+        self.assertEqual(self.editor.get(page.url).status_code, 200)
+        self.assertEqual(self.approver.get(page.url).status_code, 200)
+        self.assertEqual(self.public.get(page.url).status_code, 200)
+
+    def test_reject_approvepage(self):
+        page = Page.objects.get(slug='approvepage')
+
+        self.assertNotEqual(self.creator.get(page.url).status_code, 200)
+        self.assertNotEqual(self.editor.get(page.url).status_code, 200)
+        self.assertEqual(self.approver.get(page.url).status_code, 200)
+        self.assertNotEqual(self.public.get(page.url).status_code, 200)
+
+        ticket = ApprovalTicket.objects.get(
+            step=self.approve_step,
+            content_type=ContentType.objects.get_for_model(Page),
+            object_id=page.pk)
+
+        for user in (self.creator, self.editor, self.rejector, self.public):
+            user.post(
+                reverse(
+                    'wagtailapproval:approve',
+                    kwargs={'pk': str(ticket.pk)}))
+
+        # Wrong users, no change
+        self.assertNotEqual(self.creator.get(page.url).status_code, 200)
+        self.assertNotEqual(self.editor.get(page.url).status_code, 200)
+        self.assertEqual(self.approver.get(page.url).status_code, 200)
+        self.assertNotEqual(self.public.get(page.url).status_code, 200)
+
+        self.approver.post(
+            reverse('wagtailapproval:reject', kwargs={'pk': str(ticket.pk)}))
+
+        self.assertNotEqual(self.creator.get(page.url).status_code, 200)
+        self.assertEqual(self.editor.get(page.url).status_code, 200)
+        self.assertNotEqual(self.approver.get(page.url).status_code, 200)
+        self.assertNotEqual(self.public.get(page.url).status_code, 200)
+
+    def test_reject_publishedpage(self):
+        page = Page.objects.get(slug='publishedpage')
+
+        self.assertEqual(self.creator.get(page.url).status_code, 200)
+        self.assertEqual(self.editor.get(page.url).status_code, 200)
+        self.assertEqual(self.approver.get(page.url).status_code, 200)
+        self.assertEqual(self.public.get(page.url).status_code, 200)
+
+        ticket = ApprovalTicket.objects.get(
+            step=self.published_step,
+            content_type=ContentType.objects.get_for_model(Page),
+            object_id=page.pk)
+
+        for user in (self.creator, self.editor, self.approver, self.public):
+            user.post(
+                reverse(
+                    'wagtailapproval:approve',
+                    kwargs={'pk': str(ticket.pk)}))
+
+        # Wrong users, no change
+        self.assertEqual(self.creator.get(page.url).status_code, 200)
+        self.assertEqual(self.editor.get(page.url).status_code, 200)
+        self.assertEqual(self.approver.get(page.url).status_code, 200)
+        self.assertEqual(self.public.get(page.url).status_code, 200)
+
+        self.rejector.post(
+            reverse('wagtailapproval:reject', kwargs={'pk': str(ticket.pk)}))
+
+        self.assertNotEqual(self.creator.get(page.url).status_code, 200)
+        self.assertEqual(self.editor.get(page.url).status_code, 200)
+        self.assertNotEqual(self.approver.get(page.url).status_code, 200)
+        self.assertNotEqual(self.public.get(page.url).status_code, 200)

@@ -253,14 +253,14 @@ def set_document_collection_edit(sender, approval_step, edit, **kwargs):
 
 
 @receiver(take_ownership)
-def update_page_ownership(sender, approval_step, object, pipeline, **kwargs):
+def take_page_ownership(sender, approval_step, object, pipeline, **kwargs):
     if isinstance(object, Page):
         object.owner = pipeline.user
         object.save()
 
 
 @receiver(take_ownership)
-def update_collection_ownership(sender, approval_step, object, pipeline,
+def take_collection_ownership(sender, approval_step, object, pipeline,
     **kwargs):
     '''Individual take_ownerships for each type should be implemented that also
     take the collection member.  This is a fallback in case something doesn't
@@ -273,7 +273,7 @@ def update_collection_ownership(sender, approval_step, object, pipeline,
 
 
 @receiver(take_ownership)
-def update_image_ownership(sender, approval_step, object, pipeline, **kwargs):
+def take_image_ownership(sender, approval_step, object, pipeline, **kwargs):
     if isinstance(object, Image):
         updated = False
 
@@ -290,7 +290,7 @@ def update_image_ownership(sender, approval_step, object, pipeline, **kwargs):
 
 
 @receiver(take_ownership)
-def update_document_ownership(sender, approval_step, object, pipeline,
+def take_document_ownership(sender, approval_step, object, pipeline,
     **kwargs):
 
     if isinstance(object, Document):
