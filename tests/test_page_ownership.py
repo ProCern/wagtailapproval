@@ -35,13 +35,13 @@ class TestPageOwnership(TestCase, WagtailTestUtils):
         self.step2.refresh_from_db()
 
         # create user manually because we need it to not be a superuser
-        User = get_user_model()
+        self.User = get_user_model()
         user_data = {}
-        user_data = {field: field for field in User.REQUIRED_FIELDS}
-        user_data[User.USERNAME_FIELD] = 'test1@email.com'
+        user_data = {field: field for field in self.User.REQUIRED_FIELDS}
+        user_data[self.User.USERNAME_FIELD] = 'user1'
         user_data['password'] = 'password'
-        self.user1 = User.objects.create(**user_data)
-        self.user1.groups.add(self.step1.group)
+        user1 = self.User.objects.create_user(**user_data)
+        user1.groups.add(self.step1.group)
         GroupPagePermission.objects.create(
             group=self.step1.group,
             page=self.root_page,
@@ -51,12 +51,14 @@ class TestPageOwnership(TestCase, WagtailTestUtils):
             page=self.root_page,
             permission_type='publish')
 
-        user_data[User.USERNAME_FIELD] = 'test2@email.com'
-        self.user2 = User.objects.create(**user_data)
-        self.user2.groups.add(self.step2.group)
+        user_data[self.User.USERNAME_FIELD] = 'user2'
+        user2 = self.User.objects.create_user(**user_data)
+        user2.groups.add(self.step2.group)
 
     def test_user1_can_create(self):
-        self.client.force_login(self.user1)
+        self.client.login(**{
+            self.User.USERNAME_FIELD: 'user1',
+            'password': 'password'})
         self.client.post(
             reverse('wagtailadmin_pages:add',
                 args=['app', 'testpage', self.root_page.pk]),
@@ -69,7 +71,9 @@ class TestPageOwnership(TestCase, WagtailTestUtils):
         self.client.logout()
 
     def test_user2_can_not_create(self):
-        self.client.force_login(self.user2)
+        self.client.login(**{
+            self.User.USERNAME_FIELD: 'user2',
+            'password': 'password'})
         self.client.post(
             reverse('wagtailadmin_pages:add',
                 args=['app', 'testpage', self.root_page.pk]),
@@ -83,8 +87,12 @@ class TestPageOwnership(TestCase, WagtailTestUtils):
     def test_ownership_and_privacy(self):
         user1 = Client()
         user2 = Client()
-        user1.force_login(self.user1)
-        user2.force_login(self.user2)
+        user1.login(**{
+            self.User.USERNAME_FIELD: 'user1',
+            'password': 'password'})
+        user2.login(**{
+            self.User.USERNAME_FIELD: 'user2',
+            'password': 'password'})
 
         user1.post(
             reverse('wagtailadmin_pages:add',

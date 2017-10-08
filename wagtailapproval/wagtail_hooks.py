@@ -12,7 +12,7 @@ from .models import ApprovalPipeline, ApprovalStep
 
 @hooks.register('register_admin_urls')
 def register_admin_urls():
-    return [url(r'^approval/', include(urls))]
+    return [url(r'^approval/', include(urls, namespace='wagtailapproval'))]
 
 
 @hooks.register('register_admin_menu_item')
