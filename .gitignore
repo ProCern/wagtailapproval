@@ -114,3 +114,7 @@ tags
 
 # Temp files
 *.sqlite3
+
+/documents/
+/media/
+/static/

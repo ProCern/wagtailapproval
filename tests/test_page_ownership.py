@@ -25,25 +25,21 @@ class TestPageOwnership(TestCase, WagtailTestUtils):
         self.create_step = self.pipeline.add_child(
             instance=ApprovalStep(
                 title='Creation Step',
-                can_delete=True,
                 can_edit=True,
                 private_to_group=True))
         self.edit_step = self.pipeline.add_child(
             instance=ApprovalStep(
                 title='Edit Step',
-                can_delete=False,
                 can_edit=True,
                 private_to_group=True))
         self.approve_step = self.pipeline.add_child(
             instance=ApprovalStep(
                 title='Approve Step',
-                can_delete=False,
                 can_edit=False,
                 private_to_group=True))
         self.published_step = self.pipeline.add_child(
             instance=ApprovalStep(
                 title='Publish Step',
-                can_delete=False,
                 can_edit=False,
                 private_to_group=False))
 
@@ -175,6 +171,28 @@ class TestPageOwnership(TestCase, WagtailTestUtils):
                     'slug': 'testpage',
                     'action-publish': 'action-publish'})
         self.assertFalse(Page.objects.filter(slug='testpage'))
+
+    def test_edit_permissions(self):
+        createpage = Page.objects.get(slug='createpage')
+        editpage = Page.objects.get(slug='editpage')
+        approvepage = Page.objects.get(slug='approvepage')
+        publishedpage = Page.objects.get(slug='publishedpage')
+        self.assertEqual(self.creator.get(reverse(
+            'wagtailadmin_pages:edit',
+            args=[createpage.pk])).status_code,
+            200)
+        self.assertEqual(self.editor.get(reverse(
+            'wagtailadmin_pages:edit',
+            args=[editpage.pk])).status_code,
+            200)
+        self.assertNotEqual(self.approver.get(reverse(
+            'wagtailadmin_pages:edit',
+            args=[approvepage.pk])).status_code,
+            200)
+        self.assertNotEqual(self.approver.get(reverse(
+            'wagtailadmin_pages:edit',
+            args=[publishedpage.pk])).status_code,
+            200)
 
     def test_approve_createpage(self):
         page = Page.objects.get(slug='createpage')

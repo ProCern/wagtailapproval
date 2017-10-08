@@ -19,7 +19,7 @@ class ApprovalMenuItem(MenuItem):
         self,
         label=_('Approval'), url=reverse_lazy('wagtailapproval:index'),
         classnames='icon icon-tick-inverse', order=200, **kwargs):
-        super().__init__(
+        super(ApprovalMenuItem, self).__init__(
             label,
             url,
             classnames=classnames,
