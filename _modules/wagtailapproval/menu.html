@@ -60,7 +60,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">label</span><span class="o">=</span><span class="n">_</span><span class="p">(</span><span class="s1">&#39;Approval&#39;</span><span class="p">),</span> <span class="n">url</span><span class="o">=</span><span class="n">reverse_lazy</span><span class="p">(</span><span class="s1">&#39;wagtailapproval:index&#39;</span><span class="p">),</span>
         <span class="n">classnames</span><span class="o">=</span><span class="s1">&#39;icon icon-tick-inverse&#39;</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ApprovalMenuItem</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">label</span><span class="p">,</span>
             <span class="n">url</span><span class="p">,</span>
             <span class="n">classnames</span><span class="o">=</span><span class="n">classnames</span><span class="p">,</span>
