@@ -2,12 +2,13 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 from django.contrib.auth import get_user_model
-from django.core.urlresolvers import reverse
 from django.contrib.contenttypes.models import ContentType
-from django.test import TestCase
+from django.core.urlresolvers import reverse
+from django.test import Client, TestCase
 from wagtail.tests.utils import WagtailTestUtils
-from wagtail.wagtailcore.models import Page, GroupPagePermission
-from wagtailapproval.models import ApprovalPipeline, ApprovalStep, ApprovalTicket
+from wagtail.wagtailcore.models import GroupPagePermission, Page
+from wagtailapproval.models import (ApprovalPipeline, ApprovalStep,
+                                    ApprovalTicket)
 
 
 class TestPageOwnership(TestCase, WagtailTestUtils):
@@ -56,7 +57,7 @@ class TestPageOwnership(TestCase, WagtailTestUtils):
 
     def test_user1_can_create(self):
         self.client.force_login(self.user1)
-        create_page = self.client.post(
+        self.client.post(
             reverse('wagtailadmin_pages:add',
                 args=['app', 'testpage', self.root_page.pk]),
             {
@@ -69,7 +70,7 @@ class TestPageOwnership(TestCase, WagtailTestUtils):
 
     def test_user2_can_not_create(self):
         self.client.force_login(self.user2)
-        create_page = self.client.post(
+        self.client.post(
             reverse('wagtailadmin_pages:add',
                 args=['app', 'testpage', self.root_page.pk]),
             {
@@ -80,43 +81,33 @@ class TestPageOwnership(TestCase, WagtailTestUtils):
         self.client.logout()
 
     def test_ownership_and_privacy(self):
-        self.client.force_login(self.user1)
-        create_page = self.client.post(
+        user1 = Client()
+        user2 = Client()
+        user1.force_login(self.user1)
+        user2.force_login(self.user2)
+
+        user1.post(
             reverse('wagtailadmin_pages:add',
                 args=['app', 'testpage', self.root_page.pk]),
             {
                 'title': 'child test page',
                 'slug': 'testpage',
                 'action-publish': 'action-publish'})
+
         page = Page.objects.get(slug='testpage').specific
-        view_page = self.client.get(page.url)
-        self.assertEqual(view_page.status_code, 200)
-        self.client.logout()
+        self.assertEqual(user1.get(page.url).status_code, 200)
+        self.assertNotEqual(user2.get(page.url).status_code, 200)
 
-        # Try viewing as user2 now
-        self.client.force_login(self.user2)
-        view_page = self.client.get(page.url)
-        self.assertNotEqual(view_page.status_code, 200)
-        self.client.logout()
-
-        # Switch to user1 to approve
-        self.client.force_login(self.user1)
+        # Run approval
         ticket = ApprovalTicket.objects.get(
             step=self.step1,
             content_type=ContentType.objects.get_for_model(Page),
             object_id=page.pk)
 
-        self.client.post(
-            reverse('wagtailapproval:approve',
-                kwargs={'pk': str(ticket.pk)}))
+        user1.post(
+            reverse('wagtailapproval:approve', kwargs={'pk': str(ticket.pk)}))
 
-        # user1 should now be unable to view
-        view_page = self.client.get(page.url)
-        self.assertNotEqual(view_page.status_code, 200)
-        self.client.logout()
-
-        # user2 should now be able to view
-        self.client.force_login(self.user2)
-        view_page = self.client.get(page.url)
-        self.assertEqual(view_page.status_code, 200)
-        self.client.logout()
+        # user1 should now be unable to view, and user2 should now be able to
+        # view
+        self.assertNotEqual(user1.get(page.url).status_code, 200)
+        self.assertEqual(user2.get(page.url).status_code, 200)
