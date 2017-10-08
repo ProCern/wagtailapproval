@@ -11,19 +11,17 @@ from wagtailapproval.models import ApprovalPipeline, ApprovalStep
 class TestCreation(TestCase, WagtailTestUtils):
     def setUp(self):
         super(TestCreation, self).setUp()
-        self.login()
         root_page = Page.objects.get(pk=2)
 
-        pipeline = root_page.add_child(
+        self.pipeline = root_page.add_child(
             instance=ApprovalPipeline(title='Approval Pipeline Test'))
-        pipeline.save_revision().publish()
-        self.pipeline = (
-            Page.objects.all().type(ApprovalPipeline).first().specific)
+        self.pipeline.save_revision().publish()
+        self.pipeline.refresh_from_db()
 
-        step = self.pipeline.add_child(
+        self.step = self.pipeline.add_child(
             instance=ApprovalStep(title='Approval Step Test'))
-        step.save_revision().publish()
-        self.step = Page.objects.all().type(ApprovalStep).first().specific
+        self.step.save_revision().publish()
+        self.step.refresh_from_db()
 
     def test_user_group_collection_names(self):
         User = get_user_model()
