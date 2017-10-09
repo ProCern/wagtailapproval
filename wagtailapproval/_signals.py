@@ -316,7 +316,6 @@ def release_page_permissions(sender, approval_step, object, pipeline,
         # Release all page permissions
         approval_step.set_page_group_privacy(object, False)
         approval_step.set_page_edit(object, False)
-        approval_step.set_page_delete(object, False)
 
 
 @receiver(pre_transfer_ownership)
