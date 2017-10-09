@@ -101,10 +101,6 @@ class ApprovalStep(Page):
         default=None,
         related_name='+')
 
-    can_delete = models.BooleanField(
-        verbose_name=_('can delete owned objects'),
-        help_text=_("Whether or not owned objects can be deleted"),
-        default=False)
     can_edit = models.BooleanField(
         verbose_name=_('can edit owned objects'),
         help_text=_(
@@ -130,7 +126,6 @@ class ApprovalStep(Page):
         ),
         MultiFieldPanel(
             [
-                FieldPanel('can_delete'),
                 FieldPanel('can_edit'),
                 FieldPanel('private_to_group'),
             ],
@@ -297,20 +292,6 @@ class ApprovalStep(Page):
                 page=page,
                 permission_type='publish').delete()
 
-    def set_page_delete(self, page, delete):
-        group = self.group
-        '''Sets/unsets page delete permissinos'''
-        if delete:
-            GroupPagePermission.objects.get_or_create(
-                group=group,
-                page=page,
-                permission_type='delete')
-        else:
-            GroupPagePermission.objects.filter(
-                group=group,
-                page=page,
-                permission_type='delete').delete()
-
     def set_collection_group_privacy(self, private):
         '''Sets/unsets the collection group privacy'''
         collection = self.collection
@@ -354,7 +335,6 @@ class ApprovalStep(Page):
                 page = ticket.item
                 self.set_page_group_privacy(page, self.private_to_group)
                 self.set_page_edit(page, self.can_edit)
-                self.set_page_delete(page, self.can_delete)
 
     def automatic_approval(self, obj):
         '''Possibly runs processing on an object for automatic approval or
