@@ -356,8 +356,7 @@
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">Page</span><span class="p">):</span>
         <span class="c1"># Release all page permissions</span>
         <span class="n">approval_step</span><span class="o">.</span><span class="n">set_page_group_privacy</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-        <span class="n">approval_step</span><span class="o">.</span><span class="n">set_page_edit</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-        <span class="n">approval_step</span><span class="o">.</span><span class="n">set_page_delete</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span></div>
+        <span class="n">approval_step</span><span class="o">.</span><span class="n">set_page_edit</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="assert_page_live"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.assert_page_live">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">pre_transfer_ownership</span><span class="p">)</span>
