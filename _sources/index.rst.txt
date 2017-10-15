@@ -11,6 +11,7 @@ Wagtail Approval
    :caption: Contents:
 
    api/index
+   collection
 
 .. include:: ../README.rst
 

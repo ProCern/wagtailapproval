@@ -1,0 +1,191 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Implementing approvals on your own collection items &#8212; wagtailapproval 0.2.11 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.2.11',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="wagtailapproval._signals" href="api/_signals.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="implementing-approvals-on-your-own-collection-items">
+<h1>Implementing approvals on your own collection items<a class="headerlink" href="#implementing-approvals-on-your-own-collection-items" title="Permalink to this headline">¶</a></h1>
+<p>Wagtail Approval works out of the box on pages (including your own) and document
+and image item types, but what does that mean for your own types?  As far as
+Wagtail Approval is concerned (at least this far), the only two types of objects
+that exist to it are Page subtypes and CollectionMember subtypes (and they must
+be a literal subtype of CollectionMember, otherwise it would grab all sorts of
+unwanted things like permissions objects, which have a <code class="docutils literal"><span class="pre">collection</span></code>
+attribute).</p>
+<p>This acts as a small tutorial in creating your own collection member items to be
+managed through Wagtail Approval.  This is not going to teach you how to build
+your own wagtail menus or how to integrate your own type fully as a collection
+member, just how to create a collection member with the most minimal amount of
+boilerplate to make it work through Wagtail Approval.  This isn’t relevant if
+you just want to work with Pages, as Wagtail Approval will work out of the box
+with all subtypes of <code class="docutils literal"><span class="pre">Page</span></code>.  If you subclass CollectionMember, you will need
+to make sure on your own that your views properly respect CollectionMember’s
+edit permissions, ownership, and view privacy.</p>
+<p>This assumes you have a working Wagtail Approval pipeline with at least one step
+for use here.</p>
+<p>First, you need to make sure your object inherits from CollectionMember:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="n">CollectionMember</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>If you create one of these inside an existing Approval Step’s collection, it
+will get taken as expected:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">wagtailapproval.models</span> <span class="k">import</span> <span class="n">ApprovalStep</span><span class="p">,</span> <span class="n">ApprovalTicket</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">home.models</span> <span class="k">import</span> <span class="n">Foo</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">step</span> <span class="o">=</span> <span class="n">ApprovalStep</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span> <span class="o">=</span> <span class="n">Foo</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">collection</span><span class="o">=</span><span class="n">step</span><span class="o">.</span><span class="n">collection</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ticket</span> <span class="o">=</span> <span class="n">ApprovalTicket</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">last</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ticket</span><span class="o">.</span><span class="n">item</span>
+<span class="go">&lt;Foo: Foo object&gt;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ticket</span><span class="o">.</span><span class="n">step</span>
+<span class="go">&lt;ApprovalStep: Approval Step&gt;</span>
+</pre></div>
+</div>
+<p>You can see that it gets taken as an owned item, but when you look at the
+Approvals menu, you can’t see it.  This is because you need to implement a
+signal handler to build the menu items for this type.  This is done because
+Wagtail Approval would otherwise have no idea how to construct the item’s title
+or its view URL, edit URL, and delete URL:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">django.contrib.contenttypes.models</span> <span class="k">import</span> <span class="n">ContentType</span>
+<span class="kn">from</span> <span class="nn">django.dispatch</span> <span class="k">import</span> <span class="n">receiver</span>
+<span class="kn">from</span> <span class="nn">wagtailapproval.signals</span> <span class="k">import</span> <span class="n">build_approval_item_list</span>
+<span class="kn">from</span> <span class="nn">wagtailapproval.models</span> <span class="k">import</span> <span class="n">ApprovalTicket</span>
+
+<span class="kn">from</span> <span class="nn">.models</span> <span class="k">import</span> <span class="n">Foo</span>
+
+<span class="nd">@receiver</span><span class="p">(</span><span class="n">build_approval_item_list</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">add_foo</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">approval_step</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">ticket</span> <span class="ow">in</span> <span class="n">ApprovalTicket</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="n">step</span><span class="o">=</span><span class="n">approval_step</span><span class="p">,</span>
+        <span class="n">content_type</span><span class="o">=</span><span class="n">ContentType</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_for_model</span><span class="p">(</span><span class="n">Foo</span><span class="p">)):</span>
+
+        <span class="n">foo</span> <span class="o">=</span> <span class="n">ticket</span><span class="o">.</span><span class="n">item</span>
+
+        <span class="k">yield</span> <span class="n">ticket</span><span class="o">.</span><span class="n">approval_item</span><span class="p">(</span>
+            <span class="n">view_url</span><span class="o">=</span><span class="s1">&#39;/view/foo/</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">foo</span><span class="o">.</span><span class="n">pk</span><span class="p">),</span>
+            <span class="n">edit_url</span><span class="o">=</span><span class="s1">&#39;/edit/foo/</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">foo</span><span class="o">.</span><span class="n">pk</span><span class="p">),</span>
+            <span class="n">delete_url</span><span class="o">=</span><span class="s1">&#39;/delete/foo/</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">foo</span><span class="o">.</span><span class="n">pk</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Note that if you need to customize anything such as the typename or title, you
+can do that via kwargs.  The
+<a class="reference internal" href="api/models.html#wagtailapproval.models.ApprovalTicket.approval_item" title="wagtailapproval.models.ApprovalTicket.approval_item"><code class="xref py py-meth docutils literal"><span class="pre">approval_item</span> <span class="pre">method</span></code></a>
+is a very simple wrapper around the
+<a class="reference internal" href="api/approvalitem.html#wagtailapproval.approvalitem.ApprovalItem" title="wagtailapproval.approvalitem.ApprovalItem"><code class="xref py py-class docutils literal"><span class="pre">ApprovalItem</span></code></a> constructor,
+and any of the arguments can be overridden with kwargs, or you can prefer to use
+ApprovalItem directly, as long as you make sure you set all of the parameters
+correctly.  Once this is done, you should be able to fully work with your
+collection member item through wagtailapproval.  Group ownership will change as
+needed.  Make sure you peruse the <code class="xref py py-mod docutils literal"><span class="pre">signals</span></code> in
+case you need to do any ownership changes yourself, and look through the source
+code of the <a class="reference internal" href="api/_signals.html#module-wagtailapproval._signals" title="wagtailapproval._signals"><code class="xref py py-mod docutils literal"><span class="pre">internal</span> <span class="pre">signals</span></code></a> to see how it is
+done for the supported wagtail native models.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">wagtailapproval</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Implementing approvals on your own collection items</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="api/_signals.html" title="previous chapter">wagtailapproval._signals</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/collection.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Taylor C. Richberger <tcr@absolute-performance.com>.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/collection.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

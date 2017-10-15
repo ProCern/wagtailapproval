@@ -110,25 +110,6 @@ and all.  Objects of this type should be added through the
 
 </dd></dl>
 
-<dl class="function">
-<dt id="wagtailapproval.approvalitem.get_user_approval_items">
-<code class="descname">get_user_approval_items</code><span class="sig-paren">(</span><em>user</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/approvalitem.html#get_user_approval_items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.approvalitem.get_user_approval_items" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get an iterable of all items pending for a user’s approval.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>user</strong> (<em>User</em>) – A user object whose groups are to be checked for
-appropriate steps</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">Iterable[<a class="reference internal" href="#wagtailapproval.approvalitem.ApprovalItem" title="wagtailapproval.approvalitem.ApprovalItem">ApprovalItem</a>]</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">All the items that this user can approve or reject.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
 </div>
 
 
@@ -161,6 +142,7 @@ appropriate steps</td>
 <li class="toctree-l2"><a class="reference internal" href="_signals.html">wagtailapproval._signals</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../collection.html">Implementing approvals on your own collection items</a></li>
 </ul>
 
 <div class="relations">

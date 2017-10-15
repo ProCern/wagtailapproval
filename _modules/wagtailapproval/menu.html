@@ -42,6 +42,8 @@
 <span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="p">(</span><span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span>
                         <span class="n">unicode_literals</span><span class="p">)</span>
 
+<span class="kn">import</span> <span class="nn">itertools</span>
+
 <span class="kn">from</span> <span class="nn">django.contrib.auth</span> <span class="k">import</span> <span class="n">get_user</span>
 <span class="kn">from</span> <span class="nn">django.core.urlresolvers</span> <span class="k">import</span> <span class="n">reverse</span><span class="p">,</span> <span class="n">reverse_lazy</span>
 <span class="kn">from</span> <span class="nn">django.utils.translation</span> <span class="k">import</span> <span class="n">ugettext_lazy</span> <span class="k">as</span> <span class="n">_</span>
@@ -49,8 +51,22 @@
 <span class="kn">from</span> <span class="nn">wagtail.wagtailadmin</span> <span class="k">import</span> <span class="n">messages</span>
 <span class="kn">from</span> <span class="nn">wagtail.wagtailadmin.menu</span> <span class="k">import</span> <span class="n">MenuItem</span>
 
-<span class="kn">from</span> <span class="nn">.approvalitem</span> <span class="k">import</span> <span class="n">get_user_approval_items</span>
 <span class="kn">from</span> <span class="nn">.models</span> <span class="k">import</span> <span class="n">ApprovalStep</span>
+
+
+<div class="viewcode-block" id="get_user_approval_items"><a class="viewcode-back" href="../../api/menu.html#wagtailapproval.menu.get_user_approval_items">[docs]</a><span class="k">def</span> <span class="nf">get_user_approval_items</span><span class="p">(</span><span class="n">user</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Get an iterable of all items pending for a user&#39;s approval.</span>
+
+<span class="sd">    :param User user: A user object whose groups are to be checked for</span>
+<span class="sd">        appropriate steps</span>
+<span class="sd">    :rtype: Iterable[ApprovalItem]</span>
+<span class="sd">    :returns: All the items that this user can approve or reject.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">groups</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="n">steps</span> <span class="o">=</span> <span class="n">ApprovalStep</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">group__in</span><span class="o">=</span><span class="n">groups</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span>
+        <span class="n">step</span><span class="o">.</span><span class="n">get_items</span><span class="p">(</span><span class="n">user</span><span class="p">)</span> <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ApprovalMenuItem"><a class="viewcode-back" href="../../api/menu.html#wagtailapproval.menu.ApprovalMenuItem">[docs]</a><span class="k">class</span> <span class="nc">ApprovalMenuItem</span><span class="p">(</span><span class="n">MenuItem</span><span class="p">):</span>
@@ -113,6 +129,7 @@
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../collection.html">Implementing approvals on your own collection items</a></li>
 </ul>
 
 <div class="relations">

@@ -57,7 +57,6 @@
 <span class="kn">from</span> <span class="nn">wagtail.wagtaildocs.models</span> <span class="k">import</span> <span class="n">Document</span>
 <span class="kn">from</span> <span class="nn">wagtail.wagtailimages.models</span> <span class="k">import</span> <span class="n">Image</span>
 
-<span class="kn">from</span> <span class="nn">.approvalitem</span> <span class="k">import</span> <span class="n">ApprovalItem</span>
 <span class="kn">from</span> <span class="nn">.models</span> <span class="k">import</span> <span class="n">ApprovalPipeline</span><span class="p">,</span> <span class="n">ApprovalStep</span><span class="p">,</span> <span class="n">ApprovalTicket</span>
 <span class="kn">from</span> <span class="nn">.signals</span> <span class="k">import</span> <span class="p">(</span><span class="n">build_approval_item_list</span><span class="p">,</span> <span class="n">pipeline_published</span><span class="p">,</span>
                       <span class="n">pre_transfer_ownership</span><span class="p">,</span> <span class="n">release_ownership</span><span class="p">,</span>
@@ -202,17 +201,15 @@
         <span class="c1"># Do not allow unpublished pages.  We don&#39;t want to end up with a</span>
         <span class="c1"># non-live page in a &quot;published&quot; step.</span>
         <span class="k">if</span> <span class="n">page</span><span class="o">.</span><span class="n">live</span><span class="p">:</span>
-            <span class="k">yield</span> <span class="n">ApprovalItem</span><span class="p">(</span>
+            <span class="c1"># Need to override certain things for specific</span>
+            <span class="k">yield</span> <span class="n">ticket</span><span class="o">.</span><span class="n">approval_item</span><span class="p">(</span>
                 <span class="n">title</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">specific</span><span class="p">),</span>
                 <span class="n">view_url</span><span class="o">=</span><span class="n">specific</span><span class="o">.</span><span class="n">url</span><span class="p">,</span>
                 <span class="n">edit_url</span><span class="o">=</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;wagtailadmin_pages:edit&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">page</span><span class="o">.</span><span class="n">pk</span><span class="p">]),</span>
                 <span class="n">delete_url</span><span class="o">=</span><span class="n">reverse</span><span class="p">(</span>
                     <span class="s1">&#39;wagtailadmin_pages:delete&#39;</span><span class="p">,</span>
                     <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">page</span><span class="o">.</span><span class="n">pk</span><span class="p">]),</span>
-                <span class="n">obj</span><span class="o">=</span><span class="n">page</span><span class="p">,</span>
-                <span class="n">step</span><span class="o">=</span><span class="n">approval_step</span><span class="p">,</span>
-                <span class="n">typename</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="n">specific</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
-                <span class="n">uuid</span><span class="o">=</span><span class="n">ticket</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span></div>
+                <span class="n">typename</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="n">specific</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="add_images"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.add_images">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">build_approval_item_list</span><span class="p">)</span>
@@ -222,15 +219,10 @@
         <span class="n">step</span><span class="o">=</span><span class="n">approval_step</span><span class="p">,</span>
         <span class="n">content_type</span><span class="o">=</span><span class="n">ContentType</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_for_model</span><span class="p">(</span><span class="n">Image</span><span class="p">)):</span>
         <span class="n">image</span> <span class="o">=</span> <span class="n">ticket</span><span class="o">.</span><span class="n">item</span>
-        <span class="k">yield</span> <span class="n">ApprovalItem</span><span class="p">(</span>
-            <span class="n">title</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">image</span><span class="p">),</span>
+        <span class="k">yield</span> <span class="n">ticket</span><span class="o">.</span><span class="n">approval_item</span><span class="p">(</span>
             <span class="n">view_url</span><span class="o">=</span><span class="n">image</span><span class="o">.</span><span class="n">get_rendition</span><span class="p">(</span><span class="s1">&#39;original&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">url</span><span class="p">,</span>
             <span class="n">edit_url</span><span class="o">=</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;wagtailimages:edit&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">image</span><span class="o">.</span><span class="n">pk</span><span class="p">]),</span>
-            <span class="n">delete_url</span><span class="o">=</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;wagtailimages:delete&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">image</span><span class="o">.</span><span class="n">pk</span><span class="p">]),</span>
-            <span class="n">obj</span><span class="o">=</span><span class="n">image</span><span class="p">,</span>
-            <span class="n">step</span><span class="o">=</span><span class="n">approval_step</span><span class="p">,</span>
-            <span class="n">typename</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="n">image</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
-            <span class="n">uuid</span><span class="o">=</span><span class="n">ticket</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span></div>
+            <span class="n">delete_url</span><span class="o">=</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;wagtailimages:delete&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">image</span><span class="o">.</span><span class="n">pk</span><span class="p">]))</span></div>
 
 
 <div class="viewcode-block" id="add_document"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.add_document">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">build_approval_item_list</span><span class="p">)</span>
@@ -240,15 +232,10 @@
         <span class="n">step</span><span class="o">=</span><span class="n">approval_step</span><span class="p">,</span>
         <span class="n">content_type</span><span class="o">=</span><span class="n">ContentType</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_for_model</span><span class="p">(</span><span class="n">Document</span><span class="p">)):</span>
         <span class="n">document</span> <span class="o">=</span> <span class="n">ticket</span><span class="o">.</span><span class="n">item</span>
-        <span class="k">yield</span> <span class="n">ApprovalItem</span><span class="p">(</span>
-            <span class="n">title</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">document</span><span class="p">),</span>
+        <span class="k">yield</span> <span class="n">ticket</span><span class="o">.</span><span class="n">approval_item</span><span class="p">(</span>
             <span class="n">view_url</span><span class="o">=</span><span class="n">document</span><span class="o">.</span><span class="n">url</span><span class="p">,</span>
             <span class="n">edit_url</span><span class="o">=</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;wagtaildocs:edit&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">document</span><span class="o">.</span><span class="n">pk</span><span class="p">]),</span>
-            <span class="n">delete_url</span><span class="o">=</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;wagtaildocs:delete&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">document</span><span class="o">.</span><span class="n">pk</span><span class="p">]),</span>
-            <span class="n">obj</span><span class="o">=</span><span class="n">document</span><span class="p">,</span>
-            <span class="n">step</span><span class="o">=</span><span class="n">approval_step</span><span class="p">,</span>
-            <span class="n">typename</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="n">document</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
-            <span class="n">uuid</span><span class="o">=</span><span class="n">ticket</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span></div>
+            <span class="n">delete_url</span><span class="o">=</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;wagtaildocs:delete&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">document</span><span class="o">.</span><span class="n">pk</span><span class="p">]))</span></div>
 
 
 <div class="viewcode-block" id="set_image_collection_edit"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.set_image_collection_edit">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">set_collection_edit</span><span class="p">)</span>
@@ -386,6 +373,7 @@
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../collection.html">Implementing approvals on your own collection items</a></li>
 </ul>
 
 <div class="relations">

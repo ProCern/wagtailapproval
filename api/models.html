@@ -147,6 +147,14 @@ minor security gain (prevent people from being able to try to act on
 arbitrary PKs, though that will be prevented through user privileges
 anyway, and the UUID should only be used for approvals and rejections, not
 GETs), as well as making the URL more opaque.</p>
+<dl class="method">
+<dt id="wagtailapproval.models.ApprovalTicket.approval_item">
+<code class="descname">approval_item</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/models.html#ApprovalTicket.approval_item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.models.ApprovalTicket.approval_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Small wrapper around ApprovalItem that fills in knowable items
+automatically from the ticket.  Requires that the object is
+stringafiable.</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -181,6 +189,7 @@ GETs), as well as making the URL more opaque.</p>
 <li class="toctree-l2"><a class="reference internal" href="_signals.html">wagtailapproval._signals</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../collection.html">Implementing approvals on your own collection items</a></li>
 </ul>
 
 <div class="relations">

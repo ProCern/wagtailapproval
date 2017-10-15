@@ -58,6 +58,7 @@
                                         <span class="n">PageViewRestriction</span><span class="p">)</span>
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">signals</span>
+<span class="kn">from</span> <span class="nn">.approvalitem</span> <span class="k">import</span> <span class="n">ApprovalItem</span>
 <span class="kn">from</span> <span class="nn">.forms</span> <span class="k">import</span> <span class="n">StepForm</span>
 
 
@@ -438,7 +439,23 @@
     <span class="n">item</span> <span class="o">=</span> <span class="n">GenericForeignKey</span><span class="p">(</span><span class="s1">&#39;content_type&#39;</span><span class="p">,</span> <span class="s1">&#39;object_id&#39;</span><span class="p">)</span>
 
     <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
-        <span class="n">unique_together</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;step&#39;</span><span class="p">,</span> <span class="s1">&#39;content_type&#39;</span><span class="p">,</span> <span class="s1">&#39;object_id&#39;</span><span class="p">)</span></div>
+        <span class="n">unique_together</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;step&#39;</span><span class="p">,</span> <span class="s1">&#39;content_type&#39;</span><span class="p">,</span> <span class="s1">&#39;object_id&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ApprovalTicket.approval_item"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalTicket.approval_item">[docs]</a>    <span class="k">def</span> <span class="nf">approval_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Small wrapper around ApprovalItem that fills in knowable items</span>
+<span class="sd">        automatically from the ticket.  Requires that the object is</span>
+<span class="sd">        stringafiable.&#39;&#39;&#39;</span>
+
+        <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">item</span>
+        <span class="n">_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">obj</span><span class="p">),</span>
+            <span class="s1">&#39;obj&#39;</span><span class="p">:</span> <span class="n">obj</span><span class="p">,</span>
+            <span class="s1">&#39;step&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">,</span>
+            <span class="s1">&#39;typename&#39;</span><span class="p">:</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+            <span class="s1">&#39;uuid&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pk</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ApprovalItem</span><span class="p">(</span><span class="o">**</span><span class="n">_kwargs</span><span class="p">)</span></div></div>
 </pre></div>
 
           </div>
@@ -459,6 +476,7 @@
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../collection.html">Implementing approvals on your own collection items</a></li>
 </ul>
 
 <div class="relations">
