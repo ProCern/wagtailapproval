@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext_lazy as _
 from wagtail.wagtailadmin import messages
 
-from .approvalitem import get_user_approval_items
+from .menu import get_user_approval_items
 from .models import ApprovalTicket
 
 

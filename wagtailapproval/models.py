@@ -18,6 +18,7 @@ from wagtail.wagtailcore.models import (Collection, CollectionViewRestriction,
 
 from . import signals
 from .forms import StepForm
+from .approvalitem import ApprovalItem
 
 
 class ApprovalPipeline(Page):
@@ -398,3 +399,19 @@ class ApprovalTicket(models.Model):
 
     class Meta:
         unique_together = ('step', 'content_type', 'object_id')
+
+    def approval_item(self, **kwargs):
+        '''Small wrapper around ApprovalItem that fills in knowable items
+        automatically from the ticket.  Requires that the object is
+        stringafiable.'''
+
+        obj = self.item
+        _kwargs = {
+            'title': str(obj),
+            'obj': obj,
+            'step': self.step,
+            'typename': type(obj).__name__,
+            'uuid': self.pk,
+        }
+        _kwargs.update(kwargs)
+        return ApprovalItem(**_kwargs)

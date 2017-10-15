@@ -1,11 +1,6 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import itertools
-
-from .models import ApprovalStep
-
-
 class ApprovalItem:
     """An Approval menu item, used for building the munu list, including links
     and all.  Objects of this type should be added through the
@@ -66,18 +61,3 @@ class ApprovalItem:
     @property
     def uuid(self):
         return self._uuid
-
-
-def get_user_approval_items(user):
-    '''Get an iterable of all items pending for a user's approval.
-
-    :param User user: A user object whose groups are to be checked for
-        appropriate steps
-    :rtype: Iterable[ApprovalItem]
-    :returns: All the items that this user can approve or reject.
-    '''
-
-    groups = user.groups.all()
-    steps = ApprovalStep.objects.filter(group__in=groups)
-    return itertools.chain.from_iterable(
-        step.get_items(user) for step in steps)

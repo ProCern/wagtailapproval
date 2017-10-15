@@ -16,7 +16,6 @@ from wagtail.wagtailcore.signals import page_published
 from wagtail.wagtaildocs.models import Document
 from wagtail.wagtailimages.models import Image
 
-from .approvalitem import ApprovalItem
 from .models import ApprovalPipeline, ApprovalStep, ApprovalTicket
 from .signals import (build_approval_item_list, pipeline_published,
                       pre_transfer_ownership, release_ownership,
@@ -161,17 +160,15 @@ def add_pages(sender, approval_step, **kwargs):
         # Do not allow unpublished pages.  We don't want to end up with a
         # non-live page in a "published" step.
         if page.live:
-            yield ApprovalItem(
+            # Need to override certain things for specific
+            yield ticket.approval_item(
                 title=str(specific),
                 view_url=specific.url,
                 edit_url=reverse('wagtailadmin_pages:edit', args=[page.pk]),
                 delete_url=reverse(
                     'wagtailadmin_pages:delete',
                     args=[page.pk]),
-                obj=page,
-                step=approval_step,
-                typename=type(specific).__name__,
-                uuid=ticket.pk)
+                typename=type(specific).__name__)
 
 
 @receiver(build_approval_item_list)
@@ -181,15 +178,11 @@ def add_images(sender, approval_step, **kwargs):
         step=approval_step,
         content_type=ContentType.objects.get_for_model(Image)):
         image = ticket.item
-        yield ApprovalItem(
-            title=str(image),
+        yield ticket.approval_item(
             view_url=image.get_rendition('original').file.url,
             edit_url=reverse('wagtailimages:edit', args=[image.pk]),
-            delete_url=reverse('wagtailimages:delete', args=[image.pk]),
-            obj=image,
-            step=approval_step,
-            typename=type(image).__name__,
-            uuid=ticket.pk)
+            delete_url=reverse('wagtailimages:delete', args=[image.pk]))
+            
 
 
 @receiver(build_approval_item_list)
@@ -199,15 +192,10 @@ def add_document(sender, approval_step, **kwargs):
         step=approval_step,
         content_type=ContentType.objects.get_for_model(Document)):
         document = ticket.item
-        yield ApprovalItem(
-            title=str(document),
+        yield ticket.approval_item(
             view_url=document.url,
             edit_url=reverse('wagtaildocs:edit', args=[document.pk]),
-            delete_url=reverse('wagtaildocs:delete', args=[document.pk]),
-            obj=document,
-            step=approval_step,
-            typename=type(document).__name__,
-            uuid=ticket.pk)
+            delete_url=reverse('wagtaildocs:delete', args=[document.pk]))
 
 
 @receiver(set_collection_edit)
