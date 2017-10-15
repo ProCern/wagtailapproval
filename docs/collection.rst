@@ -71,7 +71,7 @@ or its view URL, edit URL, and delete URL::
 
 Note that if you need to customize anything such as the typename or title, you
 can do that via kwargs.  The
-:meth:`approval_item methad<wagtailapproval.models.ApprovalTicket.approval_item>`
+:meth:`approval_item method<wagtailapproval.models.ApprovalTicket.approval_item>`
 is a very simple wrapper around the
 :class:`ApprovalItem <wagtailapproval.approvalitem.ApprovalItem>` constructor,
 and any of the arguments can be overridden with kwargs, or you can prefer to use
