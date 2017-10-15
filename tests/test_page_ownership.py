@@ -7,7 +7,6 @@ from django.core.urlresolvers import reverse
 from django.test import Client, TestCase
 from wagtail.tests.utils import WagtailTestUtils
 from wagtail.wagtailcore.models import GroupPagePermission, Page
-
 from wagtailapproval.models import (ApprovalPipeline, ApprovalStep,
                                     ApprovalTicket)
 
