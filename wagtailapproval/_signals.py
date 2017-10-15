@@ -182,7 +182,6 @@ def add_images(sender, approval_step, **kwargs):
             view_url=image.get_rendition('original').file.url,
             edit_url=reverse('wagtailimages:edit', args=[image.pk]),
             delete_url=reverse('wagtailimages:delete', args=[image.pk]))
-            
 
 
 @receiver(build_approval_item_list)

@@ -17,8 +17,8 @@ from wagtail.wagtailcore.models import (Collection, CollectionViewRestriction,
                                         PageViewRestriction)
 
 from . import signals
-from .forms import StepForm
 from .approvalitem import ApprovalItem
+from .forms import StepForm
 
 
 class ApprovalPipeline(Page):

@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from wagtail.tests.utils import WagtailTestUtils
 from wagtail.wagtailcore.models import Page
+
 from wagtailapproval.models import ApprovalPipeline, ApprovalStep
 
 

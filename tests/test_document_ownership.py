@@ -10,6 +10,7 @@ from django.test import Client, TestCase
 from wagtail.tests.utils import WagtailTestUtils
 from wagtail.wagtailcore.models import GroupCollectionPermission, Page
 from wagtail.wagtaildocs.models import get_document_model
+
 from wagtailapproval.models import (ApprovalPipeline, ApprovalStep,
                                     ApprovalTicket)
 

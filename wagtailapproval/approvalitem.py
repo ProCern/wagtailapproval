@@ -1,6 +1,7 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+
 class ApprovalItem:
     """An Approval menu item, used for building the munu list, including links
     and all.  Objects of this type should be added through the
