@@ -37,8 +37,8 @@ _PREFIX = "(Approval) "
 
 
 @receiver(pipeline_published)
-def setup_pipeline_user(sender, instance, **kwargs):
-    '''Setup an ApprovalPipeline user'''
+def setup_pipeline_user_and_group(sender, instance, **kwargs):
+    '''Setup an ApprovalPipeline user and group'''
     User = get_user_model()
 
     username_max_length = User._meta.get_field('username').max_length
@@ -47,6 +47,21 @@ def setup_pipeline_user(sender, instance, **kwargs):
     if not user:
         user = User.objects.create(username=username)
         instance.user = user
+    elif user.username != username:
+        user.username = username
+        user.save()
+
+    group_max_length = Group._meta.get_field('name').max_length - len(_PREFIX)
+    group_name = _PREFIX + str(instance)[:group_max_length]
+    group = instance.admin_group
+    if not group:
+        group = Group.objects.create(name=group_name)
+        access_admin = Permission.objects.get(codename='access_admin')
+        group.permissions.add(access_admin)
+        instance.admin_group = group
+    elif group.name != group_name:
+        group.name = group_name
+        group.save()
 
     instance.save()
 
@@ -64,8 +79,7 @@ def setup_group_and_collection(sender, instance, **kwargs):
         access_admin = Permission.objects.get(codename='access_admin')
         group.permissions.add(access_admin)
         instance.group = group
-
-    if group.name != group_name:
+    elif group.name != group_name:
         group.name = group_name
         group.save()
 
@@ -80,8 +94,7 @@ def setup_group_and_collection(sender, instance, **kwargs):
         root_collection = Collection.get_first_root_node()
         collection = root_collection.add_child(name=collection_name)
         instance.collection = collection
-
-    if collection.name != collection_name:
+    elif collection.name != collection_name:
         collection.name = collection_name
         collection.save()
 

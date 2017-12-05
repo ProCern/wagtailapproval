@@ -38,6 +38,21 @@ class ApprovalPipeline(Page):
         default=None,
         related_name='+')
 
+    admin_group = models.ForeignKey(
+        Group,
+        verbose_name=_('owned group'),
+        help_text=_(
+            "This is the administrative group of the pipeline.  Users added "
+            "to this group will behave as if they belong to all groups for "
+            "all steps in the pipeline.  This does not give them universal "
+            "edit permissons or anything of the sort, only universal approve "
+            "and reject permissions."),
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        default=None,
+        related_name='+')
+
     content_panels = Page.content_panels + [
         FieldPanel('notes', classname="full")
     ]
@@ -139,6 +154,10 @@ class ApprovalStep(Page):
 
     base_form_class = StepForm
 
+    @property
+    def pipeline(self):
+        return self.get_parent().specific
+
     def clean(self):
         '''Makes sure parents are the same'''
 
@@ -151,7 +170,7 @@ class ApprovalStep(Page):
     def approve(self, obj):
         '''Run approval on an object'''
 
-        pipeline = self.get_parent().specific
+        pipeline = self.pipeline
         step = self.approval_step
 
         if step:
@@ -174,7 +193,7 @@ class ApprovalStep(Page):
     def reject(self, obj):
         '''Run rejection on an object'''
 
-        pipeline = self.get_parent().specific
+        pipeline = self.pipeline
 
         step = self.rejection_step
         if step:
@@ -197,7 +216,7 @@ class ApprovalStep(Page):
     def transfer_ownership(self, obj, step):
         '''Give ownership to another step'''
 
-        pipeline = self.get_parent().specific
+        pipeline = self.pipeline
 
         signals.pre_transfer_ownership.send(
             sender=ApprovalStep,
@@ -227,7 +246,7 @@ class ApprovalStep(Page):
         '''Take ownership of an object.  Should run all relevant processing on
         changing visibility and other such things.  This is idempotent.'''
 
-        pipeline = self.get_parent().specific
+        pipeline = self.pipeline
 
         signals.take_ownership.send(
             sender=ApprovalStep,
@@ -243,7 +262,7 @@ class ApprovalStep(Page):
     def release_ownership(self, obj):
         '''Release ownership of an object.  This is idempotent.'''
 
-        pipeline = self.get_parent().specific
+        pipeline = self.pipeline
 
         signals.release_ownership.send(
             sender=ApprovalStep,

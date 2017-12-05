@@ -23,10 +23,14 @@ def check_permissions(function):
     def check_wrapper(request, pk):
         user = get_user(request)
         ticket = get_object_or_404(ApprovalTicket, pk=pk)
-        if ticket.step.group not in user.groups.all():
-            raise PermissionDenied('User not in step group')
+        if (
+            ticket.step.pipeline.admin_group in user.groups.all() or
+            ticket.step.group in user.groups.all()
+        ):
 
-        return function(request, pk, ticket)
+            return function(request, pk, ticket)
+
+        raise PermissionDenied('User not in step group')
     return check_wrapper
 
 
