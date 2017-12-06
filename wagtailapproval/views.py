@@ -10,7 +10,7 @@ from django.utils.translation import ugettext_lazy as _
 from wagtail.wagtailadmin import messages
 
 from .menu import get_user_approval_items
-from .models import ApprovalTicket, ApprovalStep, ApprovalPipeline
+from .models import ApprovalPipeline, ApprovalTicket
 
 
 def index(request):
@@ -20,12 +20,14 @@ def index(request):
     return render(request, 'wagtailapproval/index.html', {
         'approval_list': approval_items})
 
+
 def admin(request, pipeline=None, step=None):
     '''Get all pending approvals that are relevant for the current user'''
 
     user = get_user(request)
     if not user.is_superuser:
-        raise PermissionDenied('Only superusers may access wagtailapproval admin')
+        raise PermissionDenied(
+            'Only superusers may access wagtailapproval admin')
 
     if pipeline is not None:
         return render(request, 'wagtailapproval/admin/pipeline.html', {
@@ -36,6 +38,7 @@ def admin(request, pipeline=None, step=None):
     else:
         return render(request, 'wagtailapproval/admin/index.html', {
             'pipelines': ApprovalPipeline.objects.all()})
+
 
 def check_permissions(function):
     @wraps(function)

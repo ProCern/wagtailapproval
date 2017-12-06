@@ -76,6 +76,7 @@ class ApprovalMenuItem(MenuItem):
             return True
         return False
 
+
 class ApprovalAdminMenuItem(MenuItem):
     '''The admin menu item that shows in the wagtail sidebar, for
     administrating entire pipelines and manually dropping items into steps.'''

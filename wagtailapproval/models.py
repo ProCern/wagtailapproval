@@ -52,6 +52,7 @@ class ApprovalPipeline(Page):
     def approval_steps(self):
         return self.get_children().specific
 
+
 class ApprovalStep(Page):
     '''Holds posts and facilitates the automatic moving to other steps in the
     same pipeline on approval and rejection.
