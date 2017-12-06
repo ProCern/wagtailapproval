@@ -51,18 +51,6 @@ def setup_pipeline_user_and_group(sender, instance, **kwargs):
         user.username = username
         user.save()
 
-    group_max_length = Group._meta.get_field('name').max_length - len(_PREFIX)
-    group_name = _PREFIX + str(instance)[:group_max_length]
-    group = instance.admin_group
-    if not group:
-        group = Group.objects.create(name=group_name)
-        access_admin = Permission.objects.get(codename='access_admin')
-        group.permissions.add(access_admin)
-        instance.admin_group = group
-    elif group.name != group_name:
-        group.name = group_name
-        group.save()
-
     instance.save()
 
 

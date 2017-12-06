@@ -3,7 +3,7 @@ from __future__ import (absolute_import, division, print_function,
 
 from django.conf.urls import url
 
-from .views import approve, index, reject
+from .views import approve, index, admin, reject
 
 UUID_REGEX = (
     '{hex}{{8}}' +
@@ -13,6 +13,14 @@ UUID_REGEX = (
 app_name = 'wagtailapproval'
 urlpatterns = [
     url(r'^$', index, name='index'),
+    # May be admin/, admin/pipeline/#/, or admin/step/#/
+    url((r'^admin'
+        '(?:/'
+            '(?:pipeline/(?P<pipeline>\d+}))'
+            '|'
+            '(?:step/(?P<step>\d+}))'
+        ')?'
+    '/$'), admin, name='admin'),
     url(r'^(?P<pk>{uuid})/approve/$'.format(uuid=UUID_REGEX),
         approve,
         name='approve'),

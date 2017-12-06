@@ -38,21 +38,6 @@ class ApprovalPipeline(Page):
         default=None,
         related_name='+')
 
-    admin_group = models.ForeignKey(
-        Group,
-        verbose_name=_('owned group'),
-        help_text=_(
-            "This is the administrative group of the pipeline.  Users added "
-            "to this group will behave as if they belong to all groups for "
-            "all steps in the pipeline.  This does not give them universal "
-            "edit permissons or anything of the sort, only universal approve "
-            "and reject permissions."),
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        default=None,
-        related_name='+')
-
     content_panels = Page.content_panels + [
         FieldPanel('notes', classname="full")
     ]
@@ -63,6 +48,9 @@ class ApprovalPipeline(Page):
 
     subpage_types = ['wagtailapproval.ApprovalStep']
 
+    @property
+    def approval_steps(self):
+        return self.get_children().specific
 
 class ApprovalStep(Page):
     '''Holds posts and facilitates the automatic moving to other steps in the

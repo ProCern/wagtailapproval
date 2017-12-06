@@ -22,8 +22,11 @@ def get_user_approval_items(user):
     :returns: All the items that this user can approve or reject.
     '''
 
-    groups = user.groups.all()
-    steps = ApprovalStep.objects.filter(group__in=groups)
+    if user.is_superuser:
+        steps = ApprovalStep.objects.all()
+    else:
+        groups = user.groups.all()
+        steps = ApprovalStep.objects.filter(group__in=groups)
     return itertools.chain.from_iterable(
         step.get_items(user) for step in steps)
 
@@ -45,6 +48,10 @@ class ApprovalMenuItem(MenuItem):
     def is_shown(self, request):
         '''Only show the menu if the user is in an owned approval group'''
         user = get_user(request)
+        # If the user is superuser, show the menu if any steps exist at all
+        if user.is_superuser:
+            return ApprovalStep.objects.exists()
+
         groups = user.groups.all()
         if ApprovalStep.objects.filter(group__in=groups).exists():
             # Display the approval notification only outside of the approval
@@ -67,4 +74,27 @@ class ApprovalMenuItem(MenuItem):
                         ]
                     )
             return True
+        return False
+
+class ApprovalAdminMenuItem(MenuItem):
+    '''The admin menu item that shows in the wagtail sidebar, for
+    administrating entire pipelines and manually dropping items into steps.'''
+
+    def __init__(
+        self,
+        label=_('Approval Admin'), url=reverse_lazy('wagtailapproval:admin'),
+        classnames='icon icon-cog', order=200, **kwargs):
+        super(ApprovalMenuItem, self).__init__(
+            label,
+            url,
+            classnames=classnames,
+            order=order,
+            **kwargs)
+
+    def is_shown(self, request):
+        '''Only show the menu if the user is a superuser and any ApprovalStep
+        objects exist.'''
+        user = get_user(request)
+        if user.is_superuser:
+            return ApprovalStep.objects.exists()
         return False
