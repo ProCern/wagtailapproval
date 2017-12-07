@@ -1,27 +1,27 @@
 {% extends "wagtailadmin/base.html" %}
 {% load i18n %}
 {% load wagtailadmin_tags %}
-{% block titletag %}{% trans "Approval" %}{% endblock %}
-{% block bodyclass %}menu-news{% endblock %}
+{% block titletag %}{% trans "Approval Admin: Pipelines" %}{% endblock %}
+{% block bodyclass %}menu-approvaladmin{% endblock %}
 {% block content %}
 
 <header class="nice-padding merged">
   <div class="row row-flush">
     <div class="left">
-      <h1 class="col icon icon-tick-inverse">{% trans "Approval" %}</h1>
+      <h1 class="col icon icon-cog">{% trans "Approval Admin: Pipelines" %}</h1>
       <form class="col search-form" action="" method="GET">
         <ul class="fields">
           <li class="required">
             <div class="field char_field text_input field-small iconfield">
               <label for="id_q">
-                {% trans "Search approvals" %}
+                {% trans "Search pipelines" %}
               </label>
               <div class="field-content">
                 <div class="input icon-search">
                   <input id="id_q"
                          name="q"
                          value="{{ request.GET.q }}"
-                         placeholder="{% trans "Search approvals" %}"
+                         placeholder="{% trans "Search pipelines" %}"
                          type="text" />
                   <span></span>
                 </div>
@@ -34,9 +34,9 @@
   </div>
 </header>
 
-{% if approval_list %}
-{% include "wagtailapproval/list.html" %}
+{% if pipelines %}
+{% include "wagtailapproval/admin/pipeline_list.html" %}
 {% else %}
-<div class="nice-padding">{% trans "There is nothing for you to approve!" %}</div>
+<div class="nice-padding">{% trans "There are no approval pipelines!" %}</div>
 {% endif %}
 {% endblock %}

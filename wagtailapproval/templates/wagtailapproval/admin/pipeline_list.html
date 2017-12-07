@@ -1,0 +1,28 @@
+{% load i18n %}
+{% load wagtailapproval_admin %}
+
+<table class="listing full-width">
+  <colgroup>
+    <thead>
+      <tr class="table-headers">
+        <th class="title">Pipeline Title</th>
+        <th class="notes">Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for pipeline in pipelines %}
+      <tr>
+        <td class="title">
+          <h2>
+            <a href="{% admin_pipeline_url pipeline %}">
+              {{ pipeline.title }}
+            </a>
+          </h2>
+        </td>
+        <td class="notes">
+          {{ pipeline.notes }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+</table>

@@ -60,7 +60,9 @@ def admin_pipeline(request, pk):
         return redirect('wagtailapproval:admin_step', pk=steps.first().pk)
 
     return render(request, 'wagtailapproval/admin/pipeline.html', {
-        'approval_steps': steps})
+        'pipeline': pipeline,
+        'steps': steps
+    })
 
 
 @superuser_only
@@ -70,7 +72,8 @@ def admin_step(request, pk):
     step = ApprovalStep.objects.get(pk=pk)
 
     return render(request, 'wagtailapproval/admin/step.html', {
-        'approval_step': step})
+        'step': step
+    })
 
 
 def check_permissions(function):

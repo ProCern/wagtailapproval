@@ -64,6 +64,7 @@ setup(
     packages=[
         'wagtailapproval',
         'wagtailapproval.migrations',
+        'wagtailapproval.templatetags',
         ],
     package_data={
         'wagtailapproval': ['templates/**/*'],
