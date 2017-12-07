@@ -50,7 +50,7 @@ class ApprovalPipeline(Page):
 
     @property
     def approval_steps(self):
-        return self.get_children().specific
+        return self.get_children().specific()
 
 
 class ApprovalStep(Page):

@@ -37,7 +37,7 @@ class ApprovalMenuItem(MenuItem):
     def __init__(
         self,
         label=_('Approval'), url=reverse_lazy('wagtailapproval:index'),
-        classnames='icon icon-tick-inverse', order=200, **kwargs):
+        classnames='icon icon-tick-inverse', order=201, **kwargs):
         super(ApprovalMenuItem, self).__init__(
             label,
             url,
@@ -83,9 +83,9 @@ class ApprovalAdminMenuItem(MenuItem):
 
     def __init__(
         self,
-        label=_('Approval Admin'), url=reverse_lazy('wagtailapproval:admin'),
+        label=_('Approval Admin'), url=reverse_lazy('wagtailapproval:admin_index'),
         classnames='icon icon-cog', order=200, **kwargs):
-        super(ApprovalMenuItem, self).__init__(
+        super(ApprovalAdminMenuItem, self).__init__(
             label,
             url,
             classnames=classnames,

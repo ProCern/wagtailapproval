@@ -10,7 +10,18 @@ from django.utils.translation import ugettext_lazy as _
 from wagtail.wagtailadmin import messages
 
 from .menu import get_user_approval_items
-from .models import ApprovalPipeline, ApprovalTicket
+from .models import ApprovalPipeline, ApprovalStep, ApprovalTicket
+
+
+def superuser_only(function):
+    @wraps(function)
+    def check_wrapper(request, *args, **kwargs):
+        user = get_user(request)
+        if user.is_superuser:
+            return function(request, *args, **kwargs)
+        raise PermissionDenied(
+            'Only superusers may access wagtailapproval admin')
+    return check_wrapper
 
 
 def index(request):
@@ -21,23 +32,43 @@ def index(request):
         'approval_list': approval_items})
 
 
-def admin(request, pipeline=None, step=None):
-    '''Get all pending approvals that are relevant for the current user'''
+@superuser_only
+def admin_index(request):
+    '''Get the index of pipelines, or if there is only one, redirect to that one.'''
 
-    user = get_user(request)
-    if not user.is_superuser:
-        raise PermissionDenied(
-            'Only superusers may access wagtailapproval admin')
+    pipelines = ApprovalPipeline.objects.all()
 
-    if pipeline is not None:
-        return render(request, 'wagtailapproval/admin/pipeline.html', {
-            'approval_steps': pipeline.approval_steps})
-    elif step is not None:
-        return render(request, 'wagtailapproval/admin/step.html', {
-            'approval_step': step})
-    else:
-        return render(request, 'wagtailapproval/admin/index.html', {
-            'pipelines': ApprovalPipeline.objects.all()})
+    if len(pipelines) == 1:
+        return redirect('wagtailapproval:admin_pipeline', pk=pipelines.first().pk)
+
+    return render(request, 'wagtailapproval/admin/index.html', {
+        'pipelines': pipelines,
+    })
+
+
+@superuser_only
+def admin_pipeline(request, pk):
+    '''Get the list of steps, or if there is only one, redirect to that one'''
+
+    pipeline = ApprovalPipeline.objects.get(pk=pk)
+
+    steps = pipeline.approval_steps.all()
+
+    if len(steps) == 1:
+        return redirect('wagtailapproval:admin_step', pk=steps.first().pk)
+
+    return render(request, 'wagtailapproval/admin/pipeline.html', {
+        'approval_steps': steps})
+
+
+@superuser_only
+def admin_step(request, pk):
+    '''Give the admin view for a step'''
+
+    step = ApprovalStep.objects.get(pk=pk)
+
+    return render(request, 'wagtailapproval/admin/step.html', {
+        'approval_step': step})
 
 
 def check_permissions(function):

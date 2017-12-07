@@ -6,7 +6,7 @@ from wagtail.wagtailcore import hooks
 from wagtail.wagtailcore.models import Page
 
 from . import urls
-from .menu import ApprovalMenuItem
+from .menu import ApprovalAdminMenuItem, ApprovalMenuItem
 from .models import ApprovalPipeline, ApprovalStep
 
 
@@ -16,8 +16,13 @@ def register_admin_urls():
 
 
 @hooks.register('register_admin_menu_item')
-def register_admin_menu_item():
+def register_approval_menu_item():
     return ApprovalMenuItem()
+
+
+@hooks.register('register_admin_menu_item')
+def register_approval_admin_menu_item():
+    return ApprovalAdminMenuItem()
 
 
 @hooks.register('after_create_page')
