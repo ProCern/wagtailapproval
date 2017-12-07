@@ -35,9 +35,9 @@ class ApprovalMenuItem(MenuItem):
     '''The menu item that shows in the wagtail sidebar'''
 
     def __init__(
-        self,
-        label=_('Approval'), url=reverse_lazy('wagtailapproval:index'),
+        self, label=_('Approval'), url=reverse_lazy('wagtailapproval:index'),
         classnames='icon icon-tick-inverse', order=201, **kwargs):
+
         super(ApprovalMenuItem, self).__init__(
             label,
             url,
@@ -82,8 +82,8 @@ class ApprovalAdminMenuItem(MenuItem):
     administrating entire pipelines and manually dropping items into steps.'''
 
     def __init__(
-        self,
-        label=_('Approval Admin'), url=reverse_lazy('wagtailapproval:admin_index'),
+        self, label=_('Approval Admin'),
+        url=reverse_lazy('wagtailapproval:admin_index'),
         classnames='icon icon-cog', order=200, **kwargs):
         super(ApprovalAdminMenuItem, self).__init__(
             label,

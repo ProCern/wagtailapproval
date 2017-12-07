@@ -34,12 +34,14 @@ def index(request):
 
 @superuser_only
 def admin_index(request):
-    '''Get the index of pipelines, or if there is only one, redirect to that one.'''
+    '''Get the index of pipelines, or if there is only one, redirect to that
+    one.'''
 
     pipelines = ApprovalPipeline.objects.all()
 
     if len(pipelines) == 1:
-        return redirect('wagtailapproval:admin_pipeline', pk=pipelines.first().pk)
+        return redirect('wagtailapproval:admin_pipeline',
+            pk=pipelines.first().pk)
 
     return render(request, 'wagtailapproval/admin/index.html', {
         'pipelines': pipelines,
