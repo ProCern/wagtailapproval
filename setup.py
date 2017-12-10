@@ -70,7 +70,9 @@ setup(
         'wagtailapproval': ['templates/**/*'],
         },
     install_requires=[
-        'wagtail>=1.5',
+        'django>=1.8',
+        'wagtail>=1.11',
+        'enum34;python_version<"3.4"',
         ],
     classifiers=classifiers,
 )

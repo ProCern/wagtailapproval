@@ -3,6 +3,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import itertools
 import uuid
+from enum import Enum, unique
 
 from django.conf import settings
 from django.contrib.auth.models import Group
@@ -159,53 +160,42 @@ class ApprovalStep(Page):
     def approve(self, obj):
         '''Run approval on an object'''
 
-        pipeline = self.pipeline
         step = self.approval_step
 
         if step:
-            signals.pre_approve.send(
-                sender=ApprovalStep,
-                giving_step=self,
-                taking_step=step,
-                object=obj,
-                pipeline=pipeline)
-
-            self.transfer_ownership(obj, step)
-
-            signals.post_approve.send(
-                sender=ApprovalStep,
-                giving_step=self,
-                taking_step=step,
-                object=obj,
-                pipeline=pipeline)
+            self.transfer_ownership(
+                obj=obj,
+                step=step,
+                pre_signal=signals.pre_approve,
+                post_signal=signals.post_approve,
+                ticket_status=TicketStatus.Approved,
+            )
 
     def reject(self, obj):
         '''Run rejection on an object'''
 
-        pipeline = self.pipeline
-
         step = self.rejection_step
         if step:
-            signals.pre_reject.send(
-                sender=ApprovalStep,
-                giving_step=self,
-                taking_step=step,
-                object=obj,
-                pipeline=pipeline)
+            self.transfer_ownership(
+                obj=obj,
+                step=step,
+                pre_signal=signals.pre_reject,
+                post_signal=signals.post_reject,
+                ticket_status=TicketStatus.Rejected,
+            )
 
-            self.transfer_ownership(obj, step)
-
-            signals.post_reject.send(
-                sender=ApprovalStep,
-                giving_step=self,
-                taking_step=step,
-                object=obj,
-                pipeline=pipeline)
-
-    def transfer_ownership(self, obj, step):
+    def transfer_ownership(self, obj, step, pre_signal, post_signal,
+        ticket_status):
         '''Give ownership to another step'''
 
         pipeline = self.pipeline
+
+        pre_signal.send(
+            sender=ApprovalStep,
+            giving_step=self,
+            taking_step=step,
+            object=obj,
+            pipeline=pipeline)
 
         signals.pre_transfer_ownership.send(
             sender=ApprovalStep,
@@ -219,12 +209,22 @@ class ApprovalStep(Page):
         # case of error, we'd rather it be owned by two steps than by none,
         # otherwise it could accidentally become public early.
         step.take_ownership(obj)
-        self.release_ownership(obj)
+        self.release_ownership(
+            obj=obj,
+            ticket_status=ticket_status,
+        )
         # Do this to fix permissions.  release_ownership releases its own
         # permissions manually, take_ownership does not.
         step.save()
 
         signals.post_transfer_ownership.send(
+            sender=ApprovalStep,
+            giving_step=self,
+            taking_step=step,
+            object=obj,
+            pipeline=pipeline)
+
+        post_signal.send(
             sender=ApprovalStep,
             giving_step=self,
             taking_step=step,
@@ -246,9 +246,11 @@ class ApprovalStep(Page):
         ApprovalTicket.objects.get_or_create(
             step=self,
             content_type=ContentType.objects.get_for_model(obj),
-            object_id=obj.pk)
+            object_id=obj.pk,
+            status=TicketStatus.Pending.name,
+        )
 
-    def release_ownership(self, obj):
+    def release_ownership(self, obj, ticket_status):
         '''Release ownership of an object.  This is idempotent.'''
 
         pipeline = self.pipeline
@@ -262,7 +264,11 @@ class ApprovalStep(Page):
         ApprovalTicket.objects.filter(
             step=self,
             content_type=ContentType.objects.get_for_model(obj),
-            object_id=obj.pk).delete()
+            object_id=obj.pk,
+            status=TicketStatus.Pending.name,
+        ).update(
+            status=ticket_status.name,
+        )
 
     def set_page_group_privacy(self, page, private):
         '''Sets/unsets the page group privacy'''
@@ -338,8 +344,9 @@ class ApprovalStep(Page):
                     edit=self.can_edit)
             for ticket in ApprovalTicket.objects.filter(
                 step=self,
-                content_type=ContentType.objects.get_for_model(Page)
-                ):  # noqa: E125
+                content_type=ContentType.objects.get_for_model(Page),
+                status=TicketStatus.Pending.name,
+            ):  # noqa: E125
 
                 page = ticket.item
                 self.set_page_group_privacy(page, self.private_to_group)
@@ -384,6 +391,18 @@ class ApprovalStep(Page):
         return (item for item in approval_items if item not in removal_items)
 
 
+@unique
+class TicketStatus(Enum):
+    Pending = _('Pending')
+    Approved = _('Approved')
+    Rejected = _('Rejected')
+    Canceled = _('Canceled')
+
+    @classmethod
+    def choices(cls):
+        return tuple((member.name, member.value) for member in cls)
+
+
 class ApprovalTicket(models.Model):
     '''A special junction table to reference an arbitrary item by uuid.
 
@@ -395,18 +414,42 @@ class ApprovalTicket(models.Model):
     anyway, and the UUID should only be used for approvals and rejections, not
     GETs), as well as making the URL more opaque.'''
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    uuid = models.UUIDField(db_index=True, default=uuid.uuid4, editable=False)
 
     step = models.ForeignKey(
         ApprovalStep,
         on_delete=models.CASCADE,
-        related_name='+')
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+        related_name='+',
+        db_index=True,
+    )
+    content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        db_index=True,
+    )
     object_id = models.PositiveIntegerField()
     item = GenericForeignKey('content_type', 'object_id')
 
-    class Meta:
-        unique_together = ('step', 'content_type', 'object_id')
+    status = models.CharField(
+        max_length=16,
+        null=False,
+        blank=False,
+        default=TicketStatus.Pending.name,
+        choices=TicketStatus.choices(),
+    )
+
+    def get_status(self):
+        '''Get the enum member for the charfield'''
+        return TicketStatus[self._status]
+
+    def set_status(self, value):
+        '''Set the member from the enum value passed in, or set directly if it
+        is not applicable.'''
+        try:
+            status = TicketStatus(value)
+        except ValueError:
+            status = TicketStatus[value]
+        self._status = status.name
 
     def approval_item(self, **kwargs):
         '''Small wrapper around ApprovalItem that fills in knowable items

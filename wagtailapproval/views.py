@@ -78,17 +78,20 @@ def admin_step(request, pk):
 
 def check_permissions(function):
     @wraps(function)
-    def check_wrapper(request, pk):
+    def check_wrapper(request, uuid):
         user = get_user(request)
-        ticket = get_object_or_404(ApprovalTicket, pk=pk)
+        ticket = get_object_or_404(ApprovalTicket, uuid=uuid)
         if user.is_superuser or ticket.step.group in user.groups.all():
-            return function(request, pk, ticket)
+            return function(
+                request=request,
+                ticket=ticket,
+            )
         raise PermissionDenied('User not in step group')
     return check_wrapper
 
 
 @check_permissions
-def approve(request, pk, ticket):
+def approve(request, ticket):
     item = ticket.item
     step = ticket.step
     if request.method == 'POST':
@@ -102,7 +105,7 @@ def approve(request, pk, ticket):
 
 
 @check_permissions
-def reject(request, pk, ticket):
+def reject(request, ticket):
     item = ticket.item
     step = ticket.step
     if request.method == 'POST':

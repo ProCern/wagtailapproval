@@ -6,12 +6,15 @@ from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.urlresolvers import reverse
+from django.dispatch import Signal
 from django.test import Client, TestCase
 from wagtail.tests.utils import WagtailTestUtils
 from wagtail.wagtailcore.models import GroupCollectionPermission, Page
 from wagtail.wagtaildocs.models import get_document_model
 from wagtailapproval.models import (ApprovalPipeline, ApprovalStep,
-                                    ApprovalTicket)
+                                    ApprovalTicket, TicketStatus)
+
+NULLSIGNAL = Signal(providing_args=[])
 
 
 class TestDocumentOwnership(TestCase, WagtailTestUtils):
@@ -131,8 +134,12 @@ class TestDocumentOwnership(TestCase, WagtailTestUtils):
                     b'This is a test file.\n')})
 
         self.create_step.transfer_ownership(
-            self.Document.objects.get(title='editfile'),
-            self.edit_step)
+            obj=self.Document.objects.get(title='editfile'),
+            step=self.edit_step,
+            pre_signal=NULLSIGNAL,
+            post_signal=NULLSIGNAL,
+            ticket_status=TicketStatus.Approved,
+        )
 
         self.creator.post(
             reverse('wagtaildocs:add'),
@@ -144,8 +151,12 @@ class TestDocumentOwnership(TestCase, WagtailTestUtils):
                     b'This is a test file.\n')})
 
         self.create_step.transfer_ownership(
-            self.Document.objects.get(title='approvefile'),
-            self.approve_step)
+            obj=self.Document.objects.get(title='approvefile'),
+            step=self.approve_step,
+            pre_signal=NULLSIGNAL,
+            post_signal=NULLSIGNAL,
+            ticket_status=TicketStatus.Approved,
+        )
 
         self.creator.post(
             reverse('wagtaildocs:add'),
@@ -157,8 +168,12 @@ class TestDocumentOwnership(TestCase, WagtailTestUtils):
                     b'This is a test file.\n')})
 
         self.create_step.transfer_ownership(
-            self.Document.objects.get(title='publishedfile'),
-            self.published_step)
+            obj=self.Document.objects.get(title='publishedfile'),
+            step=self.published_step,
+            pre_signal=NULLSIGNAL,
+            post_signal=NULLSIGNAL,
+            ticket_status=TicketStatus.Approved,
+        )
 
     def test_creator_can_create(self):
         self.creator.post(
@@ -224,7 +239,7 @@ class TestDocumentOwnership(TestCase, WagtailTestUtils):
             user.post(
                 reverse(
                     'wagtailapproval:approve',
-                    kwargs={'pk': str(ticket.pk)}))
+                    kwargs={'uuid': str(ticket.uuid)}))
 
         # Wrong users, no change
         self.assertEqual(self.creator.get(file.url).status_code, 200)
@@ -233,7 +248,9 @@ class TestDocumentOwnership(TestCase, WagtailTestUtils):
         self.assertNotEqual(self.public.get(file.url).status_code, 200)
 
         self.creator.post(
-            reverse('wagtailapproval:approve', kwargs={'pk': str(ticket.pk)}))
+            reverse(
+                'wagtailapproval:approve',
+                kwargs={'uuid': str(ticket.uuid)}))
 
         self.assertNotEqual(self.creator.get(file.url).status_code, 200)
         self.assertEqual(self.editor.get(file.url).status_code, 200)
@@ -257,7 +274,7 @@ class TestDocumentOwnership(TestCase, WagtailTestUtils):
             user.post(
                 reverse(
                     'wagtailapproval:approve',
-                    kwargs={'pk': str(ticket.pk)}))
+                    kwargs={'uuid': str(ticket.uuid)}))
 
         # Wrong users, no change
         self.assertNotEqual(self.creator.get(file.url).status_code, 200)
@@ -266,7 +283,9 @@ class TestDocumentOwnership(TestCase, WagtailTestUtils):
         self.assertNotEqual(self.public.get(file.url).status_code, 200)
 
         self.editor.post(
-            reverse('wagtailapproval:approve', kwargs={'pk': str(ticket.pk)}))
+            reverse(
+                'wagtailapproval:approve',
+                kwargs={'uuid': str(ticket.uuid)}))
 
         self.assertNotEqual(self.creator.get(file.url).status_code, 200)
         self.assertNotEqual(self.editor.get(file.url).status_code, 200)
@@ -290,7 +309,7 @@ class TestDocumentOwnership(TestCase, WagtailTestUtils):
             user.post(
                 reverse(
                     'wagtailapproval:approve',
-                    kwargs={'pk': str(ticket.pk)}))
+                    kwargs={'uuid': str(ticket.uuid)}))
 
         # Wrong users, no change
         self.assertNotEqual(self.creator.get(file.url).status_code, 200)
@@ -299,7 +318,9 @@ class TestDocumentOwnership(TestCase, WagtailTestUtils):
         self.assertNotEqual(self.public.get(file.url).status_code, 200)
 
         self.approver.post(
-            reverse('wagtailapproval:approve', kwargs={'pk': str(ticket.pk)}))
+            reverse(
+                'wagtailapproval:approve',
+                kwargs={'uuid': str(ticket.uuid)}))
 
         self.assertEqual(self.creator.get(file.url).status_code, 200)
         self.assertEqual(self.editor.get(file.url).status_code, 200)
@@ -323,7 +344,7 @@ class TestDocumentOwnership(TestCase, WagtailTestUtils):
             user.post(
                 reverse(
                     'wagtailapproval:approve',
-                    kwargs={'pk': str(ticket.pk)}))
+                    kwargs={'uuid': str(ticket.uuid)}))
 
         # Wrong users, no change
         self.assertNotEqual(self.creator.get(file.url).status_code, 200)
@@ -332,7 +353,9 @@ class TestDocumentOwnership(TestCase, WagtailTestUtils):
         self.assertNotEqual(self.public.get(file.url).status_code, 200)
 
         self.approver.post(
-            reverse('wagtailapproval:reject', kwargs={'pk': str(ticket.pk)}))
+            reverse(
+                'wagtailapproval:reject',
+                kwargs={'uuid': str(ticket.uuid)}))
 
         self.assertNotEqual(self.creator.get(file.url).status_code, 200)
         self.assertEqual(self.editor.get(file.url).status_code, 200)
@@ -356,7 +379,7 @@ class TestDocumentOwnership(TestCase, WagtailTestUtils):
             user.post(
                 reverse(
                     'wagtailapproval:approve',
-                    kwargs={'pk': str(ticket.pk)}))
+                    kwargs={'uuid': str(ticket.uuid)}))
 
         # Wrong users, no change
         self.assertEqual(self.creator.get(file.url).status_code, 200)
@@ -365,7 +388,9 @@ class TestDocumentOwnership(TestCase, WagtailTestUtils):
         self.assertEqual(self.public.get(file.url).status_code, 200)
 
         self.rejector.post(
-            reverse('wagtailapproval:reject', kwargs={'pk': str(ticket.pk)}))
+            reverse(
+                'wagtailapproval:reject',
+                kwargs={'uuid': str(ticket.uuid)}))
 
         self.assertNotEqual(self.creator.get(file.url).status_code, 200)
         self.assertEqual(self.editor.get(file.url).status_code, 200)

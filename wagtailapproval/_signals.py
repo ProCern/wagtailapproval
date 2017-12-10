@@ -16,7 +16,8 @@ from wagtail.wagtailcore.signals import page_published
 from wagtail.wagtaildocs.models import Document
 from wagtail.wagtailimages.models import Image
 
-from .models import ApprovalPipeline, ApprovalStep, ApprovalTicket
+from .models import (ApprovalPipeline, ApprovalStep, ApprovalTicket,
+                     TicketStatus)
 from .signals import (build_approval_item_list, pipeline_published,
                       pre_transfer_ownership, release_ownership,
                       set_collection_edit, step_published, take_ownership)
@@ -155,7 +156,9 @@ def add_pages(sender, approval_step, **kwargs):
     '''Builds the approval item list for pages'''
     for ticket in ApprovalTicket.objects.filter(
         step=approval_step,
-        content_type=ContentType.objects.get_for_model(Page)):
+        content_type=ContentType.objects.get_for_model(Page),
+        status=TicketStatus.Pending.name,
+    ):
         page = ticket.item
         specific = page.specific
         # Do not allow unpublished pages.  We don't want to end up with a
@@ -177,7 +180,9 @@ def add_images(sender, approval_step, **kwargs):
     '''Builds the approval item list for images'''
     for ticket in ApprovalTicket.objects.filter(
         step=approval_step,
-        content_type=ContentType.objects.get_for_model(Image)):
+        content_type=ContentType.objects.get_for_model(Image),
+        status=TicketStatus.Pending.name,
+    ):
         image = ticket.item
         yield ticket.approval_item(
             view_url=image.get_rendition('original').file.url,
@@ -190,7 +195,9 @@ def add_document(sender, approval_step, **kwargs):
     '''Builds the approval item list for documents'''
     for ticket in ApprovalTicket.objects.filter(
         step=approval_step,
-        content_type=ContentType.objects.get_for_model(Document)):
+        content_type=ContentType.objects.get_for_model(Document),
+        status=TicketStatus.Pending.name,
+    ):
         document = ticket.item
         yield ticket.approval_item(
             view_url=document.url,

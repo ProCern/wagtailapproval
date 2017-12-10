@@ -4,11 +4,14 @@ from __future__ import (absolute_import, division, print_function,
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
+from django.dispatch import Signal
 from django.test import Client, TestCase
 from wagtail.tests.utils import WagtailTestUtils
 from wagtail.wagtailcore.models import GroupPagePermission, Page
 from wagtailapproval.models import (ApprovalPipeline, ApprovalStep,
-                                    ApprovalTicket)
+                                    ApprovalTicket, TicketStatus)
+
+NULLSIGNAL = Signal(providing_args=[])
 
 
 class TestPageOwnership(TestCase, WagtailTestUtils):
@@ -126,8 +129,12 @@ class TestPageOwnership(TestCase, WagtailTestUtils):
                 'slug': 'editpage',
                 'action-publish': 'action-publish'})
         self.create_step.transfer_ownership(
-            Page.objects.get(slug='editpage'),
-            self.edit_step)
+            obj=Page.objects.get(slug='editpage'),
+            step=self.edit_step,
+            pre_signal=NULLSIGNAL,
+            post_signal=NULLSIGNAL,
+            ticket_status=TicketStatus.Approved,
+        )
 
         self.creator.post(
             reverse('wagtailadmin_pages:add',
@@ -137,8 +144,12 @@ class TestPageOwnership(TestCase, WagtailTestUtils):
                 'slug': 'approvepage',
                 'action-publish': 'action-publish'})
         self.create_step.transfer_ownership(
-            Page.objects.get(slug='approvepage'),
-            self.approve_step)
+            obj=Page.objects.get(slug='approvepage'),
+            step=self.approve_step,
+            pre_signal=NULLSIGNAL,
+            post_signal=NULLSIGNAL,
+            ticket_status=TicketStatus.Approved,
+        )
 
         self.creator.post(
             reverse('wagtailadmin_pages:add',
@@ -148,8 +159,12 @@ class TestPageOwnership(TestCase, WagtailTestUtils):
                 'slug': 'publishedpage',
                 'action-publish': 'action-publish'})
         self.create_step.transfer_ownership(
-            Page.objects.get(slug='publishedpage'),
-            self.published_step)
+            obj=Page.objects.get(slug='publishedpage'),
+            step=self.published_step,
+            pre_signal=NULLSIGNAL,
+            post_signal=NULLSIGNAL,
+            ticket_status=TicketStatus.Approved,
+        )
 
     def test_creator_can_create(self):
         self.creator.post(
@@ -211,7 +226,7 @@ class TestPageOwnership(TestCase, WagtailTestUtils):
             user.post(
                 reverse(
                     'wagtailapproval:approve',
-                    kwargs={'pk': str(ticket.pk)}))
+                    kwargs={'uuid': str(ticket.uuid)}))
 
         # Wrong users, no change
         self.assertEqual(self.creator.get(page.url).status_code, 200)
@@ -220,7 +235,9 @@ class TestPageOwnership(TestCase, WagtailTestUtils):
         self.assertNotEqual(self.public.get(page.url).status_code, 200)
 
         self.creator.post(
-            reverse('wagtailapproval:approve', kwargs={'pk': str(ticket.pk)}))
+            reverse(
+                'wagtailapproval:approve',
+                kwargs={'uuid': str(ticket.uuid)}))
 
         self.assertNotEqual(self.creator.get(page.url).status_code, 200)
         self.assertEqual(self.editor.get(page.url).status_code, 200)
@@ -244,7 +261,7 @@ class TestPageOwnership(TestCase, WagtailTestUtils):
             user.post(
                 reverse(
                     'wagtailapproval:approve',
-                    kwargs={'pk': str(ticket.pk)}))
+                    kwargs={'uuid': str(ticket.uuid)}))
 
         # Wrong users, no change
         self.assertNotEqual(self.creator.get(page.url).status_code, 200)
@@ -253,7 +270,9 @@ class TestPageOwnership(TestCase, WagtailTestUtils):
         self.assertNotEqual(self.public.get(page.url).status_code, 200)
 
         self.editor.post(
-            reverse('wagtailapproval:approve', kwargs={'pk': str(ticket.pk)}))
+            reverse(
+                'wagtailapproval:approve',
+                kwargs={'uuid': str(ticket.uuid)}))
 
         self.assertNotEqual(self.creator.get(page.url).status_code, 200)
         self.assertNotEqual(self.editor.get(page.url).status_code, 200)
@@ -277,7 +296,7 @@ class TestPageOwnership(TestCase, WagtailTestUtils):
             user.post(
                 reverse(
                     'wagtailapproval:approve',
-                    kwargs={'pk': str(ticket.pk)}))
+                    kwargs={'uuid': str(ticket.uuid)}))
 
         # Wrong users, no change
         self.assertNotEqual(self.creator.get(page.url).status_code, 200)
@@ -286,7 +305,9 @@ class TestPageOwnership(TestCase, WagtailTestUtils):
         self.assertNotEqual(self.public.get(page.url).status_code, 200)
 
         self.approver.post(
-            reverse('wagtailapproval:approve', kwargs={'pk': str(ticket.pk)}))
+            reverse(
+                'wagtailapproval:approve',
+                kwargs={'uuid': str(ticket.uuid)}))
 
         self.assertEqual(self.creator.get(page.url).status_code, 200)
         self.assertEqual(self.editor.get(page.url).status_code, 200)
@@ -310,7 +331,7 @@ class TestPageOwnership(TestCase, WagtailTestUtils):
             user.post(
                 reverse(
                     'wagtailapproval:approve',
-                    kwargs={'pk': str(ticket.pk)}))
+                    kwargs={'uuid': str(ticket.uuid)}))
 
         # Wrong users, no change
         self.assertNotEqual(self.creator.get(page.url).status_code, 200)
@@ -319,7 +340,9 @@ class TestPageOwnership(TestCase, WagtailTestUtils):
         self.assertNotEqual(self.public.get(page.url).status_code, 200)
 
         self.approver.post(
-            reverse('wagtailapproval:reject', kwargs={'pk': str(ticket.pk)}))
+            reverse(
+                'wagtailapproval:reject',
+                kwargs={'uuid': str(ticket.uuid)}))
 
         self.assertNotEqual(self.creator.get(page.url).status_code, 200)
         self.assertEqual(self.editor.get(page.url).status_code, 200)
@@ -343,7 +366,7 @@ class TestPageOwnership(TestCase, WagtailTestUtils):
             user.post(
                 reverse(
                     'wagtailapproval:approve',
-                    kwargs={'pk': str(ticket.pk)}))
+                    kwargs={'uuid': str(ticket.uuid)}))
 
         # Wrong users, no change
         self.assertEqual(self.creator.get(page.url).status_code, 200)
@@ -352,7 +375,9 @@ class TestPageOwnership(TestCase, WagtailTestUtils):
         self.assertEqual(self.public.get(page.url).status_code, 200)
 
         self.rejector.post(
-            reverse('wagtailapproval:reject', kwargs={'pk': str(ticket.pk)}))
+            reverse(
+                'wagtailapproval:reject',
+                kwargs={'uuid': str(ticket.uuid)}))
 
         self.assertNotEqual(self.creator.get(page.url).status_code, 200)
         self.assertEqual(self.editor.get(page.url).status_code, 200)

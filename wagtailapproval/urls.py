@@ -18,8 +18,8 @@ urlpatterns = [
         name='admin_pipeline'),
     url(r'^admin/step/(?P<pk>\d+)/$', admin_step, name='admin_step'),
     url(r'^work/$', index, name='index'),
-    url(r'^work/(?P<pk>{uuid})/approve/$'.format(uuid=UUID_REGEX),
+    url(r'^work/(?P<uuid>{uuid})/approve/$'.format(uuid=UUID_REGEX),
         approve, name='approve'),
-    url(r'^work/(?P<pk>{uuid})/reject/$'.format(uuid=UUID_REGEX),
+    url(r'^work/(?P<uuid>{uuid})/reject/$'.format(uuid=UUID_REGEX),
         reject, name='reject'),
 ]
