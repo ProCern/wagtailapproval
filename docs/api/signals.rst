@@ -156,16 +156,12 @@ are expected to.
     :param object: The object to be canceled.
     :param ApprovalPipeline pipeline: The pipeline for the step
 
-.. function:: post_reject(giving_step, taking_step, object, pipeline)
+.. function:: post_cancel(step, object, pipeline)
 
-    Sent after rejection.  This is done after :func:`post_transfer_ownership`.
-    This should be used if you want to do something after each transfer (such as
-    if :data:`taking_step` is a step that is meant to perform some sort of
-    automatic validation or automatic approval/rejection).  If
-    :meth:`approve <wagtailapproval.models.ApprovalStep.reject>` is run on an
-    object that has no rejection step, this will not be executed.
+    Sent after a cancelation.  This isn't very useful, and should not be used
+    often.  It is only used specifically when a ticket is switched to the
+    "Cancel" state in the admin menu.
 
-    :param ApprovalStep giving_step: The step that has released the object
-    :param ApprovalStep taking_step: The step that has taken the object
-    :param object: The object that has been transferred
-    :param ApprovalPipeline pipeline: The pipeline for the steps
+    :param ApprovalStep step: The step which owns the ticket being canceled
+    :param object: The object to be canceled.
+    :param ApprovalPipeline pipeline: The pipeline for the step
