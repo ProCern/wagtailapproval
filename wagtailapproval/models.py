@@ -481,7 +481,8 @@ class ApprovalTicket(models.Model):
 
     def last_note(self):
         '''Gets the most recently closed ticket for the same item and step and
-        pulls its note field.  Returns an empty string if there is no ticket.'''
+        pulls its note field.  Returns an empty string if there is no
+        ticket.'''
         ticket = ApprovalTicket.objects.filter(
             step=self.step,
             content_type=self.content_type,
