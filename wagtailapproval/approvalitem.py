@@ -8,7 +8,7 @@ class ApprovalItem:
     :func:`build_approval_item_list <build_approval_item_list>` signal."""
 
     def __init__(self, title, view_url, edit_url, delete_url, obj, step,
-        typename, uuid):
+        typename, uuid, status, note):
 
         """
         :param str title: The title as displayed in the list
@@ -20,6 +20,11 @@ class ApprovalItem:
         :param str typename: The type name of the item.
         :param uuid.UUID uuid: The UUID for this item, the pk for
             :class:`ApprovalTicket <wagtailapproval.models.ApprovalTicket>`
+        :param TicketStatus status: A status to display for this ticket.
+            Usually, this is actually the status of the most recent ticket, and
+            not this one itself.
+        :param str note: A note to display for this ticket.  Usually, this is
+            the note of the previous ticket.
         """
 
         self._title = title
@@ -30,6 +35,8 @@ class ApprovalItem:
         self._step = step
         self._typename = typename
         self._uuid = uuid
+        self._status = status
+        self._note = note
 
     @property
     def title(self):
@@ -62,3 +69,11 @@ class ApprovalItem:
     @property
     def uuid(self):
         return self._uuid
+
+    @property
+    def status(self):
+        return self._status
+
+    @property
+    def note(self):
+        return self._note

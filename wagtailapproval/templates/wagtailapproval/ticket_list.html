@@ -4,10 +4,12 @@
   <colgroup>
     <thead>
       <tr class="table-headers">
-        <th class="title">Title</th>
-        <th class="type">Type</th>
-        <th class="pipeline">Pipeline</th>
-        <th class="step">Step</th>
+        <th class="title">{% trans "Title" %}</th>
+        <th class="type">{% trans "Type" %}</th>
+        <th class="pipeline">{% trans "Pipeline" %}</th>
+        <th class="step">{% trans "Step" %}</th>
+        <th class="status">{% trans "Last Action" %}</th>
+        <th class="note">{% trans "Note on Last Action" %}</th>
       </tr>
     </thead>
     <tbody>
@@ -37,6 +39,9 @@
             {% if item.step.rejection_step %}
             <li><a href="{% url 'wagtailapproval:reject' uuid=item.uuid|stringformat:'s' %}" class="button button-small button-secondary no">{% trans 'Reject' %}</a></li>
             {% endif %}
+            {% if request.user.is_superuser %}
+            <li><a href="{% url 'wagtailapproval:cancel' uuid=item.uuid|stringformat:'s' %}" class="button button-small button-secondary no">{% trans 'Cancel' %}</a></li>
+            {% endif %}
           </ul>
         </td>
         <td class="type" valign="top">
@@ -44,6 +49,9 @@
         </td>
         <td class="pipeline" valign="top">
           {{ item.step.get_parent.specific }}
+        </td>
+        <td class="step" valign="top">
+          {{ item.step }}
         </td>
         <td class="step" valign="top">
           {{ item.step }}

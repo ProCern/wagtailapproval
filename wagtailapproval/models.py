@@ -157,7 +157,7 @@ class ApprovalStep(Page):
             if (step is not None and self.get_parent() != step.get_parent()):
                 raise ValidationError('Linked steps must have the same parent')
 
-    def approve(self, obj):
+    def approve(self, obj, note=''):
         '''Run approval on an object'''
 
         step = self.approval_step
@@ -169,9 +169,10 @@ class ApprovalStep(Page):
                 pre_signal=signals.pre_approve,
                 post_signal=signals.post_approve,
                 ticket_status=TicketStatus.Approved,
+                note=note,
             )
 
-    def reject(self, obj):
+    def reject(self, obj, note=''):
         '''Run rejection on an object'''
 
         step = self.rejection_step
@@ -182,9 +183,10 @@ class ApprovalStep(Page):
                 pre_signal=signals.pre_reject,
                 post_signal=signals.post_reject,
                 ticket_status=TicketStatus.Rejected,
+                note=note,
             )
 
-    def cancel(self, obj):
+    def cancel(self, obj, note=''):
         '''Cancel a ticket.  Item is left in limbo.'''
 
         pipeline = self.pipeline
@@ -202,6 +204,7 @@ class ApprovalStep(Page):
             status=TicketStatus.Pending.name,
         ).update(
             status=TicketStatus.Canceled.name,
+            note=note,
         )
 
         signals.post_cancel.send(
@@ -211,8 +214,8 @@ class ApprovalStep(Page):
             pipeline=pipeline)
 
     def transfer_ownership(self, obj, step, pre_signal, post_signal,
-        ticket_status):
-        '''Give ownership to another step'''
+        ticket_status, note=''):
+        '''Give ownership to another step, save note on old ticket'''
 
         pipeline = self.pipeline
 
@@ -238,6 +241,7 @@ class ApprovalStep(Page):
         self.release_ownership(
             obj=obj,
             ticket_status=ticket_status,
+            note=note,
         )
         # Do this to fix permissions.  release_ownership releases its own
         # permissions manually, take_ownership does not.
@@ -276,8 +280,9 @@ class ApprovalStep(Page):
             status=TicketStatus.Pending.name,
         )
 
-    def release_ownership(self, obj, ticket_status):
-        '''Release ownership of an object.  This is idempotent.'''
+    def release_ownership(self, obj, ticket_status, note=''):
+        '''Release ownership of an object and set its note appropriately.  This
+        is idempotent.'''
 
         pipeline = self.pipeline
 
@@ -294,6 +299,7 @@ class ApprovalStep(Page):
             status=TicketStatus.Pending.name,
         ).update(
             status=ticket_status.name,
+            note=note,
         )
 
     def set_page_group_privacy(self, page, private):
@@ -453,7 +459,7 @@ class ApprovalTicket(models.Model):
         on_delete=models.CASCADE,
         db_index=True,
     )
-    object_id = models.PositiveIntegerField()
+    object_id = models.PositiveIntegerField(db_index=True)
     item = GenericForeignKey('content_type', 'object_id')
 
     status = models.CharField(
@@ -463,6 +469,45 @@ class ApprovalTicket(models.Model):
         default=TicketStatus.Pending.name,
         choices=TicketStatus.choices(),
     )
+
+    note = models.TextField(
+        blank=True,
+        help_text=_(
+            "Notes clarifying why the item was approved/rejected/canceled. "
+            "This is displayed in the approvals list and admin menu next to "
+            "the item."
+        ),
+    )
+
+    def last_note(self):
+        '''Gets the most recently closed ticket for the same item and step and
+        pulls its note field.  Returns an empty string if there is no ticket.'''
+        ticket = ApprovalTicket.objects.filter(
+            step=self.step,
+            content_type=self.content_type,
+            object_id=self.object_id,
+        ).exclude(
+            status=TicketStatus.Pending.name,
+        ).last()
+
+        if ticket is not None:
+            return ticket.note
+        return ''
+
+    def last_status(self):
+        '''Gets the most recently closed ticket for the same item and step and
+        pulls its status field.  Returns None if there is no ticket.'''
+        ticket = ApprovalTicket.objects.filter(
+            step=self.step,
+            content_type=self.content_type,
+            object_id=self.object_id,
+        ).exclude(
+            status=TicketStatus.Pending.name,
+        ).last()
+
+        if ticket is not None:
+            return ticket.status
+        return None
 
     def get_status(self):
         '''Get the enum member for the charfield'''
@@ -489,6 +534,8 @@ class ApprovalTicket(models.Model):
             'step': self.step,
             'typename': type(obj).__name__,
             'uuid': self.uuid,
+            'note': self.last_note(),
+            'status': self.last_status(),
         }
         _kwargs.update(kwargs)
         return ApprovalItem(**_kwargs)

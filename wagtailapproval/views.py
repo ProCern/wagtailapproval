@@ -75,7 +75,7 @@ def admin_step(request, pk):
 
     return render(request, 'wagtailapproval/admin/step.html', {
         'step': step,
-        'tickets': tickets,
+        'approval_list': tickets,
     })
 
 
@@ -98,11 +98,27 @@ def approve(request, ticket):
     item = ticket.item
     step = ticket.step
     if request.method == 'POST':
-        step.approve(item)
+        note = request.POST.get('note', '')
+        step.approve(item, note)
         messages.success(request, _('{} has been approved').format(item))
         return redirect('wagtailapproval:index')
 
     return render(request, 'wagtailapproval/approve.html', {
+        'step': step,
+        'ticket': ticket})
+
+
+@check_permissions
+def reject(request, ticket):
+    item = ticket.item
+    step = ticket.step
+    if request.method == 'POST':
+        note = request.POST.get('note', '')
+        step.reject(item, note)
+        messages.success(request, _('{} has been rejected').format(item))
+        return redirect('wagtailapproval:index')
+
+    return render(request, 'wagtailapproval/reject.html', {
         'step': step,
         'ticket': ticket})
 
@@ -113,24 +129,11 @@ def cancel(request, uuid):
     item = ticket.item
     step = ticket.step
     if request.method == 'POST':
-        step.cancel(item)
+        note = request.POST.get('note', '')
+        step.cancel(item, note)
         messages.success(request, _('{} has been canceled').format(item))
         return redirect('wagtailapproval:index')
 
     return render(request, 'wagtailapproval/cancel.html', {
-        'step': step,
-        'ticket': ticket})
-
-
-@check_permissions
-def reject(request, ticket):
-    item = ticket.item
-    step = ticket.step
-    if request.method == 'POST':
-        step.reject(item)
-        messages.success(request, _('{} has been rejected').format(item))
-        return redirect('wagtailapproval:index')
-
-    return render(request, 'wagtailapproval/reject.html', {
         'step': step,
         'ticket': ticket})

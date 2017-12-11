@@ -4,13 +4,15 @@
 {% block bodyclass %}menu-approval{% endblock %}
 {% block content %}
 
-{% blocktrans asvar title_str %}Cancel{% endblocktrans %}
+{% trans "Cancel" as title_str %}
 {% include "wagtailadmin/shared/header.html" with title=title_str subtitle=item icon="cross" %}
 
 <div class="row row-flush nice-padding">
   <form action="{% url 'wagtailapproval:cancel' uuid=ticket.uuid|stringformat:'s' %}" method="POST">
     {% csrf_token %}
-    <p>{% blocktrans %}Are you sure you want to cancel this item?{% endblocktrans %}</p>
+    <p>{% trans "Are you sure you want to cancel this item?" %}</p>
+    <label for="note">{% trans "Cancellation Note" %}</label>
+    <input name="note" id="note" type="text" />
     <input class="button no" type="submit" value="{% trans 'Yes, cancel it' %}">
   </form>
 </div>
