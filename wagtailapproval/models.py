@@ -184,6 +184,32 @@ class ApprovalStep(Page):
                 ticket_status=TicketStatus.Rejected,
             )
 
+    def cancel(self, obj):
+        '''Cancel a ticket.  Item is left in limbo.'''
+
+        pipeline = self.pipeline
+
+        signals.pre_cancel.send(
+            sender=ApprovalStep,
+            step=self,
+            object=obj,
+            pipeline=pipeline)
+
+        ApprovalTicket.objects.filter(
+            step=self,
+            content_type=ContentType.objects.get_for_model(obj),
+            object_id=obj.pk,
+            status=TicketStatus.Pending.name,
+        ).update(
+            status=TicketStatus.Canceled.name,
+        )
+
+        signals.post_cancel.send(
+            sender=ApprovalStep,
+            step=self,
+            object=obj,
+            pipeline=pipeline)
+
     def transfer_ownership(self, obj, step, pre_signal, post_signal,
         ticket_status):
         '''Give ownership to another step'''
@@ -462,7 +488,7 @@ class ApprovalTicket(models.Model):
             'obj': obj,
             'step': self.step,
             'typename': type(obj).__name__,
-            'uuid': self.pk,
+            'uuid': self.uuid,
         }
         _kwargs.update(kwargs)
         return ApprovalItem(**_kwargs)

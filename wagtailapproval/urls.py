@@ -3,8 +3,8 @@ from __future__ import (absolute_import, division, print_function,
 
 from django.conf.urls import url
 
-from .views import (admin_index, admin_pipeline, admin_step, approve, index,
-                    reject)
+from .views import (admin_index, admin_pipeline, admin_step, approve, cancel,
+                    index, reject)
 
 UUID_REGEX = (
     '{hex}{{8}}' +
@@ -22,4 +22,6 @@ urlpatterns = [
         approve, name='approve'),
     url(r'^work/(?P<uuid>{uuid})/reject/$'.format(uuid=UUID_REGEX),
         reject, name='reject'),
+    url(r'^work/(?P<uuid>{uuid})/cancel/$'.format(uuid=UUID_REGEX),
+        cancel, name='cancel'),
 ]

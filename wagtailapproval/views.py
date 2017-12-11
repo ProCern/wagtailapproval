@@ -69,10 +69,13 @@ def admin_pipeline(request, pk):
 def admin_step(request, pk):
     '''Give the admin view for a step'''
 
+    user = get_user(request)
     step = ApprovalStep.objects.get(pk=pk)
+    tickets = step.get_items(user)
 
     return render(request, 'wagtailapproval/admin/step.html', {
-        'step': step
+        'step': step,
+        'tickets': tickets,
     })
 
 
@@ -100,6 +103,21 @@ def approve(request, ticket):
         return redirect('wagtailapproval:index')
 
     return render(request, 'wagtailapproval/approve.html', {
+        'step': step,
+        'ticket': ticket})
+
+
+@superuser_only
+def cancel(request, uuid):
+    ticket = get_object_or_404(ApprovalTicket, uuid=uuid)
+    item = ticket.item
+    step = ticket.step
+    if request.method == 'POST':
+        step.cancel(item)
+        messages.success(request, _('{} has been canceled').format(item))
+        return redirect('wagtailapproval:index')
+
+    return render(request, 'wagtailapproval/cancel.html', {
         'step': step,
         'ticket': ticket})
 

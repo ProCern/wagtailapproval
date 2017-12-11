@@ -11,7 +11,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for item in approval_list %}
+      {% for item in tickets %}
       <tr>
         <td class="title">
           <h2>
@@ -37,6 +37,7 @@
             {% if item.step.rejection_step %}
             <li><a href="{% url 'wagtailapproval:reject' uuid=item.uuid|stringformat:'s' %}" class="button button-small button-secondary no">{% trans 'Reject' %}</a></li>
             {% endif %}
+            <li><a href="{% url 'wagtailapproval:cancel' uuid=item.uuid|stringformat:'s' %}" class="button button-small button-secondary no">{% trans 'Cancel' %}</a></li>
           </ul>
         </td>
         <td class="type" valign="top">

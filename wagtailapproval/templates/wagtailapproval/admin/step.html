@@ -13,9 +13,9 @@
   </div>
 </header>
 
-{% if steps %}
-{% include "wagtailapproval/admin/step_list.html" %}
+{% if tickets %}
+{% include "wagtailapproval/admin/ticket_list.html" %}
 {% else %}
-<div class="nice-padding">{% blocktrans %}There are no approval steps in pipeline {{ pipeline.title }}!{% endblocktrans %}</div>
+<div class="nice-padding">{% blocktrans %}There are no pending tickets in step {{ step.title }}!{% endblocktrans %}</div>
 {% endif %}
 {% endblock %}

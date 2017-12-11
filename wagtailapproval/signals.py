@@ -66,3 +66,13 @@ post_reject = Signal(providing_args=[
     'taking_step',
     'object',
     'pipeline'])
+
+pre_cancel = Signal(providing_args=[
+    'step',
+    'object',
+    'pipeline'])
+
+post_cancel = Signal(providing_args=[
+    'step',
+    'object',
+    'pipeline'])

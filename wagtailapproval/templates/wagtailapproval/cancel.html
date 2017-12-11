@@ -1,17 +1,17 @@
 {% extends "wagtailadmin/base.html" %}
 {% load i18n %}
-{% block titletag %}{% blocktrans with item=item %}Reject {{ item }}{% endblocktrans %}{% endblock %}
+{% block titletag %}{% blocktrans with item=item %}Cancel {{ item }}{% endblocktrans %}{% endblock %}
 {% block bodyclass %}menu-approval{% endblock %}
 {% block content %}
 
-{% blocktrans asvar title_str %}Reject{% endblocktrans %}
+{% blocktrans asvar title_str %}Cancel{% endblocktrans %}
 {% include "wagtailadmin/shared/header.html" with title=title_str subtitle=item icon="cross" %}
 
 <div class="row row-flush nice-padding">
-  <form action="{% url 'wagtailapproval:reject' uuid=ticket.uuid|stringformat:'s' %}" method="POST">
+  <form action="{% url 'wagtailapproval:cancel' uuid=ticket.uuid|stringformat:'s' %}" method="POST">
     {% csrf_token %}
-    <p>{% blocktrans %}Are you sure you want to reject this item?{% endblocktrans %}</p>
-    <input class="button no" type="submit" value="{% trans 'Yes, I reject it' %}">
+    <p>{% blocktrans %}Are you sure you want to cancel this item?{% endblocktrans %}</p>
+    <input class="button no" type="submit" value="{% trans 'Yes, cancel it' %}">
   </form>
 </div>
 {% endblock %}
