@@ -115,8 +115,7 @@ def approvalticket_cascade_delete(sender, instance, **kwargs):
     :class:`GenericForeignKey` without a :class:`GenericRelation` ).
     Essentially, this is a custom cascade delete.'''
 
-    # This is to make sure ApprovalTicket objects don't cascade onto
-    # themselves, and non-integer pks don't blow up the system
+    # This is to make sure non-integer pks don't blow up the system
     if isinstance(instance.pk, Integral):
         ApprovalTicket.objects.filter(
             content_type=ContentType.objects.get_for_model(instance),

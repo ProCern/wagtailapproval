@@ -7,6 +7,7 @@ from django.contrib.auth import get_user
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext_lazy as _
+from django.views.generic.base import TemplateView
 from wagtail.wagtailadmin import messages
 
 from .menu import get_user_approval_items
@@ -24,12 +25,15 @@ def superuser_only(function):
     return check_wrapper
 
 
-def index(request):
+class IndexView(TemplateView):
     '''Get all pending approvals that are relevant for the current user'''
-    approval_items = get_user_approval_items(get_user(request))
+    template_name = 'wagtailapproval/index.html'
 
-    return render(request, 'wagtailapproval/index.html', {
-        'approval_list': approval_items})
+    def get_context_data(self, **kwargs):
+        context = super(IndexView, self).get_context_data(**kwargs)
+        context['approval_list'] = get_user_approval_items(
+            get_user(self.request))
+        return context
 
 
 @superuser_only
@@ -79,15 +83,35 @@ def admin_step(request, pk):
     })
 
 
+# TODO: remove when all views are class-based
 def check_permissions(function):
     @wraps(function)
-    def check_wrapper(request, uuid):
+    def check_wrapper(request, uuid, *args, **kwargs):
         user = get_user(request)
         ticket = get_object_or_404(ApprovalTicket, uuid=uuid)
         if user.is_superuser or ticket.step.group in user.groups.all():
             return function(
                 request=request,
                 ticket=ticket,
+                *args,
+                **kwargs
+            )
+        raise PermissionDenied('User not in step group')
+    return check_wrapper
+
+
+def member_check_permissions(function):
+    @wraps(function)
+    def check_wrapper(self, request, uuid, *args, **kwargs):
+        user = get_user(request)
+        ticket = get_object_or_404(ApprovalTicket, uuid=uuid)
+        if user.is_superuser or ticket.step.group in user.groups.all():
+            return function(
+                self,
+                request=request,
+                ticket=ticket,
+                *args,
+                **kwargs
             )
         raise PermissionDenied('User not in step group')
     return check_wrapper
@@ -108,19 +132,29 @@ def approve(request, ticket):
         'ticket': ticket})
 
 
-@check_permissions
-def reject(request, ticket):
-    item = ticket.item
-    step = ticket.step
-    if request.method == 'POST':
+class RejectView(TemplateView):
+    template_name = 'wagtailapproval/reject.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(RejectView, self).get_context_data(**kwargs)
+        context['ticket'] = self.ticket
+        context['step'] = self.step
+        return context
+
+    @member_check_permissions
+    def get(self, request, ticket):
+        self.ticket = ticket
+        super(RejectView, self).get(request)
+
+    @member_check_permissions
+    def post(self, request, ticket):
+        self.ticket = ticket
+        item = ticket.item
+        step = ticket.step
         note = request.POST.get('note', '')
         step.reject(item, note)
         messages.success(request, _('{} has been rejected').format(item))
         return redirect('wagtailapproval:index')
-
-    return render(request, 'wagtailapproval/reject.html', {
-        'step': step,
-        'ticket': ticket})
 
 
 @superuser_only
