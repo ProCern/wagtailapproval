@@ -3,8 +3,8 @@ from __future__ import (absolute_import, division, print_function,
 
 from django.conf.urls import url
 
-from .views import (ApproveView, CancelView, IndexView, RejectView,
-                    AdminIndexView, AdminPipelineView, AdminStepView)
+from .views import (AdminIndexView, AdminPipelineView, AdminStepView,
+                    ApproveView, CancelView, IndexView, RejectView)
 
 UUID_REGEX = (
     '{hex}{{8}}' +

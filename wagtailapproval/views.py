@@ -5,7 +5,7 @@ from functools import wraps
 
 from django.contrib.auth import get_user
 from django.core.exceptions import PermissionDenied
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic.base import TemplateView
 from wagtail.wagtailadmin import messages
@@ -78,7 +78,8 @@ class AdminPipelineView(TemplateView):
 
     @superuser_only
     def get(self, request, pk, *args, **kwargs):
-        '''Get the list of steps, or if there is only one, redirect to that one'''
+        '''Get the list of steps, or if there is only one, redirect to that
+        one'''
 
         self.pipeline = ApprovalPipeline.objects.get(pk=pk)
         self.steps = self.pipeline.approval_steps.all()
