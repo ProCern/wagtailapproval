@@ -5,13 +5,15 @@ from functools import wraps
 
 from django.contrib.auth import get_user
 from django.core.exceptions import PermissionDenied
+from django.http import HttpResponseGone
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic.base import TemplateView
 from wagtail.wagtailadmin import messages
 
 from .menu import get_user_approval_items
-from .models import ApprovalPipeline, ApprovalStep, ApprovalTicket
+from .models import (ApprovalPipeline, ApprovalStep, ApprovalTicket,
+                     TicketStatus)
 
 
 def check_permissions(function):
@@ -21,6 +23,8 @@ def check_permissions(function):
     def check_wrapper(self, request, uuid, *args, **kwargs):
         user = get_user(request)
         ticket = get_object_or_404(ApprovalTicket, uuid=uuid)
+        if ticket.get_status() is not TicketStatus.Pending:
+            return HttpResponseGone('Ticket has already been used.')
         if user.is_superuser or ticket.step.group in user.groups.all():
             return function(
                 self,

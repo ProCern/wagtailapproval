@@ -197,13 +197,9 @@ class ApprovalStep(Page):
             object=obj,
             pipeline=pipeline)
 
-        ApprovalTicket.objects.filter(
-            step=self,
-            content_type=ContentType.objects.get_for_model(obj),
-            object_id=obj.pk,
-            status=TicketStatus.Pending.name,
-        ).update(
-            status=TicketStatus.Canceled.name,
+        self.release_ownership(
+            obj=obj,
+            ticket_status=TicketStatus.Canceled,
             note=note,
         )
 
