@@ -43,8 +43,28 @@
   <div class="section" id="module-wagtailapproval.menu">
 <span id="wagtailapproval-menu"></span><h1>wagtailapproval.menu<a class="headerlink" href="#module-wagtailapproval.menu" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
+<dt id="wagtailapproval.menu.ApprovalAdminMenuItem">
+<em class="property">class </em><code class="descname">ApprovalAdminMenuItem</code><span class="sig-paren">(</span><em>label='Approval Admin'</em>, <em>url='/admin/approval/admin/'</em>, <em>classnames='icon icon-cog'</em>, <em>order=200</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/menu.html#ApprovalAdminMenuItem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.menu.ApprovalAdminMenuItem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">wagtail.wagtailadmin.menu.MenuItem</span></code></p>
+<p>The admin menu item that shows in the wagtail sidebar, for
+administrating entire pipelines and manually dropping items into steps.</p>
+<dl class="method">
+<dt id="wagtailapproval.menu.ApprovalAdminMenuItem.is_shown">
+<code class="descname">is_shown</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/menu.html#ApprovalAdminMenuItem.is_shown"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.menu.ApprovalAdminMenuItem.is_shown" title="Permalink to this definition">¶</a></dt>
+<dd><p>Only show the menu if the user is a superuser and any ApprovalStep
+objects exist.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wagtailapproval.menu.ApprovalAdminMenuItem.media">
+<code class="descname">media</code><a class="headerlink" href="#wagtailapproval.menu.ApprovalAdminMenuItem.media" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="wagtailapproval.menu.ApprovalMenuItem">
-<em class="property">class </em><code class="descname">ApprovalMenuItem</code><span class="sig-paren">(</span><em>label='Approval'</em>, <em>url='/admin/approval/'</em>, <em>classnames='icon icon-tick-inverse'</em>, <em>order=200</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/menu.html#ApprovalMenuItem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.menu.ApprovalMenuItem" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">ApprovalMenuItem</code><span class="sig-paren">(</span><em>label='Approval'</em>, <em>url='/admin/approval/work/'</em>, <em>classnames='icon icon-tick-inverse'</em>, <em>order=201</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/menu.html#ApprovalMenuItem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.menu.ApprovalMenuItem" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">wagtail.wagtailadmin.menu.MenuItem</span></code></p>
 <p>The menu item that shows in the wagtail sidebar</p>
 <dl class="method">
@@ -150,7 +170,7 @@ appropriate steps</td>
       &copy;2017, Taylor C. Richberger <tcr@absolute-performance.com>.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |

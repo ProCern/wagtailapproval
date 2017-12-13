@@ -49,7 +49,7 @@
 <span class="sd">    :func:`build_approval_item_list &lt;build_approval_item_list&gt;` signal.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">view_url</span><span class="p">,</span> <span class="n">edit_url</span><span class="p">,</span> <span class="n">delete_url</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span>
-        <span class="n">typename</span><span class="p">,</span> <span class="n">uuid</span><span class="p">):</span>
+        <span class="n">typename</span><span class="p">,</span> <span class="n">uuid</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">note</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param str title: The title as displayed in the list</span>
@@ -61,6 +61,11 @@
 <span class="sd">        :param str typename: The type name of the item.</span>
 <span class="sd">        :param uuid.UUID uuid: The UUID for this item, the pk for</span>
 <span class="sd">            :class:`ApprovalTicket &lt;wagtailapproval.models.ApprovalTicket&gt;`</span>
+<span class="sd">        :param TicketStatus status: A status to display for this ticket.</span>
+<span class="sd">            Usually, this is actually the status of the most recent ticket, and</span>
+<span class="sd">            not this one itself.</span>
+<span class="sd">        :param str note: A note to display for this ticket.  Usually, this is</span>
+<span class="sd">            the note of the previous ticket.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_title</span> <span class="o">=</span> <span class="n">title</span>
@@ -71,6 +76,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_step</span> <span class="o">=</span> <span class="n">step</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_typename</span> <span class="o">=</span> <span class="n">typename</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span> <span class="o">=</span> <span class="n">uuid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">status</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_note</span> <span class="o">=</span> <span class="n">note</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -102,7 +109,15 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">uuid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_uuid</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">note</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_note</span></div>
 </pre></div>
 
           </div>
@@ -153,7 +168,7 @@
       &copy;2017, Taylor C. Richberger <tcr@absolute-performance.com>.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>

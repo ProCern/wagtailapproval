@@ -57,7 +57,7 @@
 same pipeline on approval and rejection.</p>
 <dl class="method">
 <dt id="wagtailapproval.models.ApprovalStep.approve">
-<code class="descname">approve</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/models.html#ApprovalStep.approve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.models.ApprovalStep.approve" title="Permalink to this definition">¶</a></dt>
+<code class="descname">approve</code><span class="sig-paren">(</span><em>obj</em>, <em>note=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/models.html#ApprovalStep.approve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.models.ApprovalStep.approve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run approval on an object</p>
 </dd></dl>
 
@@ -72,6 +72,12 @@ rejection</p>
 <dt id="wagtailapproval.models.ApprovalStep.base_form_class">
 <code class="descname">base_form_class</code><a class="headerlink" href="#wagtailapproval.models.ApprovalStep.base_form_class" title="Permalink to this definition">¶</a></dt>
 <dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">StepForm</span></code></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wagtailapproval.models.ApprovalStep.cancel">
+<code class="descname">cancel</code><span class="sig-paren">(</span><em>obj</em>, <em>note=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/models.html#ApprovalStep.cancel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.models.ApprovalStep.cancel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cancel a ticket.  Item is left in limbo.</p>
 </dd></dl>
 
 <dl class="method">
@@ -98,14 +104,15 @@ this to construct a list or tuple.</p>
 
 <dl class="method">
 <dt id="wagtailapproval.models.ApprovalStep.reject">
-<code class="descname">reject</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/models.html#ApprovalStep.reject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.models.ApprovalStep.reject" title="Permalink to this definition">¶</a></dt>
+<code class="descname">reject</code><span class="sig-paren">(</span><em>obj</em>, <em>note=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/models.html#ApprovalStep.reject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.models.ApprovalStep.reject" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run rejection on an object</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="wagtailapproval.models.ApprovalStep.release_ownership">
-<code class="descname">release_ownership</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/models.html#ApprovalStep.release_ownership"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.models.ApprovalStep.release_ownership" title="Permalink to this definition">¶</a></dt>
-<dd><p>Release ownership of an object.  This is idempotent.</p>
+<code class="descname">release_ownership</code><span class="sig-paren">(</span><em>obj</em>, <em>ticket_status</em>, <em>note=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/models.html#ApprovalStep.release_ownership"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.models.ApprovalStep.release_ownership" title="Permalink to this definition">¶</a></dt>
+<dd><p>Release ownership of an object and set its note appropriately.  This
+is idempotent.</p>
 </dd></dl>
 
 <dl class="method">
@@ -129,8 +136,8 @@ changing visibility and other such things.  This is idempotent.</p>
 
 <dl class="method">
 <dt id="wagtailapproval.models.ApprovalStep.transfer_ownership">
-<code class="descname">transfer_ownership</code><span class="sig-paren">(</span><em>obj</em>, <em>step</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/models.html#ApprovalStep.transfer_ownership"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.models.ApprovalStep.transfer_ownership" title="Permalink to this definition">¶</a></dt>
-<dd><p>Give ownership to another step</p>
+<code class="descname">transfer_ownership</code><span class="sig-paren">(</span><em>obj</em>, <em>step</em>, <em>pre_signal</em>, <em>post_signal</em>, <em>ticket_status</em>, <em>note=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/models.html#ApprovalStep.transfer_ownership"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.models.ApprovalStep.transfer_ownership" title="Permalink to this definition">¶</a></dt>
+<dd><p>Give ownership to another step, save note on old ticket</p>
 </dd></dl>
 
 </dd></dl>
@@ -155,6 +162,40 @@ automatically from the ticket.  Requires that the object is
 stringafiable.</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="wagtailapproval.models.ApprovalTicket.get_status">
+<code class="descname">get_status</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/models.html#ApprovalTicket.get_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.models.ApprovalTicket.get_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the enum member for the charfield</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wagtailapproval.models.ApprovalTicket.last_note">
+<code class="descname">last_note</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/models.html#ApprovalTicket.last_note"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.models.ApprovalTicket.last_note" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the most recently closed ticket for the same item and pulls its
+note field.  Returns an None if there is no ticket.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wagtailapproval.models.ApprovalTicket.last_status">
+<code class="descname">last_status</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/models.html#ApprovalTicket.last_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.models.ApprovalTicket.last_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the most recently closed ticket for the same item and pulls its
+status field.  Returns None if there is no ticket.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wagtailapproval.models.ApprovalTicket.set_status">
+<code class="descname">set_status</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/models.html#ApprovalTicket.set_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.models.ApprovalTicket.set_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the member from the enum value passed in, or set directly if it
+is not applicable.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="wagtailapproval.models.TicketStatus">
+<em class="property">class </em><code class="descname">TicketStatus</code><a class="reference internal" href="../_modules/wagtailapproval/models.html#TicketStatus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.models.TicketStatus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">enum.Enum</span></code></p>
+<p>An enumeration.</p>
 </dd></dl>
 
 </div>
@@ -228,7 +269,7 @@ stringafiable.</p>
       &copy;2017, Taylor C. Richberger <tcr@absolute-performance.com>.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |

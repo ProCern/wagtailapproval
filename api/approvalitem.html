@@ -44,7 +44,7 @@
 <span id="wagtailapproval-approvalitem"></span><h1>wagtailapproval.approvalitem<a class="headerlink" href="#module-wagtailapproval.approvalitem" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="wagtailapproval.approvalitem.ApprovalItem">
-<em class="property">class </em><code class="descname">ApprovalItem</code><span class="sig-paren">(</span><em>title</em>, <em>view_url</em>, <em>edit_url</em>, <em>delete_url</em>, <em>obj</em>, <em>step</em>, <em>typename</em>, <em>uuid</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/approvalitem.html#ApprovalItem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.approvalitem.ApprovalItem" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">ApprovalItem</code><span class="sig-paren">(</span><em>title</em>, <em>view_url</em>, <em>edit_url</em>, <em>delete_url</em>, <em>obj</em>, <em>step</em>, <em>typename</em>, <em>uuid</em>, <em>status=None</em>, <em>note=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/approvalitem.html#ApprovalItem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.approvalitem.ApprovalItem" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>An Approval menu item, used for building the munu list, including links
 and all.  Objects of this type should be added through the
@@ -63,6 +63,11 @@ and all.  Objects of this type should be added through the
 <li><strong>typename</strong> (<em>str</em>) – The type name of the item.</li>
 <li><strong>uuid</strong> (<em>uuid.UUID</em>) – The UUID for this item, the pk for
 <a class="reference internal" href="models.html#wagtailapproval.models.ApprovalTicket" title="wagtailapproval.models.ApprovalTicket"><code class="xref py py-class docutils literal"><span class="pre">ApprovalTicket</span></code></a></li>
+<li><strong>status</strong> (<a class="reference internal" href="models.html#wagtailapproval.models.TicketStatus" title="wagtailapproval.models.TicketStatus"><em>TicketStatus</em></a>) – A status to display for this ticket.
+Usually, this is actually the status of the most recent ticket, and
+not this one itself.</li>
+<li><strong>note</strong> (<em>str</em>) – A note to display for this ticket.  Usually, this is
+the note of the previous ticket.</li>
 </ul>
 </td>
 </tr>
@@ -79,8 +84,18 @@ and all.  Objects of this type should be added through the
 <dd></dd></dl>
 
 <dl class="attribute">
+<dt id="wagtailapproval.approvalitem.ApprovalItem.note">
+<code class="descname">note</code><a class="headerlink" href="#wagtailapproval.approvalitem.ApprovalItem.note" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
 <dt id="wagtailapproval.approvalitem.ApprovalItem.obj">
 <code class="descname">obj</code><a class="headerlink" href="#wagtailapproval.approvalitem.ApprovalItem.obj" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wagtailapproval.approvalitem.ApprovalItem.status">
+<code class="descname">status</code><a class="headerlink" href="#wagtailapproval.approvalitem.ApprovalItem.status" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -181,7 +196,7 @@ and all.  Objects of this type should be added through the
       &copy;2017, Taylor C. Richberger <tcr@absolute-performance.com>.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |

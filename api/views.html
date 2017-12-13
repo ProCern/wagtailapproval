@@ -42,26 +42,195 @@
             
   <div class="section" id="module-wagtailapproval.views">
 <span id="wagtailapproval-views"></span><h1>wagtailapproval.views<a class="headerlink" href="#module-wagtailapproval.views" title="Permalink to this headline">¶</a></h1>
-<dl class="function">
-<dt id="wagtailapproval.views.approve">
-<code class="descname">approve</code><span class="sig-paren">(</span><em>request</em>, <em>pk</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/views.html#approve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.views.approve" title="Permalink to this definition">¶</a></dt>
+<dl class="class">
+<dt id="wagtailapproval.views.AdminIndexView">
+<em class="property">class </em><code class="descname">AdminIndexView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/views.html#AdminIndexView"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.views.AdminIndexView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.views.generic.base.TemplateView</span></code></p>
+<p>Constructor. Called in the URLconf; can contain helpful extra
+keyword arguments, and other things.</p>
+<dl class="method">
+<dt id="wagtailapproval.views.AdminIndexView.get">
+<code class="descname">get</code><span class="sig-paren">(</span><em>request</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/views.html#AdminIndexView.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.views.AdminIndexView.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the index of pipelines, or if there is only one, redirect to that
+one.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wagtailapproval.views.AdminIndexView.get_context_data">
+<code class="descname">get_context_data</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/views.html#AdminIndexView.get_context_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.views.AdminIndexView.get_context_data" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wagtailapproval.views.AdminIndexView.template_name">
+<code class="descname">template_name</code><em class="property"> = 'wagtailapproval/admin/index.html'</em><a class="headerlink" href="#wagtailapproval.views.AdminIndexView.template_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="wagtailapproval.views.AdminPipelineView">
+<em class="property">class </em><code class="descname">AdminPipelineView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/views.html#AdminPipelineView"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.views.AdminPipelineView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.views.generic.base.TemplateView</span></code></p>
+<p>Constructor. Called in the URLconf; can contain helpful extra
+keyword arguments, and other things.</p>
+<dl class="method">
+<dt id="wagtailapproval.views.AdminPipelineView.get">
+<code class="descname">get</code><span class="sig-paren">(</span><em>request</em>, <em>pk</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/views.html#AdminPipelineView.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.views.AdminPipelineView.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the list of steps, or if there is only one, redirect to that
+one</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wagtailapproval.views.AdminPipelineView.get_context_data">
+<code class="descname">get_context_data</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/views.html#AdminPipelineView.get_context_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.views.AdminPipelineView.get_context_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wagtailapproval.views.AdminPipelineView.template_name">
+<code class="descname">template_name</code><em class="property"> = 'wagtailapproval/admin/pipeline.html'</em><a class="headerlink" href="#wagtailapproval.views.AdminPipelineView.template_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="wagtailapproval.views.AdminStepView">
+<em class="property">class </em><code class="descname">AdminStepView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/views.html#AdminStepView"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.views.AdminStepView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.views.generic.base.TemplateView</span></code></p>
+<p>Constructor. Called in the URLconf; can contain helpful extra
+keyword arguments, and other things.</p>
+<dl class="method">
+<dt id="wagtailapproval.views.AdminStepView.get">
+<code class="descname">get</code><span class="sig-paren">(</span><em>request</em>, <em>pk</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/views.html#AdminStepView.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.views.AdminStepView.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Give the admin view for a step</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wagtailapproval.views.AdminStepView.get_context_data">
+<code class="descname">get_context_data</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/views.html#AdminStepView.get_context_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.views.AdminStepView.get_context_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wagtailapproval.views.AdminStepView.template_name">
+<code class="descname">template_name</code><em class="property"> = 'wagtailapproval/admin/step.html'</em><a class="headerlink" href="#wagtailapproval.views.AdminStepView.template_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="wagtailapproval.views.ApproveView">
+<em class="property">class </em><code class="descname">ApproveView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/views.html#ApproveView"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.views.ApproveView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.views.generic.base.TemplateView</span></code></p>
+<p>Constructor. Called in the URLconf; can contain helpful extra
+keyword arguments, and other things.</p>
+<dl class="method">
+<dt id="wagtailapproval.views.ApproveView.get">
+<code class="descname">get</code><span class="sig-paren">(</span><em>request</em>, <em>ticket</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/views.html#ApproveView.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.views.ApproveView.get" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wagtailapproval.views.ApproveView.get_context_data">
+<code class="descname">get_context_data</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/views.html#ApproveView.get_context_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.views.ApproveView.get_context_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wagtailapproval.views.ApproveView.post">
+<code class="descname">post</code><span class="sig-paren">(</span><em>request</em>, <em>ticket</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/views.html#ApproveView.post"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.views.ApproveView.post" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wagtailapproval.views.ApproveView.template_name">
+<code class="descname">template_name</code><em class="property"> = 'wagtailapproval/approve.html'</em><a class="headerlink" href="#wagtailapproval.views.ApproveView.template_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="wagtailapproval.views.CancelView">
+<em class="property">class </em><code class="descname">CancelView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/views.html#CancelView"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.views.CancelView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.views.generic.base.TemplateView</span></code></p>
+<p>Constructor. Called in the URLconf; can contain helpful extra
+keyword arguments, and other things.</p>
+<dl class="method">
+<dt id="wagtailapproval.views.CancelView.get">
+<code class="descname">get</code><span class="sig-paren">(</span><em>request</em>, <em>ticket</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/views.html#CancelView.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.views.CancelView.get" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wagtailapproval.views.CancelView.get_context_data">
+<code class="descname">get_context_data</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/views.html#CancelView.get_context_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.views.CancelView.get_context_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wagtailapproval.views.CancelView.post">
+<code class="descname">post</code><span class="sig-paren">(</span><em>request</em>, <em>ticket</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/views.html#CancelView.post"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.views.CancelView.post" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wagtailapproval.views.CancelView.template_name">
+<code class="descname">template_name</code><em class="property"> = 'wagtailapproval/cancel.html'</em><a class="headerlink" href="#wagtailapproval.views.CancelView.template_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="wagtailapproval.views.IndexView">
+<em class="property">class </em><code class="descname">IndexView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/views.html#IndexView"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.views.IndexView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.views.generic.base.TemplateView</span></code></p>
+<p>Get all pending approvals that are relevant for the current user</p>
+<p>Constructor. Called in the URLconf; can contain helpful extra
+keyword arguments, and other things.</p>
+<dl class="method">
+<dt id="wagtailapproval.views.IndexView.get_context_data">
+<code class="descname">get_context_data</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/views.html#IndexView.get_context_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.views.IndexView.get_context_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wagtailapproval.views.IndexView.template_name">
+<code class="descname">template_name</code><em class="property"> = 'wagtailapproval/index.html'</em><a class="headerlink" href="#wagtailapproval.views.IndexView.template_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="wagtailapproval.views.RejectView">
+<em class="property">class </em><code class="descname">RejectView</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/views.html#RejectView"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.views.RejectView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.views.generic.base.TemplateView</span></code></p>
+<p>Constructor. Called in the URLconf; can contain helpful extra
+keyword arguments, and other things.</p>
+<dl class="method">
+<dt id="wagtailapproval.views.RejectView.get">
+<code class="descname">get</code><span class="sig-paren">(</span><em>request</em>, <em>ticket</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/views.html#RejectView.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.views.RejectView.get" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wagtailapproval.views.RejectView.get_context_data">
+<code class="descname">get_context_data</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/views.html#RejectView.get_context_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.views.RejectView.get_context_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wagtailapproval.views.RejectView.post">
+<code class="descname">post</code><span class="sig-paren">(</span><em>request</em>, <em>ticket</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/views.html#RejectView.post"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.views.RejectView.post" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wagtailapproval.views.RejectView.template_name">
+<code class="descname">template_name</code><em class="property"> = 'wagtailapproval/reject.html'</em><a class="headerlink" href="#wagtailapproval.views.RejectView.template_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
 
 <dl class="function">
 <dt id="wagtailapproval.views.check_permissions">
 <code class="descname">check_permissions</code><span class="sig-paren">(</span><em>function</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/views.html#check_permissions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.views.check_permissions" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="wagtailapproval.views.index">
-<code class="descname">index</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/views.html#index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.views.index" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get all pending approvals that are relevant for the current user</p>
+<dd><p>Decorator; adds a permission checker for a uuid member function on a
+view class</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="wagtailapproval.views.reject">
-<code class="descname">reject</code><span class="sig-paren">(</span><em>request</em>, <em>pk</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/views.html#reject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.views.reject" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt id="wagtailapproval.views.superuser_only">
+<code class="descname">superuser_only</code><span class="sig-paren">(</span><em>function</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wagtailapproval/views.html#superuser_only"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wagtailapproval.views.superuser_only" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wraps a function so that it can only be accessed by superusers</p>
+</dd></dl>
 
 </div>
 
@@ -134,7 +303,7 @@
       &copy;2017, Taylor C. Richberger <tcr@absolute-performance.com>.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |

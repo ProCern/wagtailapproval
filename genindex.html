@@ -51,6 +51,7 @@
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#I"><strong>I</strong></a>
+ | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
  | <a href="#O"><strong>O</strong></a>
@@ -72,16 +73,24 @@
 </li>
       <li><a href="api/_signals.html#wagtailapproval._signals.add_pages">add_pages() (in module wagtailapproval._signals)</a>
 </li>
+      <li><a href="api/views.html#wagtailapproval.views.AdminIndexView">AdminIndexView (class in wagtailapproval.views)</a>
+</li>
+      <li><a href="api/views.html#wagtailapproval.views.AdminPipelineView">AdminPipelineView (class in wagtailapproval.views)</a>
+</li>
+      <li><a href="api/views.html#wagtailapproval.views.AdminStepView">AdminStepView (class in wagtailapproval.views)</a>
+</li>
       <li><a href="api/models.html#wagtailapproval.models.ApprovalTicket.approval_item">approval_item() (ApprovalTicket method)</a>
+</li>
+      <li><a href="api/menu.html#wagtailapproval.menu.ApprovalAdminMenuItem">ApprovalAdminMenuItem (class in wagtailapproval.menu)</a>
 </li>
       <li><a href="api/approvalitem.html#wagtailapproval.approvalitem.ApprovalItem">ApprovalItem (class in wagtailapproval.approvalitem)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/menu.html#wagtailapproval.menu.ApprovalMenuItem">ApprovalMenuItem (class in wagtailapproval.menu)</a>
 </li>
       <li><a href="api/models.html#wagtailapproval.models.ApprovalPipeline">ApprovalPipeline (class in wagtailapproval.models)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/models.html#wagtailapproval.models.ApprovalStep">ApprovalStep (class in wagtailapproval.models)</a>
 </li>
       <li><a href="api/models.html#wagtailapproval.models.ApprovalTicket">ApprovalTicket (class in wagtailapproval.models)</a>
@@ -89,11 +98,9 @@
       <li><a href="api/_signals.html#wagtailapproval._signals.approvalticket_cascade_delete">approvalticket_cascade_delete() (in module wagtailapproval._signals)</a>
 </li>
       <li><a href="api/models.html#wagtailapproval.models.ApprovalStep.approve">approve() (ApprovalStep method)</a>
-
-      <ul>
-        <li><a href="api/views.html#wagtailapproval.views.approve">(in module wagtailapproval.views)</a>
 </li>
-      </ul></li>
+      <li><a href="api/views.html#wagtailapproval.views.ApproveView">ApproveView (class in wagtailapproval.views)</a>
+</li>
       <li><a href="api/_signals.html#wagtailapproval._signals.assert_page_live">assert_page_live() (in module wagtailapproval._signals)</a>
 </li>
       <li><a href="api/models.html#wagtailapproval.models.ApprovalStep.automatic_approval">automatic_approval() (ApprovalStep method)</a>
@@ -118,10 +125,14 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/_signals.html#wagtailapproval._signals.catch_collection_objects">catch_collection_objects() (in module wagtailapproval._signals)</a>
+      <li><a href="api/models.html#wagtailapproval.models.ApprovalStep.cancel">cancel() (ApprovalStep method)</a>
+</li>
+      <li><a href="api/views.html#wagtailapproval.views.CancelView">CancelView (class in wagtailapproval.views)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/_signals.html#wagtailapproval._signals.catch_collection_objects">catch_collection_objects() (in module wagtailapproval._signals)</a>
+</li>
       <li><a href="api/views.html#wagtailapproval.views.check_permissions">check_permissions() (in module wagtailapproval.views)</a>
 </li>
       <li><a href="api/models.html#wagtailapproval.models.ApprovalStep.clean">clean() (ApprovalStep method)</a>
@@ -168,10 +179,42 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/models.html#wagtailapproval.models.ApprovalStep.get_items">get_items() (ApprovalStep method)</a>
+      <li><a href="api/views.html#wagtailapproval.views.AdminIndexView.get">get() (AdminIndexView method)</a>
+
+      <ul>
+        <li><a href="api/views.html#wagtailapproval.views.AdminPipelineView.get">(AdminPipelineView method)</a>
 </li>
+        <li><a href="api/views.html#wagtailapproval.views.AdminStepView.get">(AdminStepView method)</a>
+</li>
+        <li><a href="api/views.html#wagtailapproval.views.ApproveView.get">(ApproveView method)</a>
+</li>
+        <li><a href="api/views.html#wagtailapproval.views.CancelView.get">(CancelView method)</a>
+</li>
+        <li><a href="api/views.html#wagtailapproval.views.RejectView.get">(RejectView method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/views.html#wagtailapproval.views.AdminIndexView.get_context_data">get_context_data() (AdminIndexView method)</a>
+
+      <ul>
+        <li><a href="api/views.html#wagtailapproval.views.AdminPipelineView.get_context_data">(AdminPipelineView method)</a>
+</li>
+        <li><a href="api/views.html#wagtailapproval.views.AdminStepView.get_context_data">(AdminStepView method)</a>
+</li>
+        <li><a href="api/views.html#wagtailapproval.views.ApproveView.get_context_data">(ApproveView method)</a>
+</li>
+        <li><a href="api/views.html#wagtailapproval.views.CancelView.get_context_data">(CancelView method)</a>
+</li>
+        <li><a href="api/views.html#wagtailapproval.views.IndexView.get_context_data">(IndexView method)</a>
+</li>
+        <li><a href="api/views.html#wagtailapproval.views.RejectView.get_context_data">(RejectView method)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/models.html#wagtailapproval.models.ApprovalStep.get_items">get_items() (ApprovalStep method)</a>
+</li>
+      <li><a href="api/models.html#wagtailapproval.models.ApprovalTicket.get_status">get_status() (ApprovalTicket method)</a>
+</li>
       <li><a href="api/menu.html#wagtailapproval.menu.get_user_approval_items">get_user_approval_items() (in module wagtailapproval.menu)</a>
 </li>
   </ul></td>
@@ -180,11 +223,27 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/views.html#wagtailapproval.views.index">index() (in module wagtailapproval.views)</a>
+      <li><a href="api/views.html#wagtailapproval.views.IndexView">IndexView (class in wagtailapproval.views)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/menu.html#wagtailapproval.menu.ApprovalMenuItem.is_shown">is_shown() (ApprovalMenuItem method)</a>
+      <li><a href="api/menu.html#wagtailapproval.menu.ApprovalAdminMenuItem.is_shown">is_shown() (ApprovalAdminMenuItem method)</a>
+
+      <ul>
+        <li><a href="api/menu.html#wagtailapproval.menu.ApprovalMenuItem.is_shown">(ApprovalMenuItem method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/models.html#wagtailapproval.models.ApprovalTicket.last_note">last_note() (ApprovalTicket method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/models.html#wagtailapproval.models.ApprovalTicket.last_status">last_status() (ApprovalTicket method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -192,9 +251,11 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/menu.html#wagtailapproval.menu.ApprovalMenuItem.media">media (ApprovalMenuItem attribute)</a>
+      <li><a href="api/menu.html#wagtailapproval.menu.ApprovalAdminMenuItem.media">media (ApprovalAdminMenuItem attribute)</a>
 
       <ul>
+        <li><a href="api/menu.html#wagtailapproval.menu.ApprovalMenuItem.media">(ApprovalMenuItem attribute)</a>
+</li>
         <li><a href="api/forms.html#wagtailapproval.forms.StepForm.media">(StepForm attribute)</a>
 </li>
       </ul></li>
@@ -205,6 +266,10 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/apps.html#wagtailapproval.apps.WagtailApprovalConfig.name">name (WagtailApprovalConfig attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/approvalitem.html#wagtailapproval.approvalitem.ApprovalItem.note">note (ApprovalItem attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -222,15 +287,27 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/signals.html#pipeline_published">pipeline_published() (built-in function)</a>
 </li>
+      <li><a href="api/views.html#wagtailapproval.views.ApproveView.post">post() (ApproveView method)</a>
+
+      <ul>
+        <li><a href="api/views.html#wagtailapproval.views.CancelView.post">(CancelView method)</a>
+</li>
+        <li><a href="api/views.html#wagtailapproval.views.RejectView.post">(RejectView method)</a>
+</li>
+      </ul></li>
       <li><a href="api/signals.html#post_approve">post_approve() (built-in function)</a>
 </li>
-      <li><a href="api/signals.html#post_reject">post_reject() (built-in function)</a>
+      <li><a href="api/signals.html#post_cancel">post_cancel() (built-in function)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/signals.html#post_reject">post_reject() (built-in function)</a>
+</li>
       <li><a href="api/signals.html#post_transfer_ownership">post_transfer_ownership() (built-in function)</a>
 </li>
       <li><a href="api/signals.html#pre_approve">pre_approve() (built-in function)</a>
+</li>
+      <li><a href="api/signals.html#pre_cancel">pre_cancel() (built-in function)</a>
 </li>
       <li><a href="api/signals.html#pre_reject">pre_reject() (built-in function)</a>
 </li>
@@ -244,18 +321,18 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/apps.html#wagtailapproval.apps.WagtailApprovalConfig.ready">ready() (WagtailApprovalConfig method)</a>
 </li>
-      <li><a href="api/wagtail_hooks.html#wagtailapproval.wagtail_hooks.register_admin_menu_item">register_admin_menu_item() (in module wagtailapproval.wagtail_hooks)</a>
-</li>
       <li><a href="api/wagtail_hooks.html#wagtailapproval.wagtail_hooks.register_admin_urls">register_admin_urls() (in module wagtailapproval.wagtail_hooks)</a>
 </li>
-      <li><a href="api/models.html#wagtailapproval.models.ApprovalStep.reject">reject() (ApprovalStep method)</a>
-
-      <ul>
-        <li><a href="api/views.html#wagtailapproval.views.reject">(in module wagtailapproval.views)</a>
+      <li><a href="api/wagtail_hooks.html#wagtailapproval.wagtail_hooks.register_approval_admin_menu_item">register_approval_admin_menu_item() (in module wagtailapproval.wagtail_hooks)</a>
 </li>
-      </ul></li>
+      <li><a href="api/wagtail_hooks.html#wagtailapproval.wagtail_hooks.register_approval_menu_item">register_approval_menu_item() (in module wagtailapproval.wagtail_hooks)</a>
+</li>
+      <li><a href="api/models.html#wagtailapproval.models.ApprovalStep.reject">reject() (ApprovalStep method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/views.html#wagtailapproval.views.RejectView">RejectView (class in wagtailapproval.views)</a>
+</li>
       <li><a href="api/models.html#wagtailapproval.models.ApprovalStep.release_ownership">release_ownership() (ApprovalStep method)</a>
 
       <ul>
@@ -282,19 +359,25 @@
 </li>
       <li><a href="api/_signals.html#wagtailapproval._signals.set_image_collection_edit">set_image_collection_edit() (in module wagtailapproval._signals)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/models.html#wagtailapproval.models.ApprovalStep.set_page_group_privacy">set_page_group_privacy() (ApprovalStep method)</a>
 </li>
+      <li><a href="api/models.html#wagtailapproval.models.ApprovalTicket.set_status">set_status() (ApprovalTicket method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/_signals.html#wagtailapproval._signals.setup_group_and_collection">setup_group_and_collection() (in module wagtailapproval._signals)</a>
 </li>
-      <li><a href="api/_signals.html#wagtailapproval._signals.setup_pipeline_user">setup_pipeline_user() (in module wagtailapproval._signals)</a>
+      <li><a href="api/_signals.html#wagtailapproval._signals.setup_pipeline_user_and_group">setup_pipeline_user_and_group() (in module wagtailapproval._signals)</a>
+</li>
+      <li><a href="api/approvalitem.html#wagtailapproval.approvalitem.ApprovalItem.status">status (ApprovalItem attribute)</a>
 </li>
       <li><a href="api/approvalitem.html#wagtailapproval.approvalitem.ApprovalItem.step">step (ApprovalItem attribute)</a>
 </li>
       <li><a href="api/signals.html#step_published">step_published() (built-in function)</a>
 </li>
       <li><a href="api/forms.html#wagtailapproval.forms.StepForm">StepForm (class in wagtailapproval.forms)</a>
+</li>
+      <li><a href="api/views.html#wagtailapproval.views.superuser_only">superuser_only() (in module wagtailapproval.views)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -314,11 +397,29 @@
         <li><a href="api/signals.html#take_ownership">(built-in function)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/wagtail_hooks.html#wagtailapproval.wagtail_hooks.take_ownership_if_necessary">take_ownership_if_necessary() (in module wagtailapproval.wagtail_hooks)</a>
 </li>
       <li><a href="api/_signals.html#wagtailapproval._signals.take_page_ownership">take_page_ownership() (in module wagtailapproval._signals)</a>
+</li>
+      <li><a href="api/views.html#wagtailapproval.views.AdminIndexView.template_name">template_name (AdminIndexView attribute)</a>
+
+      <ul>
+        <li><a href="api/views.html#wagtailapproval.views.AdminPipelineView.template_name">(AdminPipelineView attribute)</a>
+</li>
+        <li><a href="api/views.html#wagtailapproval.views.AdminStepView.template_name">(AdminStepView attribute)</a>
+</li>
+        <li><a href="api/views.html#wagtailapproval.views.ApproveView.template_name">(ApproveView attribute)</a>
+</li>
+        <li><a href="api/views.html#wagtailapproval.views.CancelView.template_name">(CancelView attribute)</a>
+</li>
+        <li><a href="api/views.html#wagtailapproval.views.IndexView.template_name">(IndexView attribute)</a>
+</li>
+        <li><a href="api/views.html#wagtailapproval.views.RejectView.template_name">(RejectView attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/models.html#wagtailapproval.models.TicketStatus">TicketStatus (class in wagtailapproval.models)</a>
 </li>
       <li><a href="api/approvalitem.html#wagtailapproval.approvalitem.ApprovalItem.title">title (ApprovalItem attribute)</a>
 </li>
@@ -419,7 +520,7 @@
       &copy;2017, Taylor C. Richberger <tcr@absolute-performance.com>.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>

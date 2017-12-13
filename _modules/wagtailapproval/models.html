@@ -44,6 +44,7 @@
 
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">uuid</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">unique</span>
 
 <span class="kn">from</span> <span class="nn">django.conf</span> <span class="k">import</span> <span class="n">settings</span>
 <span class="kn">from</span> <span class="nn">django.contrib.auth.models</span> <span class="k">import</span> <span class="n">Group</span>
@@ -87,7 +88,11 @@
         <span class="n">verbose_name</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s1">&#39;approval pipeline&#39;</span><span class="p">)</span>
         <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s1">&#39;approval pipelines&#39;</span><span class="p">)</span>
 
-    <span class="n">subpage_types</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;wagtailapproval.ApprovalStep&#39;</span><span class="p">]</span></div>
+    <span class="n">subpage_types</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;wagtailapproval.ApprovalStep&#39;</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">approval_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_children</span><span class="p">()</span><span class="o">.</span><span class="n">specific</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="ApprovalStep"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalStep">[docs]</a><span class="k">class</span> <span class="nc">ApprovalStep</span><span class="p">(</span><span class="n">Page</span><span class="p">):</span>
@@ -180,6 +185,10 @@
 
     <span class="n">base_form_class</span> <span class="o">=</span> <span class="n">StepForm</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_parent</span><span class="p">()</span><span class="o">.</span><span class="n">specific</span>
+
 <div class="viewcode-block" id="ApprovalStep.clean"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalStep.clean">[docs]</a>    <span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Makes sure parents are the same&#39;&#39;&#39;</span>
 
@@ -189,56 +198,70 @@
             <span class="k">if</span> <span class="p">(</span><span class="n">step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_parent</span><span class="p">()</span> <span class="o">!=</span> <span class="n">step</span><span class="o">.</span><span class="n">get_parent</span><span class="p">()):</span>
                 <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s1">&#39;Linked steps must have the same parent&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ApprovalStep.approve"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalStep.approve">[docs]</a>    <span class="k">def</span> <span class="nf">approve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+<div class="viewcode-block" id="ApprovalStep.approve"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalStep.approve">[docs]</a>    <span class="k">def</span> <span class="nf">approve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">note</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Run approval on an object&#39;&#39;&#39;</span>
 
-        <span class="n">pipeline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_parent</span><span class="p">()</span><span class="o">.</span><span class="n">specific</span>
         <span class="n">step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">approval_step</span>
 
         <span class="k">if</span> <span class="n">step</span><span class="p">:</span>
-            <span class="n">signals</span><span class="o">.</span><span class="n">pre_approve</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
-                <span class="n">sender</span><span class="o">=</span><span class="n">ApprovalStep</span><span class="p">,</span>
-                <span class="n">giving_step</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
-                <span class="n">taking_step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span>
-                <span class="nb">object</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span>
-                <span class="n">pipeline</span><span class="o">=</span><span class="n">pipeline</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transfer_ownership</span><span class="p">(</span>
+                <span class="n">obj</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span>
+                <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span>
+                <span class="n">pre_signal</span><span class="o">=</span><span class="n">signals</span><span class="o">.</span><span class="n">pre_approve</span><span class="p">,</span>
+                <span class="n">post_signal</span><span class="o">=</span><span class="n">signals</span><span class="o">.</span><span class="n">post_approve</span><span class="p">,</span>
+                <span class="n">ticket_status</span><span class="o">=</span><span class="n">TicketStatus</span><span class="o">.</span><span class="n">Approved</span><span class="p">,</span>
+                <span class="n">note</span><span class="o">=</span><span class="n">note</span><span class="p">,</span>
+            <span class="p">)</span></div>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">transfer_ownership</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
-
-            <span class="n">signals</span><span class="o">.</span><span class="n">post_approve</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
-                <span class="n">sender</span><span class="o">=</span><span class="n">ApprovalStep</span><span class="p">,</span>
-                <span class="n">giving_step</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
-                <span class="n">taking_step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span>
-                <span class="nb">object</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span>
-                <span class="n">pipeline</span><span class="o">=</span><span class="n">pipeline</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="ApprovalStep.reject"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalStep.reject">[docs]</a>    <span class="k">def</span> <span class="nf">reject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+<div class="viewcode-block" id="ApprovalStep.reject"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalStep.reject">[docs]</a>    <span class="k">def</span> <span class="nf">reject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">note</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Run rejection on an object&#39;&#39;&#39;</span>
-
-        <span class="n">pipeline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_parent</span><span class="p">()</span><span class="o">.</span><span class="n">specific</span>
 
         <span class="n">step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rejection_step</span>
         <span class="k">if</span> <span class="n">step</span><span class="p">:</span>
-            <span class="n">signals</span><span class="o">.</span><span class="n">pre_reject</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
-                <span class="n">sender</span><span class="o">=</span><span class="n">ApprovalStep</span><span class="p">,</span>
-                <span class="n">giving_step</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
-                <span class="n">taking_step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span>
-                <span class="nb">object</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span>
-                <span class="n">pipeline</span><span class="o">=</span><span class="n">pipeline</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transfer_ownership</span><span class="p">(</span>
+                <span class="n">obj</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span>
+                <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span>
+                <span class="n">pre_signal</span><span class="o">=</span><span class="n">signals</span><span class="o">.</span><span class="n">pre_reject</span><span class="p">,</span>
+                <span class="n">post_signal</span><span class="o">=</span><span class="n">signals</span><span class="o">.</span><span class="n">post_reject</span><span class="p">,</span>
+                <span class="n">ticket_status</span><span class="o">=</span><span class="n">TicketStatus</span><span class="o">.</span><span class="n">Rejected</span><span class="p">,</span>
+                <span class="n">note</span><span class="o">=</span><span class="n">note</span><span class="p">,</span>
+            <span class="p">)</span></div>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">transfer_ownership</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+<div class="viewcode-block" id="ApprovalStep.cancel"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalStep.cancel">[docs]</a>    <span class="k">def</span> <span class="nf">cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">note</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Cancel a ticket.  Item is left in limbo.&#39;&#39;&#39;</span>
 
-            <span class="n">signals</span><span class="o">.</span><span class="n">post_reject</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
-                <span class="n">sender</span><span class="o">=</span><span class="n">ApprovalStep</span><span class="p">,</span>
-                <span class="n">giving_step</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
-                <span class="n">taking_step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span>
-                <span class="nb">object</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span>
-                <span class="n">pipeline</span><span class="o">=</span><span class="n">pipeline</span><span class="p">)</span></div>
+        <span class="n">pipeline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span>
 
-<div class="viewcode-block" id="ApprovalStep.transfer_ownership"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalStep.transfer_ownership">[docs]</a>    <span class="k">def</span> <span class="nf">transfer_ownership</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Give ownership to another step&#39;&#39;&#39;</span>
+        <span class="n">signals</span><span class="o">.</span><span class="n">pre_cancel</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
+            <span class="n">sender</span><span class="o">=</span><span class="n">ApprovalStep</span><span class="p">,</span>
+            <span class="n">step</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="nb">object</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span>
+            <span class="n">pipeline</span><span class="o">=</span><span class="n">pipeline</span><span class="p">)</span>
 
-        <span class="n">pipeline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_parent</span><span class="p">()</span><span class="o">.</span><span class="n">specific</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">release_ownership</span><span class="p">(</span>
+            <span class="n">obj</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span>
+            <span class="n">ticket_status</span><span class="o">=</span><span class="n">TicketStatus</span><span class="o">.</span><span class="n">Canceled</span><span class="p">,</span>
+            <span class="n">note</span><span class="o">=</span><span class="n">note</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">signals</span><span class="o">.</span><span class="n">post_cancel</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
+            <span class="n">sender</span><span class="o">=</span><span class="n">ApprovalStep</span><span class="p">,</span>
+            <span class="n">step</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="nb">object</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span>
+            <span class="n">pipeline</span><span class="o">=</span><span class="n">pipeline</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ApprovalStep.transfer_ownership"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalStep.transfer_ownership">[docs]</a>    <span class="k">def</span> <span class="nf">transfer_ownership</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">pre_signal</span><span class="p">,</span> <span class="n">post_signal</span><span class="p">,</span>
+        <span class="n">ticket_status</span><span class="p">,</span> <span class="n">note</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Give ownership to another step, save note on old ticket&#39;&#39;&#39;</span>
+
+        <span class="n">pipeline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span>
+
+        <span class="n">pre_signal</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
+            <span class="n">sender</span><span class="o">=</span><span class="n">ApprovalStep</span><span class="p">,</span>
+            <span class="n">giving_step</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">taking_step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span>
+            <span class="nb">object</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span>
+            <span class="n">pipeline</span><span class="o">=</span><span class="n">pipeline</span><span class="p">)</span>
 
         <span class="n">signals</span><span class="o">.</span><span class="n">pre_transfer_ownership</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
             <span class="n">sender</span><span class="o">=</span><span class="n">ApprovalStep</span><span class="p">,</span>
@@ -252,12 +275,23 @@
         <span class="c1"># case of error, we&#39;d rather it be owned by two steps than by none,</span>
         <span class="c1"># otherwise it could accidentally become public early.</span>
         <span class="n">step</span><span class="o">.</span><span class="n">take_ownership</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">release_ownership</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">release_ownership</span><span class="p">(</span>
+            <span class="n">obj</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span>
+            <span class="n">ticket_status</span><span class="o">=</span><span class="n">ticket_status</span><span class="p">,</span>
+            <span class="n">note</span><span class="o">=</span><span class="n">note</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="c1"># Do this to fix permissions.  release_ownership releases its own</span>
         <span class="c1"># permissions manually, take_ownership does not.</span>
         <span class="n">step</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 
         <span class="n">signals</span><span class="o">.</span><span class="n">post_transfer_ownership</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
+            <span class="n">sender</span><span class="o">=</span><span class="n">ApprovalStep</span><span class="p">,</span>
+            <span class="n">giving_step</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
+            <span class="n">taking_step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span>
+            <span class="nb">object</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span>
+            <span class="n">pipeline</span><span class="o">=</span><span class="n">pipeline</span><span class="p">)</span>
+
+        <span class="n">post_signal</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
             <span class="n">sender</span><span class="o">=</span><span class="n">ApprovalStep</span><span class="p">,</span>
             <span class="n">giving_step</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
             <span class="n">taking_step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span>
@@ -268,7 +302,7 @@
         <span class="sd">&#39;&#39;&#39;Take ownership of an object.  Should run all relevant processing on</span>
 <span class="sd">        changing visibility and other such things.  This is idempotent.&#39;&#39;&#39;</span>
 
-        <span class="n">pipeline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_parent</span><span class="p">()</span><span class="o">.</span><span class="n">specific</span>
+        <span class="n">pipeline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span>
 
         <span class="n">signals</span><span class="o">.</span><span class="n">take_ownership</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
             <span class="n">sender</span><span class="o">=</span><span class="n">ApprovalStep</span><span class="p">,</span>
@@ -279,12 +313,15 @@
         <span class="n">ApprovalTicket</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span>
             <span class="n">step</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
             <span class="n">content_type</span><span class="o">=</span><span class="n">ContentType</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_for_model</span><span class="p">(</span><span class="n">obj</span><span class="p">),</span>
-            <span class="n">object_id</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span></div>
+            <span class="n">object_id</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">pk</span><span class="p">,</span>
+            <span class="n">status</span><span class="o">=</span><span class="n">TicketStatus</span><span class="o">.</span><span class="n">Pending</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
-<div class="viewcode-block" id="ApprovalStep.release_ownership"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalStep.release_ownership">[docs]</a>    <span class="k">def</span> <span class="nf">release_ownership</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Release ownership of an object.  This is idempotent.&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="ApprovalStep.release_ownership"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalStep.release_ownership">[docs]</a>    <span class="k">def</span> <span class="nf">release_ownership</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">ticket_status</span><span class="p">,</span> <span class="n">note</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Release ownership of an object and set its note appropriately.  This</span>
+<span class="sd">        is idempotent.&#39;&#39;&#39;</span>
 
-        <span class="n">pipeline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_parent</span><span class="p">()</span><span class="o">.</span><span class="n">specific</span>
+        <span class="n">pipeline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span>
 
         <span class="n">signals</span><span class="o">.</span><span class="n">release_ownership</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
             <span class="n">sender</span><span class="o">=</span><span class="n">ApprovalStep</span><span class="p">,</span>
@@ -295,7 +332,12 @@
         <span class="n">ApprovalTicket</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
             <span class="n">step</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
             <span class="n">content_type</span><span class="o">=</span><span class="n">ContentType</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_for_model</span><span class="p">(</span><span class="n">obj</span><span class="p">),</span>
-            <span class="n">object_id</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span></div>
+            <span class="n">object_id</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">pk</span><span class="p">,</span>
+            <span class="n">status</span><span class="o">=</span><span class="n">TicketStatus</span><span class="o">.</span><span class="n">Pending</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="n">status</span><span class="o">=</span><span class="n">ticket_status</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">note</span><span class="o">=</span><span class="n">note</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="ApprovalStep.set_page_group_privacy"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalStep.set_page_group_privacy">[docs]</a>    <span class="k">def</span> <span class="nf">set_page_group_privacy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">page</span><span class="p">,</span> <span class="n">private</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Sets/unsets the page group privacy&#39;&#39;&#39;</span>
@@ -371,8 +413,9 @@
                     <span class="n">edit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">can_edit</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">ticket</span> <span class="ow">in</span> <span class="n">ApprovalTicket</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
                 <span class="n">step</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span>
-                <span class="n">content_type</span><span class="o">=</span><span class="n">ContentType</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_for_model</span><span class="p">(</span><span class="n">Page</span><span class="p">)</span>
-                <span class="p">):</span>  <span class="c1"># noqa: E125</span>
+                <span class="n">content_type</span><span class="o">=</span><span class="n">ContentType</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_for_model</span><span class="p">(</span><span class="n">Page</span><span class="p">),</span>
+                <span class="n">status</span><span class="o">=</span><span class="n">TicketStatus</span><span class="o">.</span><span class="n">Pending</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="p">):</span>  <span class="c1"># noqa: E125</span>
 
                 <span class="n">page</span> <span class="o">=</span> <span class="n">ticket</span><span class="o">.</span><span class="n">item</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">set_page_group_privacy</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">private_to_group</span><span class="p">)</span>
@@ -417,6 +460,18 @@
         <span class="k">return</span> <span class="p">(</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">approval_items</span> <span class="k">if</span> <span class="n">item</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">removal_items</span><span class="p">)</span></div></div>
 
 
+<div class="viewcode-block" id="TicketStatus"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.TicketStatus">[docs]</a><span class="nd">@unique</span>
+<span class="k">class</span> <span class="nc">TicketStatus</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">Pending</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Pending&#39;</span><span class="p">)</span>
+    <span class="n">Approved</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Approved&#39;</span><span class="p">)</span>
+    <span class="n">Rejected</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Rejected&#39;</span><span class="p">)</span>
+    <span class="n">Canceled</span> <span class="o">=</span> <span class="n">_</span><span class="p">(</span><span class="s1">&#39;Canceled&#39;</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">choices</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">((</span><span class="n">member</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">member</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="bp">cls</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="ApprovalTicket"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalTicket">[docs]</a><span class="k">class</span> <span class="nc">ApprovalTicket</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;A special junction table to reference an arbitrary item by uuid.</span>
 
@@ -428,18 +483,79 @@
 <span class="sd">    anyway, and the UUID should only be used for approvals and rejections, not</span>
 <span class="sd">    GETs), as well as making the URL more opaque.&#39;&#39;&#39;</span>
 
-    <span class="nb">id</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">UUIDField</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">,</span> <span class="n">editable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">uuid</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">UUIDField</span><span class="p">(</span><span class="n">db_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">,</span> <span class="n">editable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="n">step</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
         <span class="n">ApprovalStep</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
-        <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">)</span>
-    <span class="n">content_type</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">ContentType</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">)</span>
-    <span class="n">object_id</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveIntegerField</span><span class="p">()</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span>
+        <span class="n">db_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">content_type</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">ContentType</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
+        <span class="n">db_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">object_id</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveIntegerField</span><span class="p">(</span><span class="n">db_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">item</span> <span class="o">=</span> <span class="n">GenericForeignKey</span><span class="p">(</span><span class="s1">&#39;content_type&#39;</span><span class="p">,</span> <span class="s1">&#39;object_id&#39;</span><span class="p">)</span>
 
-    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
-        <span class="n">unique_together</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;step&#39;</span><span class="p">,</span> <span class="s1">&#39;content_type&#39;</span><span class="p">,</span> <span class="s1">&#39;object_id&#39;</span><span class="p">)</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">TicketStatus</span><span class="o">.</span><span class="n">Pending</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="n">TicketStatus</span><span class="o">.</span><span class="n">choices</span><span class="p">(),</span>
+    <span class="p">)</span>
+
+    <span class="n">note</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help_text</span><span class="o">=</span><span class="n">_</span><span class="p">(</span>
+            <span class="s2">&quot;Notes clarifying why the item was approved/rejected/canceled. &quot;</span>
+            <span class="s2">&quot;This is displayed in the approvals list and admin menu next to &quot;</span>
+            <span class="s2">&quot;the item.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+<div class="viewcode-block" id="ApprovalTicket.last_note"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalTicket.last_note">[docs]</a>    <span class="k">def</span> <span class="nf">last_note</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Gets the most recently closed ticket for the same item and pulls its</span>
+<span class="sd">        note field.  Returns an None if there is no ticket.&#39;&#39;&#39;</span>
+        <span class="n">ticket</span> <span class="o">=</span> <span class="n">ApprovalTicket</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">content_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">content_type</span><span class="p">,</span>
+            <span class="n">object_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">object_id</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span>
+            <span class="n">status</span><span class="o">=</span><span class="n">TicketStatus</span><span class="o">.</span><span class="n">Pending</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">last</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">ticket</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ticket</span><span class="o">.</span><span class="n">note</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="ApprovalTicket.last_status"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalTicket.last_status">[docs]</a>    <span class="k">def</span> <span class="nf">last_status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Gets the most recently closed ticket for the same item and pulls its</span>
+<span class="sd">        status field.  Returns None if there is no ticket.&#39;&#39;&#39;</span>
+        <span class="n">ticket</span> <span class="o">=</span> <span class="n">ApprovalTicket</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">content_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">content_type</span><span class="p">,</span>
+            <span class="n">object_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">object_id</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span>
+            <span class="n">status</span><span class="o">=</span><span class="n">TicketStatus</span><span class="o">.</span><span class="n">Pending</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">last</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">ticket</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">ticket</span><span class="o">.</span><span class="n">status</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="ApprovalTicket.get_status"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalTicket.get_status">[docs]</a>    <span class="k">def</span> <span class="nf">get_status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the enum member for the charfield&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">TicketStatus</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="ApprovalTicket.set_status"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalTicket.set_status">[docs]</a>    <span class="k">def</span> <span class="nf">set_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Set the member from the enum value passed in, or set directly if it</span>
+<span class="sd">        is not applicable.&#39;&#39;&#39;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">TicketStatus</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">TicketStatus</span><span class="p">[</span><span class="n">value</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">status</span><span class="o">.</span><span class="n">name</span></div>
 
 <div class="viewcode-block" id="ApprovalTicket.approval_item"><a class="viewcode-back" href="../../api/models.html#wagtailapproval.models.ApprovalTicket.approval_item">[docs]</a>    <span class="k">def</span> <span class="nf">approval_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Small wrapper around ApprovalItem that fills in knowable items</span>
@@ -452,7 +568,9 @@
             <span class="s1">&#39;obj&#39;</span><span class="p">:</span> <span class="n">obj</span><span class="p">,</span>
             <span class="s1">&#39;step&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">,</span>
             <span class="s1">&#39;typename&#39;</span><span class="p">:</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
-            <span class="s1">&#39;uuid&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pk</span><span class="p">,</span>
+            <span class="s1">&#39;uuid&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">uuid</span><span class="p">,</span>
+            <span class="s1">&#39;note&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_note</span><span class="p">(),</span>
+            <span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_status</span><span class="p">(),</span>
         <span class="p">}</span>
         <span class="n">_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ApprovalItem</span><span class="p">(</span><span class="o">**</span><span class="n">_kwargs</span><span class="p">)</span></div></div>
@@ -506,7 +624,7 @@
       &copy;2017, Taylor C. Richberger <tcr@absolute-performance.com>.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>

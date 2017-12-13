@@ -57,7 +57,8 @@
 <span class="kn">from</span> <span class="nn">wagtail.wagtaildocs.models</span> <span class="k">import</span> <span class="n">Document</span>
 <span class="kn">from</span> <span class="nn">wagtail.wagtailimages.models</span> <span class="k">import</span> <span class="n">Image</span>
 
-<span class="kn">from</span> <span class="nn">.models</span> <span class="k">import</span> <span class="n">ApprovalPipeline</span><span class="p">,</span> <span class="n">ApprovalStep</span><span class="p">,</span> <span class="n">ApprovalTicket</span>
+<span class="kn">from</span> <span class="nn">.models</span> <span class="k">import</span> <span class="p">(</span><span class="n">ApprovalPipeline</span><span class="p">,</span> <span class="n">ApprovalStep</span><span class="p">,</span> <span class="n">ApprovalTicket</span><span class="p">,</span>
+                     <span class="n">TicketStatus</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">.signals</span> <span class="k">import</span> <span class="p">(</span><span class="n">build_approval_item_list</span><span class="p">,</span> <span class="n">pipeline_published</span><span class="p">,</span>
                       <span class="n">pre_transfer_ownership</span><span class="p">,</span> <span class="n">release_ownership</span><span class="p">,</span>
                       <span class="n">set_collection_edit</span><span class="p">,</span> <span class="n">step_published</span><span class="p">,</span> <span class="n">take_ownership</span><span class="p">)</span>
@@ -77,9 +78,9 @@
 <span class="n">_PREFIX</span> <span class="o">=</span> <span class="s2">&quot;(Approval) &quot;</span>
 
 
-<div class="viewcode-block" id="setup_pipeline_user"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.setup_pipeline_user">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">pipeline_published</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">setup_pipeline_user</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Setup an ApprovalPipeline user&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="setup_pipeline_user_and_group"><a class="viewcode-back" href="../../api/_signals.html#wagtailapproval._signals.setup_pipeline_user_and_group">[docs]</a><span class="nd">@receiver</span><span class="p">(</span><span class="n">pipeline_published</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">setup_pipeline_user_and_group</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Setup an ApprovalPipeline user and group&#39;&#39;&#39;</span>
     <span class="n">User</span> <span class="o">=</span> <span class="n">get_user_model</span><span class="p">()</span>
 
     <span class="n">username_max_length</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">get_field</span><span class="p">(</span><span class="s1">&#39;username&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">max_length</span>
@@ -88,6 +89,9 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="p">:</span>
         <span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">)</span>
         <span class="n">instance</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="n">user</span>
+    <span class="k">elif</span> <span class="n">user</span><span class="o">.</span><span class="n">username</span> <span class="o">!=</span> <span class="n">username</span><span class="p">:</span>
+        <span class="n">user</span><span class="o">.</span><span class="n">username</span> <span class="o">=</span> <span class="n">username</span>
+        <span class="n">user</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 
     <span class="n">instance</span><span class="o">.</span><span class="n">save</span><span class="p">()</span></div>
 
@@ -105,8 +109,7 @@
         <span class="n">access_admin</span> <span class="o">=</span> <span class="n">Permission</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">codename</span><span class="o">=</span><span class="s1">&#39;access_admin&#39;</span><span class="p">)</span>
         <span class="n">group</span><span class="o">.</span><span class="n">permissions</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">access_admin</span><span class="p">)</span>
         <span class="n">instance</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="n">group</span>
-
-    <span class="k">if</span> <span class="n">group</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">group_name</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">group</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">group_name</span><span class="p">:</span>
         <span class="n">group</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">group_name</span>
         <span class="n">group</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 
@@ -121,8 +124,7 @@
         <span class="n">root_collection</span> <span class="o">=</span> <span class="n">Collection</span><span class="o">.</span><span class="n">get_first_root_node</span><span class="p">()</span>
         <span class="n">collection</span> <span class="o">=</span> <span class="n">root_collection</span><span class="o">.</span><span class="n">add_child</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">collection_name</span><span class="p">)</span>
         <span class="n">instance</span><span class="o">.</span><span class="n">collection</span> <span class="o">=</span> <span class="n">collection</span>
-
-    <span class="k">if</span> <span class="n">collection</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">collection_name</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">collection</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">collection_name</span><span class="p">:</span>
         <span class="n">collection</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">collection_name</span>
         <span class="n">collection</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 
@@ -154,8 +156,7 @@
 <span class="sd">    :class:`GenericForeignKey` without a :class:`GenericRelation` ).</span>
 <span class="sd">    Essentially, this is a custom cascade delete.&#39;&#39;&#39;</span>
 
-    <span class="c1"># This is to make sure ApprovalTicket objects don&#39;t cascade onto</span>
-    <span class="c1"># themselves, and non-integer pks don&#39;t blow up the system</span>
+    <span class="c1"># This is to make sure non-integer pks don&#39;t blow up the system</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">instance</span><span class="o">.</span><span class="n">pk</span><span class="p">,</span> <span class="n">Integral</span><span class="p">):</span>
         <span class="n">ApprovalTicket</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
             <span class="n">content_type</span><span class="o">=</span><span class="n">ContentType</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_for_model</span><span class="p">(</span><span class="n">instance</span><span class="p">),</span>
@@ -195,7 +196,9 @@
     <span class="sd">&#39;&#39;&#39;Builds the approval item list for pages&#39;&#39;&#39;</span>
     <span class="k">for</span> <span class="n">ticket</span> <span class="ow">in</span> <span class="n">ApprovalTicket</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
         <span class="n">step</span><span class="o">=</span><span class="n">approval_step</span><span class="p">,</span>
-        <span class="n">content_type</span><span class="o">=</span><span class="n">ContentType</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_for_model</span><span class="p">(</span><span class="n">Page</span><span class="p">)):</span>
+        <span class="n">content_type</span><span class="o">=</span><span class="n">ContentType</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_for_model</span><span class="p">(</span><span class="n">Page</span><span class="p">),</span>
+        <span class="n">status</span><span class="o">=</span><span class="n">TicketStatus</span><span class="o">.</span><span class="n">Pending</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="n">page</span> <span class="o">=</span> <span class="n">ticket</span><span class="o">.</span><span class="n">item</span>
         <span class="n">specific</span> <span class="o">=</span> <span class="n">page</span><span class="o">.</span><span class="n">specific</span>
         <span class="c1"># Do not allow unpublished pages.  We don&#39;t want to end up with a</span>
@@ -217,7 +220,9 @@
     <span class="sd">&#39;&#39;&#39;Builds the approval item list for images&#39;&#39;&#39;</span>
     <span class="k">for</span> <span class="n">ticket</span> <span class="ow">in</span> <span class="n">ApprovalTicket</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
         <span class="n">step</span><span class="o">=</span><span class="n">approval_step</span><span class="p">,</span>
-        <span class="n">content_type</span><span class="o">=</span><span class="n">ContentType</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_for_model</span><span class="p">(</span><span class="n">Image</span><span class="p">)):</span>
+        <span class="n">content_type</span><span class="o">=</span><span class="n">ContentType</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_for_model</span><span class="p">(</span><span class="n">Image</span><span class="p">),</span>
+        <span class="n">status</span><span class="o">=</span><span class="n">TicketStatus</span><span class="o">.</span><span class="n">Pending</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="n">image</span> <span class="o">=</span> <span class="n">ticket</span><span class="o">.</span><span class="n">item</span>
         <span class="k">yield</span> <span class="n">ticket</span><span class="o">.</span><span class="n">approval_item</span><span class="p">(</span>
             <span class="n">view_url</span><span class="o">=</span><span class="n">image</span><span class="o">.</span><span class="n">get_rendition</span><span class="p">(</span><span class="s1">&#39;original&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">url</span><span class="p">,</span>
@@ -230,7 +235,9 @@
     <span class="sd">&#39;&#39;&#39;Builds the approval item list for documents&#39;&#39;&#39;</span>
     <span class="k">for</span> <span class="n">ticket</span> <span class="ow">in</span> <span class="n">ApprovalTicket</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
         <span class="n">step</span><span class="o">=</span><span class="n">approval_step</span><span class="p">,</span>
-        <span class="n">content_type</span><span class="o">=</span><span class="n">ContentType</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_for_model</span><span class="p">(</span><span class="n">Document</span><span class="p">)):</span>
+        <span class="n">content_type</span><span class="o">=</span><span class="n">ContentType</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_for_model</span><span class="p">(</span><span class="n">Document</span><span class="p">),</span>
+        <span class="n">status</span><span class="o">=</span><span class="n">TicketStatus</span><span class="o">.</span><span class="n">Pending</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="n">document</span> <span class="o">=</span> <span class="n">ticket</span><span class="o">.</span><span class="n">item</span>
         <span class="k">yield</span> <span class="n">ticket</span><span class="o">.</span><span class="n">approval_item</span><span class="p">(</span>
             <span class="n">view_url</span><span class="o">=</span><span class="n">document</span><span class="o">.</span><span class="n">url</span><span class="p">,</span>
@@ -403,7 +410,7 @@
       &copy;2017, Taylor C. Richberger <tcr@absolute-performance.com>.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>

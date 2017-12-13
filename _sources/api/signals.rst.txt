@@ -145,3 +145,23 @@ are expected to.
     :param ApprovalStep taking_step: The step that has taken the object
     :param object: The object that has been transferred
     :param ApprovalPipeline pipeline: The pipeline for the steps
+
+.. function:: pre_cancel(step, object, pipeline)
+
+    Sent before a cancelation.  This isn't very useful, and should not be used
+    often.  It is only used specifically when a ticket is switched to the
+    "Cancel" state in the admin menu.
+
+    :param ApprovalStep step: The step which owns the ticket being canceled
+    :param object: The object to be canceled.
+    :param ApprovalPipeline pipeline: The pipeline for the step
+
+.. function:: post_cancel(step, object, pipeline)
+
+    Sent after a cancelation.  This isn't very useful, and should not be used
+    often.  It is only used specifically when a ticket is switched to the
+    "Cancel" state in the admin menu.
+
+    :param ApprovalStep step: The step which owns the ticket being canceled
+    :param object: The object to be canceled.
+    :param ApprovalPipeline pipeline: The pipeline for the step
