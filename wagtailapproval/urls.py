@@ -3,8 +3,8 @@ from __future__ import (absolute_import, division, print_function,
 
 from django.conf.urls import url
 
-from .views import (IndexView, RejectView, admin_index, admin_pipeline,
-                    admin_step, approve, cancel)
+from .views import (ApproveView, CancelView, IndexView, RejectView,
+                    AdminIndexView, AdminPipelineView, AdminStepView)
 
 UUID_REGEX = (
     '{hex}{{8}}' +
@@ -13,15 +13,16 @@ UUID_REGEX = (
 
 app_name = 'wagtailapproval'
 urlpatterns = [
-    url(r'^admin/$', admin_index, name='admin_index'),
-    url(r'^admin/pipeline/(?P<pk>\d+)/$', admin_pipeline,
+    url(r'^admin/$', AdminIndexView.as_view(), name='admin_index'),
+    url(r'^admin/pipeline/(?P<pk>\d+)/$', AdminPipelineView.as_view(),
         name='admin_pipeline'),
-    url(r'^admin/step/(?P<pk>\d+)/$', admin_step, name='admin_step'),
+    url(r'^admin/step/(?P<pk>\d+)/$', AdminStepView.as_view(),
+        name='admin_step'),
     url(r'^work/$', IndexView.as_view(), name='index'),
     url(r'^work/(?P<uuid>{uuid})/approve/$'.format(uuid=UUID_REGEX),
-        approve, name='approve'),
+        ApproveView.as_view(), name='approve'),
     url(r'^work/(?P<uuid>{uuid})/reject/$'.format(uuid=UUID_REGEX),
         RejectView.as_view(), name='reject'),
     url(r'^work/(?P<uuid>{uuid})/cancel/$'.format(uuid=UUID_REGEX),
-        cancel, name='cancel'),
+        CancelView.as_view(), name='cancel'),
 ]

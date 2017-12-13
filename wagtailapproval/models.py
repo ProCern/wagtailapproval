@@ -480,11 +480,9 @@ class ApprovalTicket(models.Model):
     )
 
     def last_note(self):
-        '''Gets the most recently closed ticket for the same item and step and
-        pulls its note field.  Returns an empty string if there is no
-        ticket.'''
+        '''Gets the most recently closed ticket for the same item and pulls its
+        note field.  Returns an None if there is no ticket.'''
         ticket = ApprovalTicket.objects.filter(
-            step=self.step,
             content_type=self.content_type,
             object_id=self.object_id,
         ).exclude(
@@ -493,13 +491,12 @@ class ApprovalTicket(models.Model):
 
         if ticket is not None:
             return ticket.note
-        return ''
+        return None
 
     def last_status(self):
-        '''Gets the most recently closed ticket for the same item and step and
-        pulls its status field.  Returns None if there is no ticket.'''
+        '''Gets the most recently closed ticket for the same item and pulls its
+        status field.  Returns None if there is no ticket.'''
         ticket = ApprovalTicket.objects.filter(
-            step=self.step,
             content_type=self.content_type,
             object_id=self.object_id,
         ).exclude(
@@ -512,7 +509,7 @@ class ApprovalTicket(models.Model):
 
     def get_status(self):
         '''Get the enum member for the charfield'''
-        return TicketStatus[self._status]
+        return TicketStatus[self.status]
 
     def set_status(self, value):
         '''Set the member from the enum value passed in, or set directly if it
@@ -521,7 +518,7 @@ class ApprovalTicket(models.Model):
             status = TicketStatus(value)
         except ValueError:
             status = TicketStatus[value]
-        self._status = status.name
+        self.status = status.name
 
     def approval_item(self, **kwargs):
         '''Small wrapper around ApprovalItem that fills in knowable items

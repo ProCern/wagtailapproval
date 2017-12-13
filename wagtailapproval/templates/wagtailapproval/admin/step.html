@@ -16,6 +16,6 @@
 {% if approval_list %}
 {% include "wagtailapproval/ticket_list.html" %}
 {% else %}
-<div class="nice-padding">{% blocktrans %}There are no pending tickets in step {{ step.title }}!{% endblocktrans %}</div>
+<div class="nice-padding">{% blocktrans with title=step.title %}There are no pending tickets in step {{ title }}!{% endblocktrans %}</div>
 {% endif %}
 {% endblock %}

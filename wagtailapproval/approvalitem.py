@@ -8,7 +8,7 @@ class ApprovalItem:
     :func:`build_approval_item_list <build_approval_item_list>` signal."""
 
     def __init__(self, title, view_url, edit_url, delete_url, obj, step,
-        typename, uuid, status, note):
+        typename, uuid, status=None, note=None):
 
         """
         :param str title: The title as displayed in the list
@@ -35,8 +35,8 @@ class ApprovalItem:
         self._step = step
         self._typename = typename
         self._uuid = uuid
-        self._status = status
-        self._note = note
+        self._status = status or ''
+        self._note = note or ''
 
     @property
     def title(self):

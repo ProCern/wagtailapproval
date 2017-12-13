@@ -37,6 +37,6 @@
 {% if steps %}
 {% include "wagtailapproval/admin/step_list.html" %}
 {% else %}
-<div class="nice-padding">{% blocktrans %}There are no approval steps in pipeline {{ pipeline.title }}!{% endblocktrans %}</div>
+<div class="nice-padding">{% blocktrans with title=pipeline.title %}There are no approval steps in pipeline {{ title }}!{% endblocktrans %}</div>
 {% endif %}
 {% endblock %}
