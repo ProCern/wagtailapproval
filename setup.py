@@ -67,8 +67,11 @@ setup(
         'wagtailapproval.templatetags',
         ],
     package_data={
-        'wagtailapproval': ['templates/**/*'],
-        },
+        'wagtailapproval': [
+            'templates/wagtailapproval/*.html',
+            'templates/wagtailapproval/admin/*.html',
+        ]
+    },
     install_requires=[
         'django>=1.8',
         'wagtail>=1.11',
